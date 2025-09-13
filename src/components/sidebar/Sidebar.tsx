@@ -27,7 +27,7 @@ import {
 
 const NavLink: FC<NavItemProps> = ({ icon, text, href, active, onClick }) => (
   <Link href={href} passHref>
-    <NavItem active={active} onClick={onClick}>
+    <NavItem active={active} onClick={onClick} icon={undefined} text={''} href={''}>
       <NavIcon active={active}>{icon}</NavIcon>
       <NavText>{text}</NavText>
     </NavItem>

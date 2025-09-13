@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { HTMLAttributes, ReactNode } from 'react';
 
 export interface NavItemProps {
   icon: ReactNode;
@@ -43,4 +43,7 @@ export interface NewsDashboardNavigation {
     };
   };
   settings: NavItemProps;
+}
+export interface NavItemProps extends HTMLAttributes<HTMLAnchorElement> {
+  active?: boolean;
 }

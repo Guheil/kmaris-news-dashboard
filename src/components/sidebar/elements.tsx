@@ -2,6 +2,7 @@
 
 import { styled } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
+import { NavItemProps } from "./interface";
 
 export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }) => ({
   width: isOpen ? "280px" : "80px",
@@ -78,7 +79,7 @@ export const NavigationList = styled("nav")({
   gap: "4px",
 });
 
-export const NavItem = styled("a")(({ theme, active }: { theme?: any; active?: boolean }) => ({
+export const NavItem = styled("a")<NavItemProps>(({ theme, active }) => ({
   display: "flex",
   alignItems: "center",
   padding: "14px 16px",

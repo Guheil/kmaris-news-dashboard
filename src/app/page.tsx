@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   return (
     <Login
-      onSubmit={handleSubmit}
+      onSubmit={(email, password) => handleSubmit({ username: email, password })}
       onSignUp={() => alert("Sign up clicked")}
       onForgotPassword={() => alert("Forgot password clicked")}
       isLoading={isLoading}
