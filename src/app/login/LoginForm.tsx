@@ -57,7 +57,8 @@ export function LoginForm({
           showConfirmButton: false,
         }).then(() => {
           if (user.role === "admin") {
-            window.location.href = "/admin";
+            window.location.href = "/news-dashboard";
+
           } else {
             window.location.href = `https://accessuserdashboard.vercel.app/`;
           }

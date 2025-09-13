@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Login from "@/app/login/login"; // your Login component
+import { useRouter } from "next/navigation";
+import Login from "@/app/login/login";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   // Hardcoded account
   const hardcodedUser = {
     username: "testuser",
@@ -23,7 +26,8 @@ export default function LoginPage() {
         data.username === hardcodedUser.username &&
         data.password === hardcodedUser.password
       ) {
-        alert("✅ Logged in successfully!");
+        // ✅ redirect to dashboard
+        router.push("/news-dashboard");
       } else {
         setError("❌ Invalid username or password");
       }
