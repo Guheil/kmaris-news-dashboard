@@ -38,25 +38,16 @@ export function LoginForm({
     e.preventDefault();
     setLoginError("");
 
+    // Hardcoded credentials for testing
+    const hardcodedEmail = "testuser@example.com";
+    const hardcodedPassword = "123";
+    const user = { email: hardcodedEmail, role: "admin" }; 
+    const sessionId = "mock-session-12345";
+
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const { user, sessionId } = data;
-
-        if (!user || !user.role) throw new Error("User role missing");
-
-        // Store minimal user info and session ID (optional, since session cookie handles auth)
+      if (email === hardcodedEmail && password === hardcodedPassword) {
         localStorage.setItem("user", JSON.stringify(user));
-        if (sessionId) {
-          localStorage.setItem("sessionId", sessionId);
-        }
+        localStorage.setItem("sessionId", sessionId);
 
         Swal.fire({
           icon: "success",
@@ -72,14 +63,10 @@ export function LoginForm({
           }
         });
       } else {
-        const errorData = await response.json();
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          text:
-            errorData.error ||
-            errorData.message ||
-            "An unknown error occurred.",
+          text: "Invalid email or password.",
         });
       }
     } catch (error) {
@@ -107,7 +94,9 @@ export function LoginForm({
             type="email"
             placeholder="sample@gmail.com"
             value={email}
-            onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setEmail(e.target.value)}
+            onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
+              setEmail(e.target.value)
+            }
             required
           />
         </InputGroup>
@@ -118,7 +107,9 @@ export function LoginForm({
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
-              onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setPassword(e.target.value)}
+              onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
+                setPassword(e.target.value)
+              }
               required
             />
             <PasswordIconButton

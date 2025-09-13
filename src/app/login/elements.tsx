@@ -86,12 +86,13 @@ export const Input = styled("input")(({ theme }) => ({
   width: "100%",
   padding: "14px 48px 14px 18px",
   backgroundColor: theme.palette.common.white,
+  color: theme.palette.text.primary,
   fontSize: 15,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: "8px",
   "&:focus": {
     outline: "none",
-    borderColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.contrastText,
     boxShadow: `0 0 0 3px rgba(0,37,66,0.1)`,
   },
 }));
