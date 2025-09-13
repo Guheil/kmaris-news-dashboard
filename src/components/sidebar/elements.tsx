@@ -79,7 +79,7 @@ export const NavigationList = styled("nav")({
   gap: "4px",
 });
 
-export const NavItem = styled("a")<NavItemProps>(({ theme, active }) => ({
+export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({  // <-- Change "a" to "div"!
   display: "flex",
   alignItems: "center",
   padding: "14px 16px",

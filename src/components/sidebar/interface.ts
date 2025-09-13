@@ -1,3 +1,5 @@
+"use client";
+
 import { HTMLAttributes, ReactNode } from 'react';
 
 export interface NavItemProps {

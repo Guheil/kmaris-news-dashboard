@@ -1,7 +1,7 @@
-'use client';
+// Sidebar.tsx
+"use client";
 
 import { FC } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { SidebarProps, NavItemProps, NavSection } from './interface';
@@ -25,20 +25,20 @@ import {
   CollapseButton,
 } from './elements';
 
-const NavLink: FC<NavItemProps> = ({ icon, text, href, active, onClick }) => (
-  <Link href={href} passHref>
-    <NavItem active={active} onClick={onClick} icon={undefined} text={''} href={''}>
+const NavLink: FC<NavItemProps & { isOpen: boolean }> = ({ icon, text, href, active, onClick, isOpen }) => (
+  <Link href={href || '#'}>  
+    <NavItem icon={icon} text={text} href={href} active={active} onClick={onClick}>
       <NavIcon active={active}>{icon}</NavIcon>
-      <NavText>{text}</NavText>
+      <NavText isOpen={isOpen}>{text}</NavText>  
     </NavItem>
   </Link>
 );
 
-const NavigationSection: FC<{ section: NavSection }> = ({ section }) => (
+const NavigationSection: FC<{ section: NavSection; isOpen: boolean }> = ({ section, isOpen }) => (
   <NavSectionComponent>
-    {section.title && <NavSectionTitle>{section.title}</NavSectionTitle>}
+    {section.title && <NavSectionTitle isOpen={isOpen}>{section.title}</NavSectionTitle>}
     {section.items.map((item, index) => (
-      <NavLink key={index} {...item} />
+      <NavLink key={index} {...item} isOpen={isOpen} />
     ))}
   </NavSectionComponent>
 );
@@ -46,8 +46,8 @@ const NavigationSection: FC<{ section: NavSection }> = ({ section }) => (
 export const Sidebar: FC<SidebarProps> = ({
   isOpen = true,
   onToggle,
-  navItems, // Legacy prop
-  navSections, // New prop
+  navItems,
+  navSections,
   userName,
   userRole,
   userInitials,
@@ -55,7 +55,6 @@ export const Sidebar: FC<SidebarProps> = ({
   appName = "",
   collapsible = true,
 }) => {
-  // Convert legacy navItems to navSections format for backward compatibility
   const sectionsToRender = navSections || (navItems ? [{ items: navItems }] : []);
 
   return (
@@ -63,7 +62,7 @@ export const Sidebar: FC<SidebarProps> = ({
       <SidebarHeader>
         <SidebarHeaderContent>
           <Logo>
-            <Image src={logoSrc} alt="Logo" width={32} height={32} />
+            <img src={logoSrc} alt="Logo" width={32} height={32} />
             {isOpen && appName}
           </Logo>
           {collapsible && (
@@ -76,7 +75,7 @@ export const Sidebar: FC<SidebarProps> = ({
 
       <NavigationList>
         {sectionsToRender.map((section, index) => (
-          <NavigationSection key={index} section={section} />
+          <NavigationSection key={index} section={section} isOpen={isOpen} />
         ))}
       </NavigationList>
 

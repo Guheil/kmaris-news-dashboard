@@ -1,3 +1,5 @@
+"use client";
+
 export interface DashboardProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
