@@ -5,28 +5,26 @@ import { palette } from "@/theme/pallete";
 
 export const HeaderRoot = styled("header")<{ isSidebarOpen: boolean; isMobile: boolean }>(
   ({ theme, isSidebarOpen, isMobile }) => ({
-    height: "64px",
+    height: "80px",
     width: isMobile ? "100%" : isSidebarOpen ? "calc(100% - 280px)" : "calc(100% - 80px)",
     marginLeft: isMobile ? "0" : isSidebarOpen ? "280px" : "80px",
     backgroundColor: theme.palette.common.white,
-    borderBottom: "none",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+    borderBottom: `1px solid rgba(0, 0, 0, 0.06)`,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 24px",
+    padding: "0 32px",
     position: "fixed",
     top: 0,
     right: 0,
     zIndex: 900,
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    backdropFilter: "blur(10px)",
 
     [theme.breakpoints.down('md')]: {
       width: "100%",
       marginLeft: 0,
-      padding: "0 16px",
-      height: "56px",
+      padding: "0 20px",
+      height: "72px",
     },
   })
 );
@@ -34,10 +32,13 @@ export const HeaderRoot = styled("header")<{ isSidebarOpen: boolean; isMobile: b
 export const LeftSection = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: "20px",
+  gap: "16px",
+  minWidth: "200px",
+  flex: 1,
 
   [theme.breakpoints.down('md')]: {
-    gap: "12px",
+    minWidth: "auto",
+    flex: "0 1 auto",
   },
 }));
 
@@ -48,80 +49,76 @@ export const MenuButton = styled("button")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "40px",
-  height: "40px",
-  borderRadius: "10px",
+  width: "44px",
+  height: "44px",
+  borderRadius: "12px",
   transition: "all 0.2s ease",
-  color: "#6b7280",
+  color: "#64748b",
 
   "&:hover": {
-    backgroundColor: "rgba(107, 114, 128, 0.1)",
-    color: "#374151",
-    transform: "scale(1.05)",
+    backgroundColor: "#f8fafc",
+    color: "#334155",
   },
 
   [theme.breakpoints.up('md')]: {
-    display: "none", // Hide on desktop since sidebar has its own toggle
+    display: "none",
   },
 }));
 
 export const PageTitle = styled("h1")(({ theme }) => ({
-  fontSize: "24px",
+  fontSize: "28px",
   fontWeight: 700,
-  color: "#1a1a1a",
+  color: "#0f172a",
   margin: 0,
-  letterSpacing: "-0.5px",
+  letterSpacing: "-0.6px",
+  lineHeight: 1.2,
 
   [theme.breakpoints.down('md')]: {
-    fontSize: "20px",
+    fontSize: "22px",
   },
 }));
 
-export const Breadcrumb = styled("div")({
+export const CenterSection = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: "8px",
-  fontSize: "14px",
-  color: "#6b7280",
-  marginTop: "2px",
-});
-
-export const BreadcrumbItem = styled("span")({
-  "&:not(:last-child)::after": {
-    content: '"/"',
-    marginLeft: "8px",
-    color: "#d1d5db",
-  },
-});
-
-export const RightSection = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-});
-
-export const SearchBar = styled("div")(({ theme }) => ({
-  position: "relative",
-  width: "320px",
-
-  [theme.breakpoints.down('lg')]: {
-    width: "240px",
-  },
+  justifyContent: "center",
+  flex: 2,
+  maxWidth: "600px",
 
   [theme.breakpoints.down('md')]: {
     display: "none",
   },
 }));
 
+export const RightSection = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  minWidth: "200px",
+  flex: 1,
+  justifyContent: "flex-end",
+
+  [theme.breakpoints.down('md')]: {
+    minWidth: "auto",
+    flex: "0 1 auto",
+  },
+}));
+
+export const SearchBar = styled("div")(() => ({
+  position: "relative",
+  width: "100%",
+  maxWidth: "480px",
+}));
+
 export const SearchInput = styled("input")(({ theme }) => ({
   width: "100%",
-  height: "40px",
-  padding: "0 16px 0 44px",
-  borderRadius: "12px",
-  border: "1px solid rgba(0, 0, 0, 0.08)",
-  backgroundColor: "#f8f9fa",
-  fontSize: "14px",
-  color: "#1a1a1a",
+  height: "48px",
+  padding: "0 20px 0 52px",
+  borderRadius: "24px",
+  border: "1px solid #e2e8f0",
+  backgroundColor: "#f8fafc",
+  fontSize: "15px",
+  color: "#0f172a",
   transition: "all 0.2s ease",
   fontWeight: 400,
 
@@ -129,21 +126,21 @@ export const SearchInput = styled("input")(({ theme }) => ({
     outline: "none",
     backgroundColor: theme.palette.common.white,
     borderColor: palette.primary.main,
-    boxShadow: `0 0 0 3px ${palette.primary.main}15`,
+    boxShadow: `0 0 0 4px ${palette.primary.main}08`,
   },
 
   "&::placeholder": {
-    color: "#9ca3af",
+    color: "#94a3b8",
     fontWeight: 400,
   },
 }));
 
 export const SearchIcon = styled("div")({
   position: "absolute",
-  left: "14px",
+  left: "18px",
   top: "50%",
   transform: "translateY(-50%)",
-  color: "#9ca3af",
+  color: "#94a3b8",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -153,7 +150,7 @@ export const SearchIcon = styled("div")({
 export const ActionButtons = styled("div")({
   display: "flex",
   alignItems: "center",
-  gap: "6px",
+  gap: "4px",
 });
 
 export const IconButton = styled("button")<{ hasNotification?: boolean }>(({ hasNotification }) => ({
@@ -163,24 +160,23 @@ export const IconButton = styled("button")<{ hasNotification?: boolean }>(({ has
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "40px",
-  height: "40px",
-  borderRadius: "10px",
-  color: "#6b7280",
+  width: "44px",
+  height: "44px",
+  borderRadius: "12px",
+  color: "#64748b",
   transition: "all 0.2s ease",
   position: "relative",
 
   "&:hover": {
-    backgroundColor: "rgba(107, 114, 128, 0.1)",
-    color: "#374151",
-    transform: "scale(1.05)",
+    backgroundColor: "#f8fafc",
+    color: "#334155",
   },
 }));
 
 export const NotificationBadge = styled("span")({
   position: "absolute",
-  top: "8px",
-  right: "8px",
+  top: "12px",
+  right: "12px",
   width: "8px",
   height: "8px",
   borderRadius: "50%",
@@ -190,11 +186,11 @@ export const NotificationBadge = styled("span")({
 
 export const NotificationCount = styled("span")({
   position: "absolute",
-  top: "6px",
-  right: "6px",
-  minWidth: "18px",
-  height: "18px",
-  borderRadius: "9px",
+  top: "8px",
+  right: "8px",
+  minWidth: "20px",
+  height: "20px",
+  borderRadius: "10px",
   backgroundColor: "#ef4444",
   color: "white",
   fontSize: "11px",
@@ -213,28 +209,28 @@ export const UserButton = styled("button")({
   display: "flex",
   alignItems: "center",
   gap: "12px",
-  padding: "8px 12px",
-  borderRadius: "12px",
+  padding: "8px 12px 8px 8px",
+  borderRadius: "16px",
   transition: "all 0.2s ease",
-  marginLeft: "8px",
+  marginLeft: "12px",
 
   "&:hover": {
-    backgroundColor: "rgba(0, 0, 0, 0.04)",
+    backgroundColor: "#f8fafc",
   },
 });
 
 export const UserAvatar = styled("div")({
-  width: "36px",
-  height: "36px",
-  borderRadius: "10px",
+  width: "40px",
+  height: "40px",
+  borderRadius: "14px",
   background: `linear-gradient(135deg, ${palette.primary.main}, ${palette.primary.light})`,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   color: palette.common.white,
-  fontSize: "14px",
+  fontSize: "15px",
   fontWeight: 600,
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
 });
 
 export const UserInfo = styled("div")(({ theme }) => ({
@@ -249,50 +245,32 @@ export const UserInfo = styled("div")(({ theme }) => ({
 }));
 
 export const UserName = styled("span")({
-  fontSize: "14px",
+  fontSize: "15px",
   fontWeight: 600,
-  color: "#1a1a1a",
-  lineHeight: 1.2,
+  color: "#0f172a",
+  lineHeight: 1.3,
 });
 
 export const UserRole = styled("span")({
-  fontSize: "12px",
-  color: "#6b7280",
+  fontSize: "13px",
+  color: "#64748b",
   lineHeight: 1.2,
+  fontWeight: 500,
 });
 
+// Remove breadcrumb, quick actions, and other complex elements for minimalist design
 export const QuickActions = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  marginRight: "12px",
-
-  [theme.breakpoints.down('md')]: {
-    display: "none",
-  },
+  display: "none", // Hidden for minimalist design
 }));
 
 export const QuickActionButton = styled("button")({
-  background: `linear-gradient(135deg, ${palette.primary.main}, ${palette.primary.light})`,
-  border: "none",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  padding: "8px 16px",
-  borderRadius: "10px",
-  color: "white",
-  fontSize: "13px",
-  fontWeight: 600,
-  transition: "all 0.2s ease",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+  display: "none", // Hidden for minimalist design
+});
 
-  "&:hover": {
-    transform: "translateY(-1px)",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
-  },
+export const Breadcrumb = styled("div")({
+  display: "none", // Hidden for minimalist design
+});
 
-  "&:active": {
-    transform: "translateY(0)",
-  },
+export const BreadcrumbItem = styled("span")({
+  display: "none", // Hidden for minimalist design
 });

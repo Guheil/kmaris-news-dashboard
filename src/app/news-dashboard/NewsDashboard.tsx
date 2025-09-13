@@ -54,34 +54,28 @@ export const NewsDashboard: FC<DashboardProps> = ({
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
-        navItems={[
-          { 
-            icon: <Home size={20} />, 
-            text: 'News Feed', 
-            href: '/news-feed', 
-            active: true 
+        navSections={[
+          {
+            title: "Overview",
+            items: [
+              { icon: <Home size={20} />, text: "Dashboard", href: "/dashboard", active: true },
+              { icon: <BarChart3 size={20} />, text: "Analytics", href: "/news/analytics" },
+            ],
           },
-          { 
-            icon: <Bookmark size={20} />, 
-            text: 'Saved Articles', 
-            href: '/saved' 
-          },
-          { 
-            icon: <BarChart3 size={20} />, 
-            text: 'Analytics', 
-            href: '/analytics' 
-          },
-          { 
-            icon: <Settings size={20} />, 
-            text: 'Settings', 
-            href: '/settings' 
-          },
+          {
+            title: "News Management",
+            items: [
+              { icon: <Bookmark size={20} />, text: "All News", href: "/news" },
+              { icon: <Plus size={20} />, text: "Manage News", href: "/news/create" },
+          ],
+        }
         ]}
         userName="John Doe"
         userRole="Editor"
         userInitials="JD"
-        collapsible={!isMobile} // Hide collapse button on mobile
-      />
+        collapsible={!isMobile} navItems={[]}    />
+
+
       
       <Header
         title="News Dashboard"

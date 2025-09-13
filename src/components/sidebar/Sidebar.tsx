@@ -52,7 +52,7 @@ export const Sidebar: FC<SidebarProps> = ({
   userRole,
   userInitials,
   logoSrc = "/vercel.svg",
-  appName = "Dashboard",
+  appName = "",
   collapsible = true,
 }) => {
   // Convert legacy navItems to navSections format for backward compatibility

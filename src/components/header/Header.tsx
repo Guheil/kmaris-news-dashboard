@@ -1,15 +1,14 @@
 'use client';
 
 import { FC, useState } from 'react';
-import { Menu, Search, Bell, Settings, Plus } from 'lucide-react';
-import { HeaderProps, IconButtonProps, QuickAction } from './interface';
+import { Menu, Search, Bell, Settings } from 'lucide-react';
+import { HeaderProps, IconButtonProps } from './interface';
 import {
   HeaderRoot,
   LeftSection,
   MenuButton,
   PageTitle,
-  Breadcrumb,
-  BreadcrumbItem,
+  CenterSection,
   RightSection,
   SearchBar,
   SearchInput,
@@ -23,8 +22,6 @@ import {
   UserInfo,
   UserName,
   UserRole,
-  QuickActions,
-  QuickActionButton,
 } from './elements';
 
 const HeaderIconButton: FC<IconButtonProps> = ({ 
@@ -47,25 +44,16 @@ const HeaderIconButton: FC<IconButtonProps> = ({
   </IconButton>
 );
 
-const QuickActionComponent: FC<{ action: QuickAction }> = ({ action }) => (
-  <QuickActionButton onClick={action.onClick}>
-    {action.icon}
-    {action.label}
-  </QuickActionButton>
-);
-
 export const Header: FC<HeaderProps> = ({
   title,
-  breadcrumb,
   onMenuToggle,
   userName = 'User',
-  userRole = 'Member',
+  userRole = 'Admin',
   userInitials = 'U',
   onSearch,
   notifications = 0,
   isSidebarOpen = true,
   isMobile = false,
-  quickActions,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -81,53 +69,38 @@ export const Header: FC<HeaderProps> = ({
       <LeftSection>
         {isMobile && (
           <MenuButton onClick={onMenuToggle}>
-            <Menu size={20} />
+            <Menu size={22} />
           </MenuButton>
         )}
-        <div>
-          <PageTitle>{title}</PageTitle>
-          {breadcrumb && breadcrumb.length > 0 && (
-            <Breadcrumb>
-              {breadcrumb.map((item, index) => (
-                <BreadcrumbItem key={index}>{item}</BreadcrumbItem>
-              ))}
-            </Breadcrumb>
-          )}
-        </div>
+        <PageTitle>{title}</PageTitle>
       </LeftSection>
 
-      <RightSection>
+      <CenterSection>
         <SearchBar>
           <form onSubmit={handleSearch}>
             <SearchInput
               type="text"
-              placeholder="Search anything..."
+              placeholder="Search news, articles, categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <SearchIcon>
-              <Search size={18} />
+              <Search size={20} />
             </SearchIcon>
           </form>
         </SearchBar>
+      </CenterSection>
 
-        {quickActions && quickActions.length > 0 && (
-          <QuickActions>
-            {quickActions.map((action, index) => (
-              <QuickActionComponent key={index} action={action} />
-            ))}
-          </QuickActions>
-        )}
-
+      <RightSection>
         <ActionButtons>
           <HeaderIconButton
-            icon={<Bell size={18} />}
+            icon={<Bell size={20} />}
             hasNotification={notifications > 0}
             notificationCount={notifications}
             onClick={() => console.log('Notifications clicked')}
           />
           <HeaderIconButton
-            icon={<Settings size={18} />}
+            icon={<Settings size={20} />}
             onClick={() => console.log('Settings clicked')}
           />
         </ActionButtons>
