@@ -9,6 +9,7 @@ export interface HeaderProps {
   userName?: string;
   userRole?: string;
   userInitials?: string;
+  searchValue?: string;
   onSearch?: (query: string) => void;
   notifications?: number;
   isSidebarOpen?: boolean;

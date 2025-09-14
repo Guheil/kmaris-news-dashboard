@@ -15,12 +15,11 @@ export interface CardProps {
 export interface NewsArticle {
   id: string;
   title: string;
-  imageUrl: string;
-  summary: string;
-  content: string;
   author: string;
-  publishDate: string;
+  date: string;
+  newsImage?: string; 
+  newsVideo?: string;
   category: string;
-  views: number;
-  status: 'published' | 'draft' | 'archived';
+  description: string; 
+  views?: number;
 }

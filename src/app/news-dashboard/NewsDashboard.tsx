@@ -1,7 +1,7 @@
 'use client';
 
-import { FC, useState } from 'react';
-import { Home, FileText, BarChart3, Settings, Plus, Eye, Edit, Trash2, TrendingUp, Users, Calendar, Clock } from 'lucide-react';
+import { FC, useState, useMemo } from 'react';
+import { Home, FileText, BarChart3, Settings, Plus, Eye, Edit, Trash2, TrendingUp, Users, Calendar, Play, Search } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar/Sidebar';
 import { Header } from '@/components/header/Header';
 import { DashboardProps, CardProps } from './interface';
@@ -30,7 +30,7 @@ import {
   NewsViews,
   ActionButtons,
   ActionButton,
-  StatusBadge,
+  CategoryBadge,
   QuickActionGrid,
   QuickActionButton,
   ActivityItem,
@@ -38,74 +38,41 @@ import {
   ActivityContent,
   ActivityText,
   ActivityTime,
+  NoResults,
+  NoResultsIcon,
+  NoResultsTitle,
+  NoResultsText,
+  SearchResultsHeader,
+  SearchResultsCount,
+  SearchQuery,
+  ClearSearchButton,
+  VideoPlaceholder
 } from './elements';
 import { styled } from '@mui/material/styles';
 import { palette } from '@/theme/pallete';
 import { NewsArticle } from './interface';
 
-// Sample data
-const sampleNews: NewsArticle[] = [
-  {
-    id: '1',
-    title: 'Revolutionary AI Technology Transforms Healthcare Industry',
-    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=300&fit=crop',
-    summary: 'Latest breakthrough in artificial intelligence promises to revolutionize patient care and medical diagnostics.',
-    content: 'Full article content about AI in healthcare...',
-    author: 'Dr. Sarah Johnson',
-    publishDate: '2024-01-15',
-    category: 'Technology',
-    views: 15420,
-    status: 'published'
-  },
-  {
-    id: '2',
-    title: 'Global Climate Summit Reaches Historic Agreement',
-    imageUrl: 'https://images.unsplash.com/photo-1569163139394-de44aa2b7c85?w=400&h=300&fit=crop',
-    summary: 'World leaders commit to ambitious carbon reduction targets in landmark climate deal.',
-    content: 'Full article content about climate summit...',
-    author: 'Michael Chen',
-    publishDate: '2024-01-14',
-    category: 'Environment',
-    views: 23150,
-    status: 'published'
-  },
-  {
-    id: '3',
-    title: 'Stock Market Surges to Record High Following Fed Announcement',
-    imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop',
-    summary: 'Markets rally after Federal Reserve signals potential interest rate cuts.',
-    content: 'Full article content about stock market...',
-    author: 'Jennifer Williams',
-    publishDate: '2024-01-13',
-    category: 'Finance',
-    views: 18750,
-    status: 'published'
-  },
-  {
-    id: '4',
-    title: 'New Space Mission to Mars Launches Successfully',
-    imageUrl: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop',
-    summary: 'NASA\'s latest Mars rover begins its journey to search for signs of ancient life.',
-    content: 'Full article content about Mars mission...',
-    author: 'Dr. Robert Martinez',
-    publishDate: '2024-01-12',
-    category: 'Science',
-    views: 12340,
-    status: 'draft'
-  },
-  {
-    id: '5',
-    title: 'Breakthrough in Renewable Energy Storage Technology',
-    imageUrl: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=400&h=300&fit=crop',
-    summary: 'Scientists develop new battery technology that could store renewable energy for weeks.',
-    content: 'Full article content about energy storage...',
-    author: 'Dr. Lisa Thompson',
-    publishDate: '2024-01-11',
-    category: 'Technology',
-    views: 9876,
-    status: 'published'
+import { sampleNews } from './sampleData';
+
+
+// Updated NewsTitle component to handle both images and videos
+const MediaPreview: FC<{ article: NewsArticle }> = ({ article }) => {
+  if (article.newsImage) {
+    return <NewsImage src={article.newsImage} alt={article.title} />;
+  } else if (article.newsVideo) {
+    return (
+      <VideoPlaceholder>
+        <Play size={20} />
+      </VideoPlaceholder>
+    );
+  } else {
+    return (
+      <VideoPlaceholder>
+        <FileText size={20} />
+      </VideoPlaceholder>
+    );
   }
-];
+};
 
 const DashboardCard: FC<CardProps> = ({ title, gridColumn = 'span 4', children }) => (
   <Card style={{ gridColumn }}>
@@ -123,9 +90,27 @@ export const NewsDashboard: FC<DashboardProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Enhanced search functionality
+  const filteredNews = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return sampleNews;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return sampleNews.filter(article => 
+      article.title.toLowerCase().includes(query) ||
+      article.author.toLowerCase().includes(query) ||
+      article.category.toLowerCase().includes(query) ||
+      article.description.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Implement search functionality
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
   };
 
   const handleOverlayClick = () => {
@@ -133,6 +118,24 @@ export const NewsDashboard: FC<DashboardProps> = ({
       onSidebarToggle();
     }
   };
+
+  // Calculate statistics based on filtered results
+  const displayedNews = filteredNews;
+  const totalArticles = displayedNews.length;
+  const uniqueCategories = new Set(displayedNews.map(article => article.category)).size;
+  const totalViews = displayedNews.reduce((sum, article) => sum + (article.views || 0), 0);
+  const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
+  
+  const categoryCounts = displayedNews.reduce((acc, article) => {
+    acc[article.category] = (acc[article.category] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const mostPopularCategory = Object.keys(categoryCounts).length > 0 
+    ? Object.keys(categoryCounts).reduce((a, b) => 
+        categoryCounts[a] > categoryCounts[b] ? a : b
+      )
+    : 'N/A';
 
   return (
     <DashboardRoot>
@@ -173,6 +176,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
         title="News Dashboard"
         onMenuToggle={onSidebarToggle}
         onSearch={handleSearch}
+        searchValue={searchQuery}
         userName="John Doe"
         userRole="Editor"
         userInitials="JD"
@@ -182,76 +186,113 @@ export const NewsDashboard: FC<DashboardProps> = ({
       />
       
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-        {/* Statistics Cards */}
+        {/* Updated Statistics Cards - now reflect search results */}
         <StatsGrid>
           <StatCard>
             <StatIcon color={palette.primary.main}>
               <FileText size={20} />
             </StatIcon>
-            <StatNumber>147</StatNumber>
-            <StatLabel>Total Articles</StatLabel>
+            <StatNumber>{totalArticles}</StatNumber>
+            <StatLabel>{searchQuery ? 'Found Articles' : 'Total Articles'}</StatLabel>
           </StatCard>
           <StatCard>
             <StatIcon color="#10b981">
-              <TrendingUp size={20} />
+              <Settings size={20} />
             </StatIcon>
-            <StatNumber>89.2K</StatNumber>
-            <StatLabel>Total Views</StatLabel>
+            <StatNumber>{uniqueCategories}</StatNumber>
+            <StatLabel>{searchQuery ? 'Categories Found' : 'Total Categories'}</StatLabel>
           </StatCard>
           <StatCard>
             <StatIcon color="#f59e0b">
-              <Users size={20} />
+              <TrendingUp size={20} />
             </StatIcon>
-            <StatNumber>12.4K</StatNumber>
-            <StatLabel>Active Readers</StatLabel>
+            <StatNumber>{totalArticles > 0 ? (averageViews / 1000).toFixed(1) + 'K' : '0'}</StatNumber>
+            <StatLabel>Avg. Views per Article</StatLabel>
           </StatCard>
           <StatCard>
             <StatIcon color="#8b5cf6">
-              <Calendar size={20} />
+              <Users size={20} />
             </StatIcon>
-            <StatNumber>23</StatNumber>
-            <StatLabel>Published Today</StatLabel>
+            <StatNumber style={{ fontSize: mostPopularCategory.length > 10 ? '20px' : '28px' }}>
+              {mostPopularCategory}
+            </StatNumber>
+            <StatLabel>Top Category</StatLabel>
           </StatCard>
         </StatsGrid>
 
         <DashboardGrid>
-          <DashboardCard title="Recent Articles" gridColumn="span 8">
+          <DashboardCard 
+            title={searchQuery ? "Search Results" : "Recent Articles"} 
+            gridColumn="span 8"
+          >
             <NewsTable>
-              <NewsTableHeader>
-                <div>Article</div>
-                <div>Author</div>
-                <div>Date</div>
-                <div>Views</div>
-                <div>Actions</div>
-              </NewsTableHeader>
-              {sampleNews.map((article) => (
-                <NewsTableRow key={article.id}>
-                  <NewsTitle>
-                    <NewsImage src={article.imageUrl} alt={article.title} />
-                    <div>
-                      <NewsTitleText>{article.title}</NewsTitleText>
-                      <StatusBadge status={article.status}>{article.status}</StatusBadge>
-                    </div>
-                  </NewsTitle>
-                  <NewsAuthor>{article.author}</NewsAuthor>
-                  <NewsDate>{new Date(article.publishDate).toLocaleDateString()}</NewsDate>
-                  <NewsViews>
-                    <Eye size={14} />
-                    {article.views.toLocaleString()}
-                  </NewsViews>
-                  <ActionButtons>
-                    <ActionButton variant="view">
-                      <Eye size={14} />
-                    </ActionButton>
-                    <ActionButton variant="edit">
-                      <Edit size={14} />
-                    </ActionButton>
-                    <ActionButton variant="delete">
-                      <Trash2 size={14} />
-                    </ActionButton>
-                  </ActionButtons>
-                </NewsTableRow>
-              ))}
+              {/* Search results header */}
+              {searchQuery && (
+                <SearchResultsHeader>
+                  <SearchResultsCount>
+                    {totalArticles} result{totalArticles !== 1 ? 's' : ''} for{' '}
+                    <SearchQuery>"{searchQuery}"</SearchQuery>
+                  </SearchResultsCount>
+                  <ClearSearchButton onClick={clearSearch}>
+                    Clear Search
+                  </ClearSearchButton>
+                </SearchResultsHeader>
+              )}
+
+              {totalArticles > 0 ? (
+                <>
+                  <NewsTableHeader>
+                    <div>Article</div>
+                    <div>Author</div>
+                    <div>Date</div>
+                    <div>Views</div>
+                    <div>Actions</div>
+                  </NewsTableHeader>
+                  {displayedNews.map((article) => (
+                    <NewsTableRow key={article.id}>
+                      <NewsTitle>
+                        <MediaPreview article={article} />
+                        <div>
+                          <NewsTitleText>{article.title}</NewsTitleText>
+                          <CategoryBadge category={article.category}>
+                            {article.category}
+                          </CategoryBadge>
+                        </div>
+                      </NewsTitle>
+                      <NewsAuthor>{article.author}</NewsAuthor>
+                      <NewsDate>{new Date(article.date).toLocaleDateString()}</NewsDate>
+                      <NewsViews>
+                        <Eye size={14} />
+                        {(article.views || 0).toLocaleString()}
+                      </NewsViews>
+                      <ActionButtons>
+                        <ActionButton variant="view" title="View Article">
+                          <Eye size={14} />
+                        </ActionButton>
+                        <ActionButton variant="edit" title="Edit Article">
+                          <Edit size={14} />
+                        </ActionButton>
+                        <ActionButton variant="delete" title="Delete Article">
+                          <Trash2 size={14} />
+                        </ActionButton>
+                      </ActionButtons>
+                    </NewsTableRow>
+                  ))}
+                </>
+              ) : (
+                // No results state
+                <NoResults>
+                  <NoResultsIcon>
+                    <Search size={28} />
+                  </NoResultsIcon>
+                  <NoResultsTitle>No articles found</NoResultsTitle>
+                  <NoResultsText>
+                    We couldn't find any articles matching "{searchQuery}".
+                    <br />
+                    Try adjusting your search terms or browse all articles.
+                  </NoResultsText>
+                </NoResults>
+              )}
             </NewsTable>
           </DashboardCard>
           
@@ -276,14 +317,17 @@ export const NewsDashboard: FC<DashboardProps> = ({
             </QuickActionGrid>
           </DashboardCard>
           
-          <DashboardCard title="Recent Activity" gridColumn="span 12">
+          <DashboardCard 
+            title={searchQuery ? "Recent Activity (All)" : "Recent Activity"} 
+            gridColumn="span 12"
+          >
             <div>
               <ActivityItem>
                 <ActivityIcon color={palette.primary.main}>
                   <Plus size={16} />
                 </ActivityIcon>
                 <ActivityContent>
-                  <ActivityText>New article "AI in Healthcare" was published</ActivityText>
+                  <ActivityText>New article "{sampleNews[0]?.title}" was published</ActivityText>
                   <ActivityTime>2 minutes ago</ActivityTime>
                 </ActivityContent>
               </ActivityItem>
@@ -292,7 +336,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                   <Edit size={16} />
                 </ActivityIcon>
                 <ActivityContent>
-                  <ActivityText>Article "Climate Summit" was updated</ActivityText>
+                  <ActivityText>Article "{sampleNews[1]?.title}" was updated</ActivityText>
                   <ActivityTime>15 minutes ago</ActivityTime>
                 </ActivityContent>
               </ActivityItem>
@@ -301,7 +345,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                   <FileText size={16} />
                 </ActivityIcon>
                 <ActivityContent>
-                  <ActivityText>Draft "Mars Mission" saved</ActivityText>
+                  <ActivityText>Draft "{sampleNews[3]?.title}" saved</ActivityText>
                   <ActivityTime>1 hour ago</ActivityTime>
                 </ActivityContent>
               </ActivityItem>
@@ -310,7 +354,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                   <Trash2 size={16} />
                 </ActivityIcon>
                 <ActivityContent>
-                  <ActivityText>Article "Old News" was archived</ActivityText>
+                  <ActivityText>Article "{sampleNews[4]?.title}" was archived</ActivityText>
                   <ActivityTime>3 hours ago</ActivityTime>
                 </ActivityContent>
               </ActivityItem>

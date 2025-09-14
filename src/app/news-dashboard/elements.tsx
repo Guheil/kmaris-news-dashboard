@@ -209,21 +209,38 @@ export const NewsViews = styled('div')({
   gap: '4px',
 });
 
-export const StatusBadge = styled('span')<{ status: string }>(({ status }) => ({
+export const CategoryBadge = styled('span')<{ category: string }>(({ category }) => ({
   padding: '4px 8px',
   borderRadius: '6px',
   fontSize: '11px',
   fontWeight: 600,
   textTransform: 'uppercase',
-  ...(status === 'published' && {
+  ...(category.toLowerCase() === 'technology' && {
+    backgroundColor: '#dbeafe',
+    color: '#1d4ed8',
+  }),
+  ...(category.toLowerCase() === 'environment' && {
     backgroundColor: '#dcfce7',
     color: '#166534',
   }),
-  ...(status === 'draft' && {
+  ...(category.toLowerCase() === 'finance' && {
     backgroundColor: '#fef3c7',
     color: '#92400e',
   }),
-  ...(status === 'archived' && {
+  ...(category.toLowerCase() === 'science' && {
+    backgroundColor: '#ede9fe',
+    color: '#7c3aed',
+  }),
+  ...(category.toLowerCase() === 'sports' && {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+  }),
+  ...(category.toLowerCase() === 'health' && {
+    backgroundColor: '#ecfdf5',
+    color: '#059669',
+  }),
+  // Default style for other categories
+  ...(!['technology', 'environment', 'finance', 'science', 'sports', 'health'].includes(category.toLowerCase()) && {
     backgroundColor: '#f3f4f6',
     color: '#6b7280',
   }),
@@ -331,5 +348,86 @@ export const ActivityText = styled('div')({
 
 export const ActivityTime = styled('div')({
   fontSize: '12px',
+  color: '#64748b',
+});
+// New styled components for search functionality
+export const SearchResultsHeader = styled('div')({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '16px',
+  padding: '12px 0',
+  borderBottom: '1px solid #f1f5f9',
+});
+
+export const SearchResultsCount = styled('div')({
+  fontSize: '14px',
+  color: '#64748b',
+  fontWeight: 500,
+});
+
+export const SearchQuery = styled('span')({
+  fontWeight: 600,
+  color: '#0f172a',
+});
+
+export const ClearSearchButton = styled('button')({
+  padding: '6px 12px',
+  borderRadius: '6px',
+  border: '1px solid #e2e8f0',
+  backgroundColor: 'transparent',
+  color: '#64748b',
+  fontSize: '12px',
+  cursor: 'pointer',
+  fontWeight: 500,
+  transition: 'all 0.2s ease',
+
+  '&:hover': {
+    backgroundColor: '#f8fafc',
+    borderColor: '#cbd5e1',
+  },
+});
+
+export const NoResults = styled('div')({
+  textAlign: 'center',
+  padding: '48px 24px',
+  color: '#64748b',
+});
+
+export const NoResultsIcon = styled('div')({
+  width: '64px',
+  height: '64px',
+  borderRadius: '50%',
+  backgroundColor: '#f1f5f9',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '0 auto 16px',
+  color: '#94a3b8',
+});
+
+export const NoResultsTitle = styled('h3')({
+  fontSize: '16px',
+  fontWeight: 600,
+  color: '#0f172a',
+  margin: '0 0 8px',
+});
+
+export const NoResultsText = styled('p')({
+  fontSize: '14px',
+  color: '#64748b',
+  margin: 0,
+  lineHeight: 1.5,
+});
+
+// New styled component for video placeholder
+export const VideoPlaceholder = styled('div')({
+  width: '48px',
+  height: '48px',
+  borderRadius: '8px',
+  backgroundColor: '#f1f5f9',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   color: '#64748b',
 });
