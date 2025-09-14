@@ -202,6 +202,12 @@ export const NotificationCount = styled("span")({
   lineHeight: 1,
 });
 
+// User Dropdown Styles
+export const UserDropdownContainer = styled("div")({
+  position: "relative",
+  marginLeft: "12px",
+});
+
 export const UserButton = styled("button")({
   background: "none",
   border: "none",
@@ -212,7 +218,6 @@ export const UserButton = styled("button")({
   padding: "8px 12px 8px 8px",
   borderRadius: "16px",
   transition: "all 0.2s ease",
-  marginLeft: "12px",
 
   "&:hover": {
     backgroundColor: "#f8fafc",
@@ -257,6 +262,70 @@ export const UserRole = styled("span")({
   lineHeight: 1.2,
   fontWeight: 500,
 });
+
+// Dropdown Menu
+export const DropdownMenu = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
+  position: "absolute",
+  top: "calc(100% + 8px)",
+  right: "0",
+  minWidth: "200px",
+  backgroundColor: "#ffffff",
+  borderRadius: "12px",
+  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
+  border: "1px solid rgba(0, 0, 0, 0.06)",
+  opacity: isOpen ? 1 : 0,
+  visibility: isOpen ? "visible" : "hidden",
+  transform: isOpen ? "translateY(0)" : "translateY(-8px)",
+  transition: "all 0.2s ease",
+  zIndex: 1000,
+  overflow: "hidden",
+}));
+
+export const DropdownHeader = styled("div")({
+  padding: "16px",
+  borderBottom: "1px solid #f1f5f9",
+});
+
+export const DropdownUserName = styled("div")({
+  fontSize: "16px",
+  fontWeight: 600,
+  color: "#0f172a",
+  marginBottom: "2px",
+});
+
+export const DropdownUserRole = styled("div")({
+  fontSize: "14px",
+  color: "#64748b",
+});
+
+export const DropdownItem = styled("button")<{ variant?: 'default' | 'danger' }>(({ variant = 'default' }) => ({
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  padding: "12px 16px",
+  border: "none",
+  backgroundColor: "transparent",
+  fontSize: "14px",
+  fontWeight: 500,
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  textAlign: "left",
+
+  ...(variant === 'default' && {
+    color: "#334155",
+    "&:hover": {
+      backgroundColor: "#f8fafc",
+    },
+  }),
+
+  ...(variant === 'danger' && {
+    color: "#ef4444",
+    "&:hover": {
+      backgroundColor: "#fef2f2",
+    },
+  }),
+}));
 
 // Remove breadcrumb, quick actions, and other complex elements for minimalist design
 export const QuickActions = styled("div")(({ theme }) => ({

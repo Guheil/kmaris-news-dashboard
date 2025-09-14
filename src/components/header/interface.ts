@@ -15,6 +15,7 @@ export interface HeaderProps {
   isSidebarOpen?: boolean;
   isMobile?: boolean;
   quickActions?: QuickAction[];
+  onLogout?: () => void;
 }
 
 export interface IconButtonProps {

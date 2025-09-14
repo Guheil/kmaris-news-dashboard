@@ -296,9 +296,8 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           {
             title: "News Management",
             items: [
-              { icon: <FileText size={20} />, text: "All Articles", href: "/articles", active: true },
-              { icon: <Plus size={20} />, text: "Create Article", href: "/articles/create" },
-              { icon: <Settings size={20} />, text: "Categories", href: "/categories" },
+              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles", active: true },
+              { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
             ],
           }
         ]}

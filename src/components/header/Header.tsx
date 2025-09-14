@@ -1,7 +1,7 @@
 'use client';
 
-import { FC, useState } from 'react';
-import { Menu, Search, Bell, Settings } from 'lucide-react';
+import { FC, useState, useRef, useEffect } from 'react';
+import { Menu, Search, Bell, Settings, User, LogOut, ChevronDown } from 'lucide-react';
 import { HeaderProps, IconButtonProps } from './interface';
 import {
   HeaderRoot,
@@ -17,11 +17,17 @@ import {
   IconButton,
   NotificationBadge,
   NotificationCount,
+  UserDropdownContainer,
   UserButton,
   UserAvatar,
   UserInfo,
   UserName,
   UserRole,
+  DropdownMenu,
+  DropdownHeader,
+  DropdownUserName,
+  DropdownUserRole,
+  DropdownItem,
 } from './elements';
 
 const HeaderIconButton: FC<IconButtonProps> = ({ 
@@ -54,14 +60,52 @@ export const Header: FC<HeaderProps> = ({
   notifications = 0,
   isSidebarOpen = true,
   isMobile = false,
+  onLogout,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch && searchQuery.trim()) {
       onSearch(searchQuery);
     }
+  };
+
+  const handleLogout = () => {
+    setIsDropdownOpen(false);
+    if (onLogout) {
+      onLogout();
+    } else {
+      // Default logout behavior - you can customize this
+      console.log('Logout clicked');
+      // For example: redirect to login page
+      // window.location.href = '/login';
+    }
+  };
+
+  const handleProfileClick = () => {
+    setIsDropdownOpen(false);
+    console.log('Profile clicked');
+    // Navigate to profile page
+  };
+
+  const handleSettingsClick = () => {
+    setIsDropdownOpen(false);
+    console.log('Settings clicked from dropdown');
   };
 
   return (
@@ -99,19 +143,48 @@ export const Header: FC<HeaderProps> = ({
             notificationCount={notifications}
             onClick={() => console.log('Notifications clicked')}
           />
-          <HeaderIconButton
+          {/* <HeaderIconButton
             icon={<Settings size={20} />}
             onClick={() => console.log('Settings clicked')}
-          />
+          /> */}
         </ActionButtons>
 
-        <UserButton>
-          <UserAvatar>{userInitials}</UserAvatar>
-          <UserInfo>
-            <UserName>{userName}</UserName>
-            <UserRole>{userRole}</UserRole>
-          </UserInfo>
-        </UserButton>
+        <UserDropdownContainer ref={dropdownRef}>
+          <UserButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+            <UserAvatar>{userInitials}</UserAvatar>
+            <UserInfo>
+              <UserName>{userName}</UserName>
+              <UserRole>{userRole}</UserRole>
+            </UserInfo>
+            <ChevronDown size={16} style={{ 
+              color: '#64748b',
+              transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease'
+            }} />
+          </UserButton>
+
+          <DropdownMenu isOpen={isDropdownOpen}>
+            <DropdownHeader>
+              <DropdownUserName>{userName}</DropdownUserName>
+              <DropdownUserRole>{userRole}</DropdownUserRole>
+            </DropdownHeader>
+
+            <DropdownItem onClick={handleProfileClick}>
+              <User size={16} />
+              Profile
+            </DropdownItem>
+
+            <DropdownItem onClick={handleSettingsClick}>
+              <Settings size={16} />
+              Settings
+            </DropdownItem>
+
+            <DropdownItem variant="danger" onClick={handleLogout}>
+              <LogOut size={16} />
+              Logout
+            </DropdownItem>
+          </DropdownMenu>
+        </UserDropdownContainer>
       </RightSection>
     </HeaderRoot>
   );
