@@ -159,7 +159,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
           {
             title: "News Management",
             items: [
-              { icon: <FileText size={20} />, text: "All Articles", href: "/news" },
+              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
               { icon: <Plus size={20} />, text: "Create Article", href: "/news/create" },
               { icon: <Settings size={20} />, text: "Categories", href: "/categories" },
             ],
