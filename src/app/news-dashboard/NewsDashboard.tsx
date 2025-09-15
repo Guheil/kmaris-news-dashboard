@@ -175,16 +175,16 @@ export const NewsDashboard: FC<DashboardProps> = ({
   };
 
   // Calculate statistics based on filtered results
-  const displayedNews = filteredNews;
-  const totalArticles = displayedNews.length;
-  const uniqueCategories = new Set(
-    displayedNews.map((article) => article.category)
-  ).size;
-  const totalViews = displayedNews.reduce(
-    (sum, article) => sum + (article.views || 0),
-    0
-  );
-  const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
+  const displayedNews = filteredNews.slice(0, 5); // Limit to 5 articles
+const totalArticles = displayedNews.length;
+const uniqueCategories = new Set(
+  displayedNews.map((article) => article.category)
+).size;
+const totalViews = displayedNews.reduce(
+  (sum, article) => sum + (article.views || 0),
+  0
+);
+const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
 
   const categoryCounts = displayedNews.reduce((acc, article) => {
     acc[article.category] = (acc[article.category] || 0) + 1;
