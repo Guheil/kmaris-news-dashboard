@@ -1,6 +1,8 @@
+// app/news-dashboard/articles/page.tsx
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Add useRouter
 import {
   Home,
   FileText,
@@ -96,14 +98,14 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
           </ActionButton>
           <ActionButton
             variant="edit"
-            onClick={() => onEdit(article._id)} 
+            onClick={() => onEdit(article._id)}
             title="Edit Article"
           >
             <Edit size={16} />
           </ActionButton>
           <ActionButton
             variant="archive"
-            onClick={() => onArchive(article._id)} 
+            onClick={() => onArchive(article._id)}
             title="Archive Article"
           >
             <Archive size={16} />
@@ -145,6 +147,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   onSidebarToggle,
   isMobile = false,
 }) => {
+  const router = useRouter(); // Add router for navigation
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [filters, setFilters] = useState<FilterOptions>({
@@ -288,8 +291,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   };
 
   const handleEdit = (articleId: string) => {
-    console.log("Edit article:", articleId);
-    // Navigate to edit page or open edit modal
+    router.push(`/news-dashboard/articles/edit/${articleId}`); // Navigate to edit page
   };
 
   const handleArchive = (articleId: string) => {
@@ -585,3 +587,5 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     </ArticlesRoot>
   );
 };
+
+export default ArticlesPage;

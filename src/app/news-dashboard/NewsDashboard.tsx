@@ -38,7 +38,9 @@ import {
   NewsTableHeader,
   NewsTableRow,
   NewsTitle,
+  MediaPreviewContainer,
   NewsImage,
+  MediaPlaceholder,
   NewsTitleText,
   NewsAuthor,
   NewsDate,
@@ -61,28 +63,27 @@ import {
   SearchResultsCount,
   SearchQuery,
   ClearSearchButton,
-  VideoPlaceholder,
 } from "./elements";
 import { styled } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
 
-// Updated NewsTitle component to handle both images and videos
+// Updated MediaPreview component with consistent sizing
 const MediaPreview: FC<{ article: NewsArticle }> = ({ article }) => {
-  if (article.newsImage) {
-    return <NewsImage src={article.newsImage} alt={article.title} />;
-  } else if (article.newsVideo) {
-    return (
-      <VideoPlaceholder>
-        <Play size={20} />
-      </VideoPlaceholder>
-    );
-  } else {
-    return (
-      <VideoPlaceholder>
-        <FileText size={20} />
-      </VideoPlaceholder>
-    );
-  }
+  return (
+    <MediaPreviewContainer>
+      {article.newsImage ? (
+        <NewsImage src={article.newsImage} alt={article.title} />
+      ) : article.newsVideo ? (
+        <MediaPlaceholder type="video">
+          <Play size={16} />
+        </MediaPlaceholder>
+      ) : (
+        <MediaPlaceholder type="document">
+          <FileText size={16} />
+        </MediaPlaceholder>
+      )}
+    </MediaPreviewContainer>
+  );
 };
 
 const DashboardCard: FC<CardProps> = ({
@@ -215,7 +216,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
               {
                 icon: <Home size={20} />,
                 text: "Dashboard",
-                href: "/dashboard",
+                href: "/news-dashboard",
                 active: true,
               },
             ],
@@ -236,7 +237,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
               {
                 icon: <ArchiveIcon size={20} />,
                 text: "Archive",
-                href: "/news-dashboard/archive-news",
+                href: "/news-dashboard/archive",
               },
             ],
           },
@@ -463,7 +464,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Draft "{articles[3]?.title}" saved
+                            Draft "{articles[2]?.title}" saved
                           </ActivityText>
                           <ActivityTime>1 hour ago</ActivityTime>
                         </ActivityContent>
@@ -474,7 +475,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article "{articles[4]?.title}" was archived
+                            Article "{articles[3]?.title}" was archived
                           </ActivityText>
                           <ActivityTime>3 hours ago</ActivityTime>
                         </ActivityContent>

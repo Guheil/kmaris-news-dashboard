@@ -38,8 +38,6 @@ export async function GET() {
     return NextResponse.json(safeArticles, { status: 200 });
   } catch (error) {
     console.error("API /api/articles GET error:", error);
-
-    // Always return JSON, never fall back to HTML
     return NextResponse.json(
       {
         error: "Error fetching articles",

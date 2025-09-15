@@ -89,6 +89,7 @@ export const SidebarOverlay = styled("div")<{ show: boolean }>(
     backdropFilter: "blur(4px)",
   })
 );
+
 // Styled components for news content
 export const StatsGrid = styled('div')(({ theme }) => ({
   display: 'grid',
@@ -173,12 +174,56 @@ export const NewsTitle = styled('div')({
   gap: '12px',
 });
 
-export const NewsImage = styled('img')({
-  width: '48px',
-  height: '48px',
+// Updated: Consistent media preview container
+export const MediaPreviewContainer = styled('div')({
+  width: '44px',
+  height: '44px',
+  flexShrink: 0,
   borderRadius: '8px',
-  objectFit: 'cover',
+  overflow: 'hidden',
+  position: 'relative',
+  backgroundColor: '#f8fafc',
+  border: '1px solid #f1f5f9',
 });
+
+// Updated: Consistent image styling
+export const NewsImage = styled('img')({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  display: 'block',
+});
+
+// Updated: Consistent placeholder styling
+export const MediaPlaceholder = styled('div')<{ type: 'video' | 'document' }>(({ type }) => ({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: type === 'video' ? '#f0f9ff' : '#f8fafc',
+  color: type === 'video' ? '#0369a1' : '#64748b',
+  position: 'relative',
+
+  // Video play icon overlay
+  ...(type === 'video' && {
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '16px',
+      height: '16px',
+      backgroundColor: '#0369a1',
+      borderRadius: '50%',
+      backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>')}")`,
+      backgroundSize: '8px',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+    },
+  }),
+}));
 
 export const NewsTitleText = styled('div')({
   fontSize: '14px',
@@ -189,6 +234,7 @@ export const NewsTitleText = styled('div')({
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
+  marginBottom: '4px',
 });
 
 export const NewsAuthor = styled('div')({
@@ -210,11 +256,12 @@ export const NewsViews = styled('div')({
 });
 
 export const CategoryBadge = styled('span')<{ category: string }>(({ category }) => ({
-  padding: '4px 8px',
-  borderRadius: '6px',
+  padding: '2px 8px',
+  borderRadius: '4px',
   fontSize: '11px',
   fontWeight: 600,
   textTransform: 'uppercase',
+  letterSpacing: '0.5px',
   ...(category.toLowerCase() === 'technology' && {
     backgroundColor: '#dbeafe',
     color: '#1d4ed8',
@@ -350,6 +397,7 @@ export const ActivityTime = styled('div')({
   fontSize: '12px',
   color: '#64748b',
 });
+
 // New styled components for search functionality
 export const SearchResultsHeader = styled('div')({
   display: 'flex',
@@ -420,14 +468,4 @@ export const NoResultsText = styled('p')({
   lineHeight: 1.5,
 });
 
-// New styled component for video placeholder
-export const VideoPlaceholder = styled('div')({
-  width: '48px',
-  height: '48px',
-  borderRadius: '8px',
-  backgroundColor: '#f1f5f9',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#64748b',
-});
+// Removed VideoPlaceholder as it's replaced by MediaPlaceholder
