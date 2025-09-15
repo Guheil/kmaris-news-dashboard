@@ -19,6 +19,7 @@ export interface NewsArticle {
   date: string;
   newsImage?: string; 
   newsVideo?: string;
+  readTime: string;
   category: string;
   description: string; 
   views?: number;

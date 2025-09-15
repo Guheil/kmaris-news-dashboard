@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { FC, useState, useMemo } from 'react';
-import { 
-  Home, 
-  FileText, 
-  BarChart3, 
-  Settings, 
-  Plus, 
-  Eye, 
-  Edit, 
+import { FC, useState, useMemo } from "react";
+import {
+  Home,
+  FileText,
+  BarChart3,
+  Settings,
+  Plus,
+  Eye,
+  Edit,
   Archive,
   Grid3X3,
   List,
@@ -17,19 +17,20 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Play
-} from 'lucide-react';
-import { Sidebar } from '@/components/sidebar/Sidebar';
-import { Header } from '@/components/header/Header';
-import { 
-  ArticlesPageProps, 
-  NewsArticle, 
-  FilterOptions, 
-  SortOptions, 
-  ViewMode, 
+  Play,
+  ArchiveIcon,
+} from "lucide-react";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { Header } from "@/components/header/Header";
+import {
+  ArticlesPageProps,
+  NewsArticle,
+  FilterOptions,
+  SortOptions,
+  ViewMode,
   ArticleCardProps,
-  PaginationOptions
-} from './interface';
+  PaginationOptions,
+} from "./interface";
 import {
   ArticlesRoot,
   MainContent,
@@ -63,48 +64,47 @@ import {
   PaginationContainer,
   PaginationButton,
   PaginationInfo,
-} from './elements';
-import { sampleNews } from '../sampleData';
-
+} from "./elements";
+import { sampleNews } from "../sampleData";
 
 // Article Card Component
-const ArticleCardComponent: FC<ArticleCardProps> = ({ 
-  article, 
-  viewMode, 
-  onEdit, 
-  onArchive, 
-  onView 
+const ArticleCardComponent: FC<ArticleCardProps> = ({
+  article,
+  viewMode,
+  onEdit,
+  onArchive,
+  onView,
 }) => {
   return (
     <ArticleCard viewMode={viewMode}>
-      <ArticleImage 
+      <ArticleImage
         backgroundImage={article.newsImage}
         viewMode={viewMode}
         hasVideo={!!article.newsVideo}
       >
         {!article.newsImage && !article.newsVideo && <FileText size={32} />}
       </ArticleImage>
-      
+
       <ArticleContent viewMode={viewMode}>
         <ArticleHeader>
           <ArticleTitle>{article.title}</ArticleTitle>
           <ArticleActions>
-            <ActionButton 
-              variant="view" 
+            <ActionButton
+              variant="view"
               onClick={() => onView(article.id)}
               title="View Article"
             >
               <Eye size={16} />
             </ActionButton>
-            <ActionButton 
-              variant="edit" 
+            <ActionButton
+              variant="edit"
               onClick={() => onEdit(article.id)}
               title="Edit Article"
             >
               <Edit size={16} />
             </ActionButton>
-            <ActionButton 
-              variant="archive" 
+            <ActionButton
+              variant="archive"
               onClick={() => onArchive(article.id)}
               title="Archive Article"
             >
@@ -112,7 +112,7 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
             </ActionButton>
           </ArticleActions>
         </ArticleHeader>
-        
+
         <ArticleMeta>
           <CategoryBadge category={article.category}>
             {article.category}
@@ -130,7 +130,7 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
             {(article.views || 0).toLocaleString()}
           </MetaItem>
         </ArticleMeta>
-        
+
         <ArticleDescription viewMode={viewMode}>
           {article.description}
         </ArticleDescription>
@@ -139,36 +139,36 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
   );
 };
 
-export const ArticlesPage: FC<ArticlesPageProps> = ({ 
-  sidebarOpen, 
-  onSidebarToggle, 
-  isMobile = false 
+export const ArticlesPage: FC<ArticlesPageProps> = ({
+  sidebarOpen,
+  onSidebarToggle,
+  isMobile = false,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [filters, setFilters] = useState<FilterOptions>({
-    category: 'all',
-    status: 'all',
-    author: 'all'
+    category: "all",
+    status: "all",
+    author: "all",
   });
   const [sortOptions, setSortOptions] = useState<SortOptions>({
-    field: 'date',
-    direction: 'desc'
+    field: "date",
+    direction: "desc",
   });
   const [pagination, setPagination] = useState<PaginationOptions>({
     currentPage: 1,
     itemsPerPage: 9,
-    totalItems: 0
+    totalItems: 0,
   });
 
   // Get unique values for filters
-  const uniqueCategories = useMemo(() => 
-    [...new Set(sampleNews.map(article => article.category))].sort(), 
+  const uniqueCategories = useMemo(
+    () => [...new Set(sampleNews.map((article) => article.category))].sort(),
     []
   );
-  
-  const uniqueAuthors = useMemo(() => 
-    [...new Set(sampleNews.map(article => article.author))].sort(), 
+
+  const uniqueAuthors = useMemo(
+    () => [...new Set(sampleNews.map((article) => article.author))].sort(),
     []
   );
 
@@ -179,22 +179,27 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(article => 
-        article.title.toLowerCase().includes(query) ||
-        article.author.toLowerCase().includes(query) ||
-        article.category.toLowerCase().includes(query) ||
-        article.description.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (article) =>
+          article.title.toLowerCase().includes(query) ||
+          article.author.toLowerCase().includes(query) ||
+          article.category.toLowerCase().includes(query) ||
+          article.description.toLowerCase().includes(query)
       );
     }
 
     // Apply category filter
-    if (filters.category !== 'all') {
-      filtered = filtered.filter(article => article.category === filters.category);
+    if (filters.category !== "all") {
+      filtered = filtered.filter(
+        (article) => article.category === filters.category
+      );
     }
 
     // Apply author filter
-    if (filters.author !== 'all') {
-      filtered = filtered.filter(article => article.author === filters.author);
+    if (filters.author !== "all") {
+      filtered = filtered.filter(
+        (article) => article.author === filters.author
+      );
     }
 
     // Apply sorting
@@ -202,15 +207,15 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       let aValue: any = a[sortOptions.field];
       let bValue: any = b[sortOptions.field];
 
-      if (sortOptions.field === 'date') {
+      if (sortOptions.field === "date") {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
-      } else if (typeof aValue === 'string') {
+      } else if (typeof aValue === "string") {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }
 
-      if (sortOptions.direction === 'asc') {
+      if (sortOptions.direction === "asc") {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
         return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
@@ -225,14 +230,18 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
     const endIndex = startIndex + pagination.itemsPerPage;
     return filteredAndSortedArticles.slice(startIndex, endIndex);
-  }, [filteredAndSortedArticles, pagination.currentPage, pagination.itemsPerPage]);
+  }, [
+    filteredAndSortedArticles,
+    pagination.currentPage,
+    pagination.itemsPerPage,
+  ]);
 
   // Update total items when filtered articles change
   useMemo(() => {
-    setPagination(prev => ({
+    setPagination((prev) => ({
       ...prev,
       totalItems: filteredAndSortedArticles.length,
-      currentPage: 1 // Reset to first page when filters change
+      currentPage: 1, // Reset to first page when filters change
     }));
   }, [filteredAndSortedArticles.length]);
 
@@ -243,7 +252,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   };
 
   const clearSearch = () => {
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const handleOverlayClick = () => {
@@ -253,35 +262,35 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   };
 
   const handleEdit = (articleId: string) => {
-    console.log('Edit article:', articleId);
+    console.log("Edit article:", articleId);
     // Navigate to edit page or open edit modal
   };
 
   const handleArchive = (articleId: string) => {
-    console.log('Archive article:', articleId);
+    console.log("Archive article:", articleId);
     // Implement archive functionality
   };
 
   const handleView = (articleId: string) => {
-    console.log('View article:', articleId);
+    console.log("View article:", articleId);
     // Navigate to article detail page
   };
 
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({
+    setPagination((prev) => ({
       ...prev,
-      currentPage: page
+      currentPage: page,
     }));
   };
 
   return (
     <ArticlesRoot>
       {/* Mobile overlay */}
-      <SidebarOverlay 
-        show={isMobile && sidebarOpen} 
+      <SidebarOverlay
+        show={isMobile && sidebarOpen}
         onClick={handleOverlayClick}
       />
-      
+
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
@@ -289,17 +298,34 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           {
             title: "Overview",
             items: [
-              { icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" },
-              { icon: <BarChart3 size={20} />, text: "Analytics", href: "/analytics" },
+              {
+                icon: <Home size={20} />,
+                text: "Dashboard",
+                href: "/news-dashboard",
+              },
             ],
           },
           {
             title: "News Management",
             items: [
-              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles", active: true },
-              { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
+              {
+                icon: <FileText size={20} />,
+                text: "All Articles",
+                href: "/news-dashboard/articles",
+                active: true,
+              },
+              {
+                icon: <Plus size={20} />,
+                text: "Create Article",
+                href: "/news-dashboard/create-article",
+              },
+               {
+                icon: <ArchiveIcon size={20} />,
+                text: "Archive",
+                href: "/news-dashboard/archive-news",
+              },
             ],
-          }
+          },
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -307,7 +333,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         collapsible={!isMobile}
         navItems={[]}
       />
-      
+
       <Header
         title="All Articles"
         onMenuToggle={onSidebarToggle}
@@ -319,13 +345,14 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}
       />
-      
+
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         {/* Search Results Header */}
         {searchQuery && (
           <SearchResultsHeader>
             <SearchResultsCount>
-              {filteredAndSortedArticles.length} result{filteredAndSortedArticles.length !== 1 ? 's' : ''} for{' '}
+              {filteredAndSortedArticles.length} result
+              {filteredAndSortedArticles.length !== 1 ? "s" : ""} for{" "}
               <SearchQuery>"{searchQuery}"</SearchQuery>
             </SearchResultsCount>
             <ClearSearchButton onClick={clearSearch}>
@@ -337,19 +364,25 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         {/* Controls */}
         <ControlsContainer>
           <FiltersContainer>
-            <FilterSelect 
+            <FilterSelect
               value={filters.category}
-              onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, category: e.target.value }))
+              }
             >
               <option value="all">All Categories</option>
-              {uniqueCategories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              {uniqueCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
               ))}
             </FilterSelect>
 
-            <FilterSelect 
+            <FilterSelect
               value={filters.status}
-              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, status: e.target.value }))
+              }
             >
               <option value="all">All Status</option>
               <option value="published">Published</option>
@@ -357,25 +390,29 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
               <option value="archived">Archived</option>
             </FilterSelect>
 
-            <FilterSelect 
+            <FilterSelect
               value={filters.author}
-              onChange={(e) => setFilters(prev => ({ ...prev, author: e.target.value }))}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, author: e.target.value }))
+              }
             >
               <option value="all">All Authors</option>
-              {uniqueAuthors.map(author => (
-                <option key={author} value={author}>{author}</option>
+              {uniqueAuthors.map((author) => (
+                <option key={author} value={author}>
+                  {author}
+                </option>
               ))}
             </FilterSelect>
           </FiltersContainer>
 
           <SortContainer>
-            <FilterSelect 
+            <FilterSelect
               value={`${sortOptions.field}-${sortOptions.direction}`}
               onChange={(e) => {
-                const [field, direction] = e.target.value.split('-');
+                const [field, direction] = e.target.value.split("-");
                 setSortOptions({
-                  field: field as SortOptions['field'],
-                  direction: direction as SortOptions['direction']
+                  field: field as SortOptions["field"],
+                  direction: direction as SortOptions["direction"],
                 });
               }}
             >
@@ -389,16 +426,16 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
             </FilterSelect>
 
             <ViewToggle>
-              <ViewToggleButton 
-                active={viewMode === 'grid'}
-                onClick={() => setViewMode('grid')}
+              <ViewToggleButton
+                active={viewMode === "grid"}
+                onClick={() => setViewMode("grid")}
               >
                 <Grid3X3 size={16} />
                 Grid
               </ViewToggleButton>
-              <ViewToggleButton 
-                active={viewMode === 'list'}
-                onClick={() => setViewMode('list')}
+              <ViewToggleButton
+                active={viewMode === "list"}
+                onClick={() => setViewMode("list")}
               >
                 <List size={16} />
                 List
@@ -426,7 +463,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
             {/* Pagination */}
             {totalPages > 1 && (
               <PaginationContainer>
-                <PaginationButton 
+                <PaginationButton
                   disabled={pagination.currentPage === 1}
                   onClick={() => handlePageChange(pagination.currentPage - 1)}
                 >
@@ -456,7 +493,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                   );
                 })}
 
-                <PaginationButton 
+                <PaginationButton
                   disabled={pagination.currentPage === totalPages}
                   onClick={() => handlePageChange(pagination.currentPage + 1)}
                 >
@@ -464,9 +501,14 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                 </PaginationButton>
 
                 <PaginationInfo>
-                  Showing {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} to{' '}
-                  {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of{' '}
-                  {pagination.totalItems} articles
+                  Showing{" "}
+                  {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}{" "}
+                  to{" "}
+                  {Math.min(
+                    pagination.currentPage * pagination.itemsPerPage,
+                    pagination.totalItems
+                  )}{" "}
+                  of {pagination.totalItems} articles
                 </PaginationInfo>
               </PaginationContainer>
             )}
@@ -478,13 +520,12 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
               <Search size={36} />
             </NoResultsIcon>
             <NoResultsTitle>
-              {searchQuery ? 'No articles found' : 'No articles available'}
+              {searchQuery ? "No articles found" : "No articles available"}
             </NoResultsTitle>
             <NoResultsText>
-              {searchQuery 
+              {searchQuery
                 ? `We couldn't find any articles matching "${searchQuery}". Try adjusting your search terms or filters.`
-                : 'There are currently no articles to display. Create your first article to get started!'
-              }
+                : "There are currently no articles to display. Create your first article to get started!"}
             </NoResultsText>
           </NoResults>
         )}

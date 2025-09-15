@@ -51,7 +51,7 @@ export const Sidebar: FC<SidebarProps> = ({
   userName,
   userRole,
   userInitials,
-  logoSrc = "/vercel.svg",
+  logoSrc = "/whitelogo.png",
   appName = "",
   collapsible = true,
 }) => {
@@ -62,7 +62,7 @@ export const Sidebar: FC<SidebarProps> = ({
       <SidebarHeader>
         <SidebarHeaderContent>
           <Logo>
-            <img src={logoSrc} alt="Logo" width={32} height={32} />
+            <img src={logoSrc} alt="Logo" width={160} height={90} />
             {isOpen && appName}
           </Logo>
           {collapsible && (
