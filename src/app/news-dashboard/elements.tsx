@@ -467,5 +467,3 @@ export const NoResultsText = styled('p')({
   margin: 0,
   lineHeight: 1.5,
 });
-
-// Removed VideoPlaceholder as it's replaced by MediaPlaceholder
