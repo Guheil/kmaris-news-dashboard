@@ -13,6 +13,7 @@ export interface CardProps {
 }
 
 export interface NewsArticle {
+  status: any;
   _id: string;
   title: string;
   author: string;

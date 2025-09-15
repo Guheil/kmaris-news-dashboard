@@ -309,10 +309,9 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     // Implement archive functionality
   };
 
-  const handleView = (articleId: string) => {
-    console.log("View article:", articleId);
-    // Navigate to article detail page
-  };
+ const handleView = (articleId: string) => {
+  router.push(`/news-dashboard/articles/view/${articleId}`);
+};
 
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({

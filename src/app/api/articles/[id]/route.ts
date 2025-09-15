@@ -3,17 +3,16 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-// Define the Article type to match your database schema
+// Define the Article type to match your database schema, excluding content
 type Article = {
   _id: ObjectId;
   title: string;
   author: string;
   category: string;
   description: string;
-  content: string;
   status: "draft" | "published" | "archived";
-  newsImage?: string | null;
-  newsVideo?: string | null;
+  newsImage?: string | null; // Base64 string or URL
+  newsVideo?: string | null; // Base64 string or URL
   createdAt?: Date;
   updatedAt?: Date;
   date?: string;
@@ -21,25 +20,30 @@ type Article = {
   readTime?: string;
 };
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    console.log("Fetching article with ID:", params.id);
-    
+    // Await params to satisfy Next.js validation
+    const { id: articleId } = await context.params;
+    console.log("Fetching article with ID:", articleId);
+
     // Validate ObjectId format
-    if (!ObjectId.isValid(params.id)) {
-      console.error("Invalid ObjectId format:", params.id);
+    if (!ObjectId.isValid(articleId)) {
+      console.error("Invalid ObjectId format:", articleId);
       return NextResponse.json({ error: "Invalid article ID format" }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("kmaris");
-    
-    const article = await db.collection("articles").findOne({ 
-      _id: new ObjectId(params.id) 
-    }) as Article | null;
-    
+
+    const article = (await db.collection("articles").findOne({
+      _id: new ObjectId(articleId),
+    })) as Article | null;
+
     if (!article) {
-      console.error("Article not found for ID:", params.id);
+      console.error("Article not found for ID:", articleId);
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
@@ -54,22 +58,27 @@ export async function GET(request: Request, { params }: { params: { id: string }
   } catch (error) {
     console.error("Error fetching article:", error);
     return NextResponse.json(
-      { 
-        error: "Internal server error", 
-        details: error instanceof Error ? error.message : String(error)
-      }, 
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    console.log("Updating article with ID:", params.id);
-    
+    // Await params to satisfy Next.js validation
+    const { id: articleId } = await context.params;
+    console.log("Updating article with ID:", articleId);
+
     // Validate ObjectId format
-    if (!ObjectId.isValid(params.id)) {
-      console.error("Invalid ObjectId format:", params.id);
+    if (!ObjectId.isValid(articleId)) {
+      console.error("Invalid ObjectId format:", articleId);
       return NextResponse.json({ error: "Invalid article ID format" }, { status: 400 });
     }
 
@@ -77,30 +86,43 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const db = client.db("kmaris");
     const body = await request.json();
 
+    // Validate incoming data
+    const { title, author, category, description, status, newsImage, newsVideo } = body;
+    if (!title || !author || !category || !description || !status) {
+      console.error("Missing required fields in update data:", body);
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
     const updateData = {
-      ...body,
+      title,
+      author,
+      category,
+      description,
+      status,
+      newsImage: newsImage || null,
+      newsVideo: newsVideo || null,
       updatedAt: new Date(),
     };
 
     console.log("Update data:", updateData);
 
-    // Use updateOne instead of findOneAndUpdate for better compatibility
     const updateResult = await db.collection("articles").updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(articleId) },
       { $set: updateData }
     );
 
     if (updateResult.matchedCount === 0) {
-      console.error("Article not found for update, ID:", params.id);
+      console.error("Article not found for update, ID:", articleId);
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
     // Fetch the updated article
-    const updatedArticle = await db.collection("articles").findOne({
-      _id: new ObjectId(params.id)
-    }) as Article | null;
+    const updatedArticle = (await db.collection("articles").findOne({
+      _id: new ObjectId(articleId),
+    })) as Article | null;
 
     if (!updatedArticle) {
+      console.error("Failed to fetch updated article, ID:", articleId);
       return NextResponse.json({ error: "Failed to fetch updated article" }, { status: 500 });
     }
 
@@ -115,35 +137,39 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   } catch (error) {
     console.error("Error updating article:", error);
     return NextResponse.json(
-      { 
-        error: "Internal server error", 
-        details: error instanceof Error ? error.message : String(error)
-      }, 
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
 }
 
-// Optional: Add DELETE method if needed
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    console.log("Deleting article with ID:", params.id);
-    
+    // Await params to satisfy Next.js validation
+    const { id: articleId } = await context.params;
+    console.log("Deleting article with ID:", articleId);
+
     // Validate ObjectId format
-    if (!ObjectId.isValid(params.id)) {
-      console.error("Invalid ObjectId format:", params.id);
+    if (!ObjectId.isValid(articleId)) {
+      console.error("Invalid ObjectId format:", articleId);
       return NextResponse.json({ error: "Invalid article ID format" }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("kmaris");
-    
+
     const deleteResult = await db.collection("articles").deleteOne({
-      _id: new ObjectId(params.id)
+      _id: new ObjectId(articleId),
     });
 
     if (deleteResult.deletedCount === 0) {
-      console.error("Article not found for deletion, ID:", params.id);
+      console.error("Article not found for deletion, ID:", articleId);
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
@@ -152,10 +178,10 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   } catch (error) {
     console.error("Error deleting article:", error);
     return NextResponse.json(
-      { 
-        error: "Internal server error", 
-        details: error instanceof Error ? error.message : String(error)
-      }, 
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
