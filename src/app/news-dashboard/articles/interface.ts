@@ -27,7 +27,7 @@ export interface NewsArticle {
 export interface FilterOptions {
   category: string;
   status: string;
-  author: string;
+  author?: string;
 }
 
 export interface SortOptions {

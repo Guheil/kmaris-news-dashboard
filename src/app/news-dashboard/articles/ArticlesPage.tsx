@@ -2,7 +2,7 @@
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Add useRouter
+import { useRouter } from "next/navigation";
 import {
   Home,
   FileText,
@@ -68,6 +68,12 @@ import {
   PaginationInfo,
 } from "./elements";
 
+// Utility function to truncate text
+const truncateText = (text: string, limit: number): string => {
+  if (!text) return '';
+  return text.length > limit ? `${text.slice(0, limit)}...` : text;
+};
+
 // Article Card Component
 const ArticleCardComponent: FC<ArticleCardProps> = ({
   article,
@@ -76,6 +82,9 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
   onArchive,
   onView,
 }) => {
+  const titleLimit = viewMode === 'grid' ? 60 : 80;
+  const descriptionLimit = viewMode === 'grid' ? 120 : 150;
+
   return (
     <ArticleCard viewMode={viewMode}>
       <ArticleImage
@@ -88,28 +97,32 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
 
       <ArticleContent viewMode={viewMode}>
         <ArticleHeader>
-          <ArticleTitle>{article.title}</ArticleTitle>
-          <ActionButton
-            variant="view"
-            onClick={() => onView(article._id)}
-            title="View Article"
-          >
-            <Eye size={16} />
-          </ActionButton>
-          <ActionButton
-            variant="edit"
-            onClick={() => onEdit(article._id)}
-            title="Edit Article"
-          >
-            <Edit size={16} />
-          </ActionButton>
-          <ActionButton
-            variant="archive"
-            onClick={() => onArchive(article._id)}
-            title="Archive Article"
-          >
-            <Archive size={16} />
-          </ActionButton>
+          <ArticleTitle title={article.title}>
+            {truncateText(article.title, titleLimit)}
+          </ArticleTitle>
+          <ArticleActions>
+            <ActionButton
+              variant="view"
+              onClick={() => onView(article._id)}
+              title="View Article"
+            >
+              <Eye size={16} />
+            </ActionButton>
+            <ActionButton
+              variant="edit"
+              onClick={() => onEdit(article._id)}
+              title="Edit Article"
+            >
+              <Edit size={16} />
+            </ActionButton>
+            <ActionButton
+              variant="archive"
+              onClick={() => onArchive(article._id)}
+              title="Archive Article"
+            >
+              <Archive size={16} />
+            </ActionButton>
+          </ArticleActions>
         </ArticleHeader>
 
         <ArticleMeta>
@@ -117,25 +130,29 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
             {article.category}
           </CategoryBadge>
           <MetaItem>
-            <User size={14} />
-            {article.author}
-          </MetaItem>
-          <MetaItem>
             <Calendar size={14} />
-            {new Date(article.date).toLocaleDateString()}
+            {new Date(article.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
           </MetaItem>
-          <MetaItem>
-            <Eye size={14} />
-            {(article.views || 0).toLocaleString()}
-          </MetaItem>
+          {article.views !== undefined && (
+            <MetaItem>
+              <Eye size={14} />
+              {article.views.toLocaleString()}
+            </MetaItem>
+          )}
+          {article.readTime && (
+            <MetaItem>
+              <Calendar size={14} />
+              {article.readTime}
+            </MetaItem>
+          )}
         </ArticleMeta>
 
         <ArticleDescription viewMode={viewMode}>
-          {article.description} <br />
-          <MetaItem>
-            <Calendar size={14} />
-            {article.readTime}
-          </MetaItem>
+          {truncateText(article.description, descriptionLimit)}
         </ArticleDescription>
       </ArticleContent>
     </ArticleCard>
@@ -147,13 +164,12 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   onSidebarToggle,
   isMobile = false,
 }) => {
-  const router = useRouter(); // Add router for navigation
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [filters, setFilters] = useState<FilterOptions>({
     category: "all",
     status: "all",
-    author: "all",
   });
   const [sortOptions, setSortOptions] = useState<SortOptions>({
     field: "date",
@@ -161,7 +177,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   });
   const [pagination, setPagination] = useState<PaginationOptions>({
     currentPage: 1,
-    itemsPerPage: 9,
+    itemsPerPage: 12,
     totalItems: 0,
   });
   const [articles, setArticles] = useState<NewsArticle[]>([]);
@@ -190,14 +206,9 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     fetchArticles();
   }, []);
 
-  // Get unique values for filters
+  // Get unique categories for filters
   const uniqueCategories = useMemo(
     () => [...new Set(articles.map((article) => article.category))].sort(),
-    [articles]
-  );
-
-  const uniqueAuthors = useMemo(
-    () => [...new Set(articles.map((article) => article.author))].sort(),
     [articles]
   );
 
@@ -211,7 +222,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       filtered = filtered.filter(
         (article) =>
           article.title.toLowerCase().includes(query) ||
-          article.author.toLowerCase().includes(query) ||
           article.category.toLowerCase().includes(query) ||
           article.description.toLowerCase().includes(query)
       );
@@ -224,10 +234,10 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       );
     }
 
-    // Apply author filter
-    if (filters.author !== "all") {
+    // Apply status filter
+    if (filters.status !== "all") {
       filtered = filtered.filter(
-        (article) => article.author === filters.author
+        (article) => (article.status || 'published') === filters.status
       );
     }
 
@@ -270,7 +280,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     setPagination((prev) => ({
       ...prev,
       totalItems: filteredAndSortedArticles.length,
-      currentPage: 1, // Reset to first page when filters change
+      currentPage: 1,
     }));
   }, [filteredAndSortedArticles.length]);
 
@@ -291,7 +301,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   };
 
   const handleEdit = (articleId: string) => {
-    router.push(`/news-dashboard/articles/edit/${articleId}`); // Navigate to edit page
+    router.push(`/news-dashboard/articles/edit/${articleId}`);
   };
 
   const handleArchive = (articleId: string) => {
@@ -379,7 +389,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         {loading && (
           <NoResults>
             <NoResultsIcon>
-              <FileText size={36} />
+              <FileText size={48} />
             </NoResultsIcon>
             <NoResultsTitle>Loading articles...</NoResultsTitle>
           </NoResults>
@@ -389,7 +399,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         {error && !loading && (
           <NoResults>
             <NoResultsIcon>
-              <FileText size={36} />
+              <FileText size={48} />
             </NoResultsIcon>
             <NoResultsTitle>Error loading articles</NoResultsTitle>
             <NoResultsText>{error}</NoResultsText>
@@ -439,20 +449,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                 <option value="draft">Draft</option>
                 <option value="archived">Archived</option>
               </FilterSelect>
-
-              <FilterSelect
-                value={filters.author}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, author: e.target.value }))
-                }
-              >
-                <option value="all">All Authors</option>
-                {uniqueAuthors.map((author) => (
-                  <option key={author} value={author}>
-                    {author}
-                  </option>
-                ))}
-              </FilterSelect>
             </FiltersContainer>
 
             <SortContainer>
@@ -470,9 +466,9 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                 <option value="date-asc">Oldest First</option>
                 <option value="title-asc">Title A-Z</option>
                 <option value="title-desc">Title Z-A</option>
-                <option value="author-asc">Author A-Z</option>
                 <option value="views-desc">Most Views</option>
                 <option value="views-asc">Least Views</option>
+                <option value="category-asc">Category A-Z</option>
               </FilterSelect>
 
               <ViewToggle>
@@ -570,7 +566,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           !error && (
             <NoResults>
               <NoResultsIcon>
-                <Search size={36} />
+                <Search size={48} />
               </NoResultsIcon>
               <NoResultsTitle>
                 {searchQuery ? "No articles found" : "No articles available"}

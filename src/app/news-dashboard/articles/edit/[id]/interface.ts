@@ -14,15 +14,15 @@ export interface NewsArticle {
   status: "draft" | "published" | "archived";
 }
 
+// app/news-dashboard/edit/[id]/interface.ts
 export interface EditArticleFormData {
   title: string;
   author: string;
   category: string;
   description: string;
-  content: string;
   status: "draft" | "published" | "archived";
-  newsImage: string | null;
-  newsVideo: string | null;
+  newsImage: string | null; 
+  newsVideo: string | null; 
 }
 
 export interface ArticlesPageProps {
@@ -36,7 +36,7 @@ export interface EditArticlePageProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
   isMobile: boolean;
-  articleId: string; // Changed from params object to direct articleId
+  articleId: string; 
 }
 
 export interface FilterOptions {

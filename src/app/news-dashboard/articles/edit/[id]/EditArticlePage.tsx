@@ -42,12 +42,11 @@ import {
 import { EditArticleFormData } from "./interface";
 import { EditArticlePageProps } from "./interface";
 
-// Fixed: Updated component to use articleId prop instead of params
-export const EditArticlePage: React.FC<EditArticlePageProps> = ({ 
-  sidebarOpen, 
-  onSidebarToggle, 
-  isMobile, 
-  articleId 
+export const EditArticlePage: React.FC<EditArticlePageProps> = ({
+  sidebarOpen,
+  onSidebarToggle,
+  isMobile,
+  articleId,
 }) => {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -57,13 +56,13 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: "",
     author: "",
     category: "",
     description: "",
-    content: "",
     status: "draft",
     newsImage: null,
     newsVideo: null,
@@ -85,33 +84,17 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        console.log("Fetching article with ID:", articleId);
-        console.log("Article ID type:", typeof articleId);
-        console.log("Article ID length:", articleId?.length);
-        console.log("Is valid ObjectId format:", /^[0-9a-fA-F]{24}$/.test(articleId || ""));
-        
         const response = await fetch(`/api/articles/${articleId}`);
-        
-        console.log("Response status:", response.status);
-        console.log("Response ok:", response.ok);
-        
         if (!response.ok) {
-          // Get the error details from the response
           const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-          const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
-          console.error("API Error:", errorData);
-          throw new Error(errorMessage);
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
         }
-        
         const data = await response.json();
-        console.log("Article data received:", data);
-        
         setFormData({
           title: data.title || "",
           author: data.author || "",
           category: data.category || "",
           description: data.description || "",
-          content: data.content || "",
           status: data.status || "draft",
           newsImage: data.newsImage || null,
           newsVideo: data.newsVideo || null,
@@ -120,8 +103,6 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "An error occurred";
         setError(errorMessage);
-        console.error("Error fetching article:", err);
-        console.error("Article ID that failed:", articleId);
       } finally {
         setLoading(false);
       }
@@ -130,7 +111,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     if (articleId) {
       fetchArticle();
     }
-  }, [articleId]); // Fixed: Use articleId instead of params.id
+  }, [articleId]);
 
   const handleInputChange = (field: keyof EditArticleFormData, value: string) => {
     setFormData((prev) => ({
@@ -142,54 +123,76 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          throw new Error("Failed to upload image");
-        }
-        const { url } = await response.json();
-        setFormData((prev) => ({
-          ...prev,
-          newsImage: url,
-          newsVideo: null,
-        }));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      }
+    if (!file) {
+      setUploadError("No file selected");
+      return;
     }
+
+    // Validate file type and size (e.g., max 5MB)
+    const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (!validTypes.includes(file.type)) {
+      setUploadError("Only PNG and JPG files are allowed");
+      return;
+    }
+    if (file.size > maxSize) {
+      setUploadError("Image size must be less than 5MB");
+      return;
+    }
+
+    // Use FileReader to convert image to base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = reader.result as string;
+      setFormData((prev) => ({
+        ...prev,
+        newsImage: base64String,
+        newsVideo: null, // Clear video if image is uploaded
+      }));
+      setUploadError(null);
+    };
+    reader.onerror = () => {
+      setUploadError("Failed to read image file");
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          throw new Error("Failed to upload video");
-        }
-        const { url } = await response.json();
-        setFormData((prev) => ({
-          ...prev,
-          newsVideo: url,
-          newsImage: null,
-        }));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      }
+    if (!file) {
+      setUploadError("No file selected");
+      return;
     }
+
+    // Validate file type and size (e.g., max 50MB)
+    const validTypes = ["video/mp4", "video/avi"];
+    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    if (!validTypes.includes(file.type)) {
+      setUploadError("Only MP4 and AVI files are allowed");
+      return;
+    }
+    if (file.size > maxSize) {
+      setUploadError("Video size must be less than 50MB");
+      return;
+    }
+
+    // Use FileReader to convert video to base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64String = reader.result as string;
+      setFormData((prev) => ({
+        ...prev,
+        newsVideo: base64String,
+        newsImage: null, // Clear image if video is uploaded
+      }));
+      setUploadError(null);
+    };
+    reader.onerror = () => {
+      setUploadError("Failed to read video file");
+    };
+    reader.readAsDataURL(file);
   };
 
   const removeMedia = () => {
@@ -200,6 +203,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     }));
     if (imageInputRef.current) imageInputRef.current.value = "";
     if (videoInputRef.current) videoInputRef.current.value = "";
+    setUploadError(null);
   };
 
   const validateForm = (): boolean => {
@@ -236,7 +240,6 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         author: formData.author,
         category: formData.category,
         description: formData.description,
-        content: formData.content,
         status,
         newsImage: formData.newsImage,
         newsVideo: formData.newsVideo,
@@ -256,7 +259,6 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       router.push("/news-dashboard/articles");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "An error occurred");
-      console.error("Error saving article:", err);
     } finally {
       setSaving(false);
     }
@@ -466,28 +468,17 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 />
                 {errors.description && <ErrorMessage>{errors.description}</ErrorMessage>}
               </FormField>
-              <FormField fullWidth>
-                <Label>
-                  Content <RequiredIndicator />
-                </Label>
-                <TextArea
-                  placeholder="Enter article content..."
-                  value={formData.content}
-                  onChange={(e) => handleInputChange("content", e.target.value)}
-                  style={{ minHeight: "200px" }}
-                />
-                {errors.content && <ErrorMessage>{errors.content}</ErrorMessage>}
-              </FormField>
             </FormGrid>
           </div>
           <div style={{ marginBottom: "32px" }}>
             <SectionTitle>Media</SectionTitle>
+            {uploadError && <ErrorMessage style={{ marginBottom: "16px" }}>{uploadError}</ErrorMessage>}
             <MediaUploadContainer>
               <div>
                 <input
                   ref={imageInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/jpg"
                   onChange={handleImageUpload}
                   style={{ display: "none" }}
                 />
@@ -557,7 +548,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 <input
                   ref={videoInputRef}
                   type="file"
-                  accept="video/*"
+                  accept="video/mp4,video/avi"
                   onChange={handleVideoUpload}
                   style={{ display: "none" }}
                 />
