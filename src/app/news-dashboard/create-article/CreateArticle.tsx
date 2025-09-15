@@ -73,7 +73,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const categories = [
     "Technology",
@@ -86,7 +86,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
 
   const handleInputChange = (field: keyof ArticleFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -100,7 +99,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
         setFormData((prev) => ({
           ...prev,
           newsImage: e.target?.result as string,
-          newsVideo: "", // Clear video if image is uploaded
+          newsVideo: "",
         }));
       };
       reader.readAsDataURL(file);
@@ -114,7 +113,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       setFormData((prev) => ({
         ...prev,
         newsVideo: url,
-        newsImage: "", // Clear image if video is uploaded
+        newsImage: "",
       }));
     }
   };
@@ -158,30 +157,50 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
       const articleData = {
         ...formData,
         status,
-        id: Date.now().toString(), // Simple ID generation
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toISOString(),
         views: 0,
       };
 
-      // Here you would typically save to your backend
-      console.log("Saving article:", articleData);
+      const response = await fetch("/api/create-article", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(articleData),
+      });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
 
-      // Redirect to articles page or show success message
+      const result = await response.json();
+      console.log("Article saved:", result);
+
       alert(
-        `Article ${
-          status === "draft" ? "saved as draft" : "published"
-        } successfully!`
+        `Article ${status === "draft" ? "saved as draft" : "published"} successfully!`
       );
+      // Reset form on success (optional)
+      setFormData({
+        title: "",
+        author: "",
+        category: "",
+        description: "",
+        newsImage: "",
+        newsVideo: "",
+        status: "draft",
+      });
+      setErrors({});
     } catch (error) {
       console.error("Error saving article:", error);
+      setSubmitError(
+        error instanceof Error ? error.message : "Failed to save article"
+      );
       alert("Error saving article. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -195,8 +214,8 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   };
 
   const goBack = () => {
-    // Navigate back to articles page
     console.log("Navigate back to articles");
+    // Implement navigation logic (e.g., use Next.js router)
   };
 
   return (
@@ -232,10 +251,10 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               {
                 icon: <Plus size={20} />,
                 text: "Create Article",
-                href: "/anews-dashborad/create-articles",
+                href: "/create-article", // Updated to new route
                 active: true,
               },
-               {
+              {
                 icon: <ArchiveIcon size={20} />,
                 text: "Archive",
                 href: "/news-dashboard/archive-news",
@@ -472,6 +491,13 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               Publish Article
             </Button>
           </ActionButtons>
+
+          {/* Error Display */}
+          {submitError && (
+            <ErrorMessage style={{ display: "block", marginTop: "16px" }}>
+              {submitError}
+            </ErrorMessage>
+          )}
         </FormContainer>
       </MainContent>
     </CreateArticleRoot>

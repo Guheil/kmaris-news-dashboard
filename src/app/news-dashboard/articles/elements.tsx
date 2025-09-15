@@ -304,7 +304,7 @@ export const CategoryBadge = styled("span")<{ category: string }>(({ category })
   }),
 }));
 
-export const ArticleDescription = styled("p")<{ viewMode: 'grid' | 'list' }>(({ viewMode }) => ({
+export const ArticleDescription = styled("div")<{ viewMode: 'grid' | 'list' }>(({ viewMode }) => ({
   fontSize: "14px",
   color: "#64748b",
   lineHeight: 1.6,

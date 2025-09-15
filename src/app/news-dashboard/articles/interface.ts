@@ -1,5 +1,7 @@
 "use client";
 
+import { ReactNode } from "react";
+
 export interface ArticlesPageProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
@@ -7,6 +9,9 @@ export interface ArticlesPageProps {
 }
 
 export interface NewsArticle {
+  readTime: ReactNode;
+  _id: string; // Corrected from (_id: any) => void to string
+  createdAt: string | number | Date;
   id: string;
   title: string;
   author: string;

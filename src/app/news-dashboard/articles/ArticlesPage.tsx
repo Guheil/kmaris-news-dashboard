@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useMemo } from "react";
+import { FC, useState, useMemo, useEffect } from "react";
 import {
   Home,
   FileText,
@@ -65,7 +65,6 @@ import {
   PaginationButton,
   PaginationInfo,
 } from "./elements";
-import { sampleNews } from "../sampleData";
 
 // Article Card Component
 const ArticleCardComponent: FC<ArticleCardProps> = ({
@@ -88,29 +87,27 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
       <ArticleContent viewMode={viewMode}>
         <ArticleHeader>
           <ArticleTitle>{article.title}</ArticleTitle>
-          <ArticleActions>
-            <ActionButton
-              variant="view"
-              onClick={() => onView(article.id)}
-              title="View Article"
-            >
-              <Eye size={16} />
-            </ActionButton>
-            <ActionButton
-              variant="edit"
-              onClick={() => onEdit(article.id)}
-              title="Edit Article"
-            >
-              <Edit size={16} />
-            </ActionButton>
-            <ActionButton
-              variant="archive"
-              onClick={() => onArchive(article.id)}
-              title="Archive Article"
-            >
-              <Archive size={16} />
-            </ActionButton>
-          </ArticleActions>
+          <ActionButton
+            variant="view"
+            onClick={() => onView(article._id)}
+            title="View Article"
+          >
+            <Eye size={16} />
+          </ActionButton>
+          <ActionButton
+            variant="edit"
+            onClick={() => onEdit(article._id)} 
+            title="Edit Article"
+          >
+            <Edit size={16} />
+          </ActionButton>
+          <ActionButton
+            variant="archive"
+            onClick={() => onArchive(article._id)} 
+            title="Archive Article"
+          >
+            <Archive size={16} />
+          </ActionButton>
         </ArticleHeader>
 
         <ArticleMeta>
@@ -132,7 +129,11 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
         </ArticleMeta>
 
         <ArticleDescription viewMode={viewMode}>
-          {article.description}
+          {article.description} <br />
+          <MetaItem>
+            <Calendar size={14} />
+            {article.readTime}
+          </MetaItem>
         </ArticleDescription>
       </ArticleContent>
     </ArticleCard>
@@ -160,21 +161,46 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     itemsPerPage: 9,
     totalItems: 0,
   });
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch articles from API
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/articles");
+        if (!response.ok) {
+          throw new Error("Failed to fetch articles");
+        }
+        const data = await response.json();
+        setArticles(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   // Get unique values for filters
   const uniqueCategories = useMemo(
-    () => [...new Set(sampleNews.map((article) => article.category))].sort(),
-    []
+    () => [...new Set(articles.map((article) => article.category))].sort(),
+    [articles]
   );
 
   const uniqueAuthors = useMemo(
-    () => [...new Set(sampleNews.map((article) => article.author))].sort(),
-    []
+    () => [...new Set(articles.map((article) => article.author))].sort(),
+    [articles]
   );
 
   // Filter and sort articles
   const filteredAndSortedArticles = useMemo(() => {
-    let filtered = sampleNews;
+    let filtered = articles;
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -223,7 +249,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     });
 
     return filtered;
-  }, [searchQuery, filters, sortOptions]);
+  }, [searchQuery, filters, sortOptions, articles]);
 
   // Paginate articles
   const paginatedArticles = useMemo(() => {
@@ -319,7 +345,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
               },
-               {
+              {
                 icon: <ArchiveIcon size={20} />,
                 text: "Archive",
                 href: "/news-dashboard/archive-news",
@@ -347,8 +373,29 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       />
 
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
+        {/* Loading State */}
+        {loading && (
+          <NoResults>
+            <NoResultsIcon>
+              <FileText size={36} />
+            </NoResultsIcon>
+            <NoResultsTitle>Loading articles...</NoResultsTitle>
+          </NoResults>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <NoResults>
+            <NoResultsIcon>
+              <FileText size={36} />
+            </NoResultsIcon>
+            <NoResultsTitle>Error loading articles</NoResultsTitle>
+            <NoResultsText>{error}</NoResultsText>
+          </NoResults>
+        )}
+
         {/* Search Results Header */}
-        {searchQuery && (
+        {!loading && !error && searchQuery && (
           <SearchResultsHeader>
             <SearchResultsCount>
               {filteredAndSortedArticles.length} result
@@ -362,95 +409,97 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         )}
 
         {/* Controls */}
-        <ControlsContainer>
-          <FiltersContainer>
-            <FilterSelect
-              value={filters.category}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, category: e.target.value }))
-              }
-            >
-              <option value="all">All Categories</option>
-              {uniqueCategories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </FilterSelect>
-
-            <FilterSelect
-              value={filters.status}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, status: e.target.value }))
-              }
-            >
-              <option value="all">All Status</option>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-              <option value="archived">Archived</option>
-            </FilterSelect>
-
-            <FilterSelect
-              value={filters.author}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, author: e.target.value }))
-              }
-            >
-              <option value="all">All Authors</option>
-              {uniqueAuthors.map((author) => (
-                <option key={author} value={author}>
-                  {author}
-                </option>
-              ))}
-            </FilterSelect>
-          </FiltersContainer>
-
-          <SortContainer>
-            <FilterSelect
-              value={`${sortOptions.field}-${sortOptions.direction}`}
-              onChange={(e) => {
-                const [field, direction] = e.target.value.split("-");
-                setSortOptions({
-                  field: field as SortOptions["field"],
-                  direction: direction as SortOptions["direction"],
-                });
-              }}
-            >
-              <option value="date-desc">Newest First</option>
-              <option value="date-asc">Oldest First</option>
-              <option value="title-asc">Title A-Z</option>
-              <option value="title-desc">Title Z-A</option>
-              <option value="author-asc">Author A-Z</option>
-              <option value="views-desc">Most Views</option>
-              <option value="views-asc">Least Views</option>
-            </FilterSelect>
-
-            <ViewToggle>
-              <ViewToggleButton
-                active={viewMode === "grid"}
-                onClick={() => setViewMode("grid")}
+        {!loading && !error && (
+          <ControlsContainer>
+            <FiltersContainer>
+              <FilterSelect
+                value={filters.category}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, category: e.target.value }))
+                }
               >
-                <Grid3X3 size={16} />
-                Grid
-              </ViewToggleButton>
-              <ViewToggleButton
-                active={viewMode === "list"}
-                onClick={() => setViewMode("list")}
+                <option value="all">All Categories</option>
+                {uniqueCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </FilterSelect>
+
+              <FilterSelect
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, status: e.target.value }))
+                }
               >
-                <List size={16} />
-                List
-              </ViewToggleButton>
-            </ViewToggle>
-          </SortContainer>
-        </ControlsContainer>
+                <option value="all">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+              </FilterSelect>
+
+              <FilterSelect
+                value={filters.author}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, author: e.target.value }))
+                }
+              >
+                <option value="all">All Authors</option>
+                {uniqueAuthors.map((author) => (
+                  <option key={author} value={author}>
+                    {author}
+                  </option>
+                ))}
+              </FilterSelect>
+            </FiltersContainer>
+
+            <SortContainer>
+              <FilterSelect
+                value={`${sortOptions.field}-${sortOptions.direction}`}
+                onChange={(e) => {
+                  const [field, direction] = e.target.value.split("-");
+                  setSortOptions({
+                    field: field as SortOptions["field"],
+                    direction: direction as SortOptions["direction"],
+                  });
+                }}
+              >
+                <option value="date-desc">Newest First</option>
+                <option value="date-asc">Oldest First</option>
+                <option value="title-asc">Title A-Z</option>
+                <option value="title-desc">Title Z-A</option>
+                <option value="author-asc">Author A-Z</option>
+                <option value="views-desc">Most Views</option>
+                <option value="views-asc">Least Views</option>
+              </FilterSelect>
+
+              <ViewToggle>
+                <ViewToggleButton
+                  active={viewMode === "grid"}
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 size={16} />
+                  Grid
+                </ViewToggleButton>
+                <ViewToggleButton
+                  active={viewMode === "list"}
+                  onClick={() => setViewMode("list")}
+                >
+                  <List size={16} />
+                  List
+                </ViewToggleButton>
+              </ViewToggle>
+            </SortContainer>
+          </ControlsContainer>
+        )}
 
         {/* Articles Grid/List */}
-        {paginatedArticles.length > 0 ? (
+        {!loading && !error && paginatedArticles.length > 0 ? (
           <>
             <ArticlesGrid viewMode={viewMode}>
               {paginatedArticles.map((article) => (
                 <ArticleCardComponent
-                  key={article.id}
+                  key={article._id}
                   article={article}
                   viewMode={viewMode}
                   onEdit={handleEdit}
@@ -515,19 +564,22 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </>
         ) : (
           // No Results State
-          <NoResults>
-            <NoResultsIcon>
-              <Search size={36} />
-            </NoResultsIcon>
-            <NoResultsTitle>
-              {searchQuery ? "No articles found" : "No articles available"}
-            </NoResultsTitle>
-            <NoResultsText>
-              {searchQuery
-                ? `We couldn't find any articles matching "${searchQuery}". Try adjusting your search terms or filters.`
-                : "There are currently no articles to display. Create your first article to get started!"}
-            </NoResultsText>
-          </NoResults>
+          !loading &&
+          !error && (
+            <NoResults>
+              <NoResultsIcon>
+                <Search size={36} />
+              </NoResultsIcon>
+              <NoResultsTitle>
+                {searchQuery ? "No articles found" : "No articles available"}
+              </NoResultsTitle>
+              <NoResultsText>
+                {searchQuery
+                  ? `We couldn't find any articles matching "${searchQuery}". Try adjusting your search terms or filters.`
+                  : "There are currently no articles to display. Create your first article to get started!"}
+              </NoResultsText>
+            </NoResults>
+          )
         )}
       </MainContent>
     </ArticlesRoot>
