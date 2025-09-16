@@ -7,7 +7,7 @@ export interface NavItemProps {
   text: string;
   href: string;
   active?: boolean;
-  onClick?: () => void;
+  onClick?: (event?: React.MouseEvent<HTMLElement>) => void;
 }
 
 export interface NavItem {
@@ -16,6 +16,7 @@ export interface NavItem {
   href: string;
   active?: boolean;
 }
+
 export interface NavSection {
   title?: string;
   items: NavItemProps[];
@@ -25,7 +26,7 @@ export interface SidebarProps {
   isOpen?: boolean;
   onToggle?: () => void;
   navSections: NavSection[];
-   navItems: NavItem[]; 
+  navItems: NavItem[]; 
   userName: string;
   userRole: string;
   userInitials: string;
@@ -46,6 +47,8 @@ export interface NewsDashboardNavigation {
   };
   settings: NavItemProps;
 }
-export interface NavItemProps extends HTMLAttributes<HTMLAnchorElement> {
+
+// Extended NavItemProps for styled components
+export interface NavItemProps extends HTMLAttributes<HTMLDivElement> {
   active?: boolean;
 }

@@ -1,9 +1,9 @@
 // Sidebar.tsx
 "use client";
 
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 import { SidebarProps, NavItemProps, NavSection } from './interface';
 import {
   SidebarRoot,
@@ -23,22 +23,39 @@ import {
   NavSection as NavSectionComponent,
   NavSectionTitle,
   CollapseButton,
+  MobileBurgerButton,
+  MobileOverlay,
 } from './elements';
 
-const NavLink: FC<NavItemProps & { isOpen: boolean }> = ({ icon, text, href, active, onClick, isOpen }) => (
+const NavLink: FC<NavItemProps & { isOpen: boolean; onMobileClick?: () => void }> = ({ 
+  icon, text, href, active, onClick, isOpen, onMobileClick 
+}) => (
   <Link href={href || '#'}>  
-    <NavItem icon={icon} text={text} href={href} active={active} onClick={onClick}>
+    <NavItem 
+      icon={icon} 
+      text={text} 
+      href={href} 
+      active={active} 
+      onClick={(e) => {
+        onClick?.(e);
+        onMobileClick?.();
+      }}
+    >
       <NavIcon active={active}>{icon}</NavIcon>
       <NavText isOpen={isOpen}>{text}</NavText>  
     </NavItem>
   </Link>
 );
 
-const NavigationSection: FC<{ section: NavSection; isOpen: boolean }> = ({ section, isOpen }) => (
+const NavigationSection: FC<{ 
+  section: NavSection; 
+  isOpen: boolean; 
+  onMobileClick?: () => void;
+}> = ({ section, isOpen, onMobileClick }) => (
   <NavSectionComponent>
     {section.title && <NavSectionTitle isOpen={isOpen}>{section.title}</NavSectionTitle>}
     {section.items.map((item, index) => (
-      <NavLink key={index} {...item} isOpen={isOpen} />
+      <NavLink key={index} {...item} isOpen={isOpen} onMobileClick={onMobileClick} />
     ))}
   </NavSectionComponent>
 );
@@ -57,37 +74,96 @@ export const Sidebar: FC<SidebarProps> = ({
 }) => {
   const sectionsToRender = navSections || (navItems ? [{ items: navItems }] : []);
 
+  // Close sidebar when clicking outside on mobile
+  const handleOverlayClick = () => {
+    if (onToggle) {
+      onToggle();
+    }
+  };
+
+  // Close sidebar when clicking nav item on mobile
+  const handleMobileNavClick = () => {
+    if (window.innerWidth < 768 && onToggle) {
+      onToggle();
+    }
+  };
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && window.innerWidth < 768 && isOpen && onToggle) {
+        onToggle();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onToggle]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 768 && isOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'unset';
+      }
+    }
+
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = 'unset';
+      }
+    };
+  }, [isOpen]);
+
   return (
-    <SidebarRoot isOpen={isOpen}>
-      <SidebarHeader>
-        <SidebarHeaderContent>
-          <Logo>
-            <img src={logoSrc} alt="Logo" width={160} height={90} />
-            {isOpen && appName}
-          </Logo>
-          {collapsible && (
-            <CollapseButton onClick={onToggle}>
-              {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-            </CollapseButton>
-          )}
-        </SidebarHeaderContent>
-      </SidebarHeader>
+    <>
+      {/* Mobile Burger Button */}
+      <MobileBurgerButton onClick={onToggle} aria-label="Toggle menu">
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </MobileBurgerButton>
 
-      <NavigationList>
-        {sectionsToRender.map((section, index) => (
-          <NavigationSection key={index} section={section} isOpen={isOpen} />
-        ))}
-      </NavigationList>
+      {/* Mobile Overlay */}
+      <MobileOverlay isOpen={isOpen} onClick={handleOverlayClick} />
 
-      <SidebarFooter>
-        <UserProfile>
-          <UserAvatar>{userInitials}</UserAvatar>
-          <UserInfo isOpen={isOpen}>
-            <UserName>{userName}</UserName>
-            <UserRole>{userRole}</UserRole>
-          </UserInfo>
-        </UserProfile>
-      </SidebarFooter>
-    </SidebarRoot>
+      <SidebarRoot isOpen={isOpen}>
+        <SidebarHeader>
+          <SidebarHeaderContent>
+            <Logo isOpen={isOpen}>
+              <img src={logoSrc} alt="Logo" width={160} height={90} />
+              {isOpen && appName && <span>{appName}</span>}
+            </Logo>
+            
+            {collapsible && (
+              <CollapseButton onClick={onToggle} aria-label="Toggle sidebar">
+                {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+              </CollapseButton>
+            )}
+          </SidebarHeaderContent>
+        </SidebarHeader>
+
+        <NavigationList>
+          {sectionsToRender.map((section, index) => (
+            <NavigationSection 
+              key={index} 
+              section={section} 
+              isOpen={isOpen}
+              onMobileClick={handleMobileNavClick}
+            />
+          ))}
+        </NavigationList>
+
+        <SidebarFooter>
+          <UserProfile>
+            <UserAvatar>{userInitials}</UserAvatar>
+            <UserInfo isOpen={isOpen}>
+              <UserName>{userName}</UserName>
+              <UserRole>{userRole}</UserRole>
+            </UserInfo>
+          </UserProfile>
+        </SidebarFooter>
+      </SidebarRoot>
+    </>
   );
 };

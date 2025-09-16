@@ -18,14 +18,11 @@ import {
   PasswordIconButton,
   ForgotPassword,
   SubmitButton,
-  Divider,
-  SignUpButton,
   GoBackButton,
 } from "./elements";
 import { LoginProps } from "./interface";
 
 export function LoginForm({
-  onSignUp,
   onForgotPassword,
   isLoading,
 }: LoginProps) {
@@ -39,8 +36,8 @@ export function LoginForm({
     setLoginError("");
 
     // Hardcoded credentials for testing
-    const hardcodedEmail = "testuser@example.com";
-    const hardcodedPassword = "123";
+    const hardcodedEmail = "admin@kmaris.com";
+    const hardcodedPassword = "admin123";
     const user = { email: hardcodedEmail, role: "admin" }; 
     const sessionId = "mock-session-12345";
 
@@ -52,22 +49,17 @@ export function LoginForm({
         Swal.fire({
           icon: "success",
           title: "Login Successful",
-          text: "Redirecting...",
+          text: "Redirecting to News Dashboard...",
           timer: 1500,
           showConfirmButton: false,
         }).then(() => {
-          if (user.role === "admin") {
-            window.location.href = "/news-dashboard";
-
-          } else {
-            window.location.href = `https://accessuserdashboard.vercel.app/`;
-          }
+          window.location.href = "/news-dashboard";
         });
       } else {
         Swal.fire({
           icon: "error",
-          title: "Login Failed",
-          text: "Invalid email or password.",
+          title: "Access Denied",
+          text: "Invalid admin credentials.",
         });
       }
     } catch (error) {
@@ -86,14 +78,14 @@ export function LoginForm({
 
   return (
     <FormRoot>
-      <Title>Welcome Back</Title>
-      <Subtitle>Login into your account</Subtitle>
+      <Title>News Manager Login</Title>
+      <Subtitle>Access your news management dashboard</Subtitle>
       <Form onSubmit={handleSubmit}>
         <InputGroup>
-          <Label>Email</Label>
+          <Label>Admin Email</Label>
           <Input
             type="email"
-            placeholder="sample@gmail.com"
+            placeholder="admin@kmaris.com"
             value={email}
             onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
               setEmail(e.target.value)
@@ -106,7 +98,7 @@ export function LoginForm({
           <InputWrapper>
             <Input
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder="Enter admin password"
               value={password}
               onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
                 setPassword(e.target.value)
@@ -127,14 +119,8 @@ export function LoginForm({
         </ForgotPassword>
 
         <SubmitButton type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login now"}
+          {isLoading ? "Logging in..." : "Access Dashboard"}
         </SubmitButton>
-
-        <Divider>OR</Divider>
-
-        <SignUpButton type="button" onClick={onSignUp}>
-          Sign up now
-        </SignUpButton>
 
         <GoBackButton type="button" onClick={handleGoToHomepage}>
           Return to Homepage

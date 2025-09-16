@@ -19,7 +19,57 @@ export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
 
   [theme.breakpoints.down('md')]: {
-    zIndex: 1001,
+    width: isOpen ? "280px" : "0px",
+    transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+    zIndex: 1300,
+    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+}));
+
+// Mobile overlay backdrop
+export const MobileOverlay = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }) => ({
+  display: "none",
+  
+  [theme.breakpoints.down('md')]: {
+    display: isOpen ? "block" : "none",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1299,
+    opacity: isOpen ? 1 : 0,
+    transition: "opacity 0.3s ease",
+  },
+}));
+
+// Mobile burger button
+export const MobileBurgerButton = styled("button")(({ theme }) => ({
+  display: "none",
+  
+  [theme.breakpoints.down('md')]: {
+    display: "flex",
+    position: "fixed",
+    top: "20px",
+    left: "20px",
+    zIndex: 1301,
+    width: "44px",
+    height: "44px",
+    borderRadius: "12px",
+    backgroundColor: palette.navy.main,
+    border: "none",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    color: palette.common.white,
+    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.2)",
+
+    "&:hover": {
+      backgroundColor: palette.navy.dark,
+      transform: "scale(1.05)",
+    },
   },
 }));
 
@@ -32,6 +82,11 @@ export const SidebarHeader = styled("div")(({ theme }) => ({
   backgroundColor: palette.navy.main,
   minHeight: "80px",
   position: "relative",
+
+  [theme.breakpoints.down('md')]: {
+    padding: "20px 16px",
+    minHeight: "70px",
+  },
 }));
 
 export const SidebarHeaderContent = styled("div")({
@@ -41,7 +96,7 @@ export const SidebarHeaderContent = styled("div")({
   width: "100%",
 });
 
-export const Logo = styled("div")({
+export const Logo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
   display: "flex",
   alignItems: "center",
   gap: "12px",
@@ -49,7 +104,20 @@ export const Logo = styled("div")({
   fontWeight: 800,
   color: palette.common.white,
   letterSpacing: "-0.5px",
-});
+  opacity: isOpen ? 1 : 0,
+  transform: isOpen ? "scale(1)" : "scale(0.8)",
+  transition: "all 0.3s ease",
+  transformOrigin: "left center",
+  overflow: "hidden",
+  
+  "& img": {
+    transition: "all 0.3s ease",
+    opacity: isOpen ? 1 : 0,
+    transform: isOpen ? "scale(1)" : "scale(0)",
+  },
+}));
+
+
 
 export const CollapseButton = styled("button")(({ theme }) => ({
   width: "32px",
@@ -68,6 +136,10 @@ export const CollapseButton = styled("button")(({ theme }) => ({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     transform: "scale(1.05)",
   },
+
+  [theme.breakpoints.down('md')]: {
+    display: "none", // Hide on mobile since we use burger menu
+  },
 }));
 
 export const NavigationList = styled("nav")({
@@ -79,7 +151,7 @@ export const NavigationList = styled("nav")({
   gap: "4px",
 });
 
-export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({  // <-- Change "a" to "div"!
+export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
   display: "flex",
   alignItems: "center",
   padding: "14px 16px",
@@ -116,6 +188,11 @@ export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({  //
       width: "4px",
     },
   },
+
+  [theme.breakpoints.down('md')]: {
+    padding: "16px 16px",
+    gap: "16px",
+  },
 }));
 
 export const NavIcon = styled("div")(({ active }: { active?: boolean }) => ({
@@ -127,6 +204,7 @@ export const NavIcon = styled("div")(({ active }: { active?: boolean }) => ({
   opacity: 1,
   transition: "opacity 0.2s ease",
   color: "inherit",
+  minWidth: "22px", // Prevent shrinking
 }));
 
 export const NavText = styled("span")<{ isOpen?: boolean }>(({ isOpen = true }) => ({
@@ -138,12 +216,17 @@ export const NavText = styled("span")<{ isOpen?: boolean }>(({ isOpen = true }) 
   overflow: "hidden",
   transition: "all 0.3s ease",
   color: "inherit",
+  whiteSpace: "nowrap",
 }));
 
 export const SidebarFooter = styled("div")(({ theme }) => ({
   padding: "20px",
   borderTop: `1px solid ${palette.navy.dark}`,
   backgroundColor: palette.navy.main,
+
+  [theme.breakpoints.down('md')]: {
+    padding: "16px",
+  },
 }));
 
 export const UserProfile = styled("div")({
@@ -172,6 +255,7 @@ export const UserAvatar = styled("div")({
   fontSize: "16px",
   fontWeight: 700,
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+  minWidth: "40px", // Prevent shrinking
 });
 
 export const UserInfo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
@@ -214,4 +298,5 @@ export const NavSectionTitle = styled("div")<{ isOpen?: boolean }>(({ isOpen = t
   width: isOpen ? "auto" : 0,
   overflow: "hidden",
   transition: "all 0.3s ease",
+  whiteSpace: "nowrap",
 }));

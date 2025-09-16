@@ -8,7 +8,6 @@ import { LoginImagePanel } from "./LoginImagePanel";
 
 export function Login({
   onSubmit,
-  onSignUp,
   onForgotPassword,
   isLoading,
   error,
@@ -19,7 +18,6 @@ export function Login({
         <LoginImagePanel />
         <LoginForm 
           onSubmit={onSubmit}              
-          onSignUp={onSignUp}
           onForgotPassword={onForgotPassword}
           isLoading={isLoading}
           error={error}                     
