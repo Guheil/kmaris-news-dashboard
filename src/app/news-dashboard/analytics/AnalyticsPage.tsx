@@ -55,16 +55,6 @@ import {
   ChartCard,
   ChartTitle,
   ChartsGrid,
-  TableCard,
-  TablesGrid,
-  TableTitle,
-  Table,
-  TableRow,
-  TableCell,
-  ArticleMeta,
-  ArticleTitle,
-  CategoryBadge,
-  ViewsCount,
 } from "./elements";
 
 const truncateText = (text: string, limit: number): string => {
@@ -107,9 +97,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   onSidebarToggle,
   isMobile = false,
 }) => {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
-    null
-  );
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState("12m");
@@ -141,14 +129,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     }
   };
 
-  if (loading) {
+  // Ensure consistent rendering for SSR by checking if we're on the client
+  const isClient = typeof window !== "undefined";
+
+  if (loading && isClient) {
     return (
       <AnalyticsRoot>
         <SidebarOverlay
           show={isMobile && sidebarOpen}
           onClick={handleOverlayClick}
         />
-
         <Sidebar
           isOpen={sidebarOpen}
           onToggle={onSidebarToggle}
@@ -191,7 +181,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           collapsible={!isMobile}
           navItems={[]}
         />
-
         <Header
           title="Analytics"
           onMenuToggle={onSidebarToggle}
@@ -203,7 +192,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           isSidebarOpen={sidebarOpen}
           isMobile={isMobile}
         />
-
         <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
           <LoadingState>
             <LoadingSpinner />
@@ -214,14 +202,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     );
   }
 
-  if (error) {
+  if (error && isClient) {
     return (
       <AnalyticsRoot>
         <SidebarOverlay
           show={isMobile && sidebarOpen}
           onClick={handleOverlayClick}
         />
-
         <Sidebar
           isOpen={sidebarOpen}
           onToggle={onSidebarToggle}
@@ -264,7 +251,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           collapsible={!isMobile}
           navItems={[]}
         />
-
         <Header
           title="Analytics"
           onMenuToggle={onSidebarToggle}
@@ -276,7 +262,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           isSidebarOpen={sidebarOpen}
           isMobile={isMobile}
         />
-
         <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
           <ErrorState>
             <ErrorTitle>Error loading analytics</ErrorTitle>
@@ -315,7 +300,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         show={isMobile && sidebarOpen}
         onClick={handleOverlayClick}
       />
-
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
@@ -358,7 +342,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         collapsible={!isMobile}
         navItems={[]}
       />
-
       <Header
         title="Analytics"
         onMenuToggle={onSidebarToggle}
@@ -370,7 +353,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}
       />
-
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <FiltersContainer>
           <div />
@@ -385,7 +367,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           </FilterSelect>
         </FiltersContainer>
 
-        {/* Metrics Grid */}
         {/* Metrics Grid */}
         <MetricsGrid>
           <MetricCard>
@@ -549,53 +530,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-
-        {/* Tables */}
-        <TablesGrid>
-          <TableCard>
-            <TableTitle>Top Performing Articles</TableTitle>
-            <Table>
-              {analyticsData.topArticles.map((article) => (
-                <TableRow key={article._id}>
-                  <TableCell>
-                    <ArticleTitle>
-                      {truncateText(article.title, 50)}
-                    </ArticleTitle>
-                    <ArticleMeta>
-                      <CategoryBadge category={article.category}>
-                        {article.category}
-                      </CategoryBadge>
-                      <span>{formatDate(article.date)}</span>
-                    </ArticleMeta>
-                  </TableCell>
-                  <ViewsCount>{article.views.toLocaleString()}</ViewsCount>
-                </TableRow>
-              ))}
-            </Table>
-          </TableCard>
-
-          <TableCard>
-            <TableTitle>Recent Activity</TableTitle>
-            <Table>
-              {analyticsData.recentActivity.map((article) => (
-                <TableRow key={article._id}>
-                  <TableCell>
-                    <ArticleTitle>
-                      {truncateText(article.title, 50)}
-                    </ArticleTitle>
-                    <ArticleMeta>
-                      <CategoryBadge category={article.category}>
-                        {article.category}
-                      </CategoryBadge>
-                      <span>{formatDate(article.date)}</span>
-                      <span>{article.views.toLocaleString()} views</span>
-                    </ArticleMeta>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
-          </TableCard>
-        </TablesGrid>
       </MainContent>
     </AnalyticsRoot>
   );
