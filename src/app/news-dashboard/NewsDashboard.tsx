@@ -234,11 +234,7 @@ const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
               },
-              {
-                icon: <ArchiveIcon size={20} />,
-                text: "Archive",
-                href: "/news-dashboard/archive",
-              },
+             
             ],
           },
         ]}

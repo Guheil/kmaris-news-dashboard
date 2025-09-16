@@ -1,6 +1,7 @@
 "use client";
 
 import { FC, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   FileText,
@@ -58,6 +59,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   onSidebarToggle,
   isMobile = false,
 }) => {
+  const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -156,6 +158,10 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   const handleSubmit = async (status: "draft" | "published") => {
     if (!validateForm()) return;
 
+    if (status === "published" && !confirm("Are you sure you want to publish this article?")) {
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -185,17 +191,21 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       alert(
         `Article ${status === "draft" ? "saved as draft" : "published"} successfully!`
       );
-      // Reset form on success (optional)
-      setFormData({
-        title: "",
-        author: "",
-        category: "",
-        description: "",
-        newsImage: "",
-        newsVideo: "",
-        status: "draft",
-      });
-      setErrors({});
+
+      if (status === "published") {
+        router.push("/news-dashboard/articles");
+      } else {
+        setFormData({
+          title: "",
+          author: "",
+          category: "",
+          description: "",
+          newsImage: "",
+          newsVideo: "",
+          status: "draft",
+        });
+        setErrors({});
+      }
     } catch (error) {
       console.error("Error saving article:", error);
       setSubmitError(
@@ -215,17 +225,15 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
 
   const goBack = () => {
     console.log("Navigate back to articles");
-    // Implement navigation logic (e.g., use Next.js router)
+    router.push("/news-dashboard/articles");
   };
 
   return (
     <CreateArticleRoot>
-      {/* Mobile overlay */}
       <SidebarOverlay
         show={isMobile && sidebarOpen}
         onClick={handleOverlayClick}
       />
-
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
@@ -251,14 +259,10 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               {
                 icon: <Plus size={20} />,
                 text: "Create Article",
-                href: "/create-article", // Updated to new route
+                href: "/create-article",
                 active: true,
               },
-              {
-                icon: <ArchiveIcon size={20} />,
-                text: "Archive",
-                href: "/news-dashboard/archive-news",
-              },
+            
             ],
           },
         ]}
@@ -268,7 +272,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
         collapsible={!isMobile}
         navItems={[]}
       />
-
       <Header
         title="Create Article"
         onMenuToggle={onSidebarToggle}
@@ -279,18 +282,14 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}
       />
-
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <FormContainer>
-          {/* Form Header */}
           <FormHeader>
             <FormTitle>Create New Article</FormTitle>
             <FormSubtitle>
               Fill in the details below to create a new news article
             </FormSubtitle>
           </FormHeader>
-
-          {/* Basic Information */}
           <FormSection>
             <SectionTitle>Basic Information</SectionTitle>
             <FormGrid>
@@ -307,7 +306,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 />
                 {errors.title && <ErrorMessage>{errors.title}</ErrorMessage>}
               </FormField>
-
               <FormField>
                 <Label>
                   Author <RequiredIndicator>*</RequiredIndicator>
@@ -321,7 +319,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 />
                 {errors.author && <ErrorMessage>{errors.author}</ErrorMessage>}
               </FormField>
-
               <FormField>
                 <Label>
                   Category <RequiredIndicator>*</RequiredIndicator>
@@ -344,7 +341,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                   <ErrorMessage>{errors.category}</ErrorMessage>
                 )}
               </FormField>
-
               <FormField fullWidth>
                 <Label>
                   Description <RequiredIndicator>*</RequiredIndicator>
@@ -363,12 +359,9 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               </FormField>
             </FormGrid>
           </FormSection>
-
-          {/* Media Upload */}
           <FormSection>
             <SectionTitle>Media</SectionTitle>
             <MediaUploadContainer>
-              {/* Image Upload */}
               <div>
                 <input
                   ref={imageInputRef}
@@ -411,8 +404,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                   )}
                 </MediaUploadBox>
               </div>
-
-              {/* Video Upload */}
               <div>
                 <input
                   ref={videoInputRef}
@@ -467,8 +458,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               </div>
             </MediaUploadContainer>
           </FormSection>
-
-          {/* Action Buttons */}
           <ActionButtons>
             <Button variant="outline" onClick={goBack} disabled={isSubmitting}>
               <ArrowLeft size={16} />
@@ -491,8 +480,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               Publish Article
             </Button>
           </ActionButtons>
-
-          {/* Error Display */}
           {submitError && (
             <ErrorMessage style={{ display: "block", marginTop: "16px" }}>
               {submitError}

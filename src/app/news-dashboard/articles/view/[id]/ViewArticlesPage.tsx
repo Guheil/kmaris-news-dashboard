@@ -76,9 +76,9 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch(`/api/articles/${articleId}`);
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error("Article not found");
@@ -86,7 +86,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
             throw new Error("Failed to fetch article");
           }
         }
-        
+
         const data = await response.json();
         setArticle(data);
       } catch (err) {
@@ -112,21 +112,21 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
   const handleArchive = async () => {
     try {
       const response = await fetch(`/api/articles/${articleId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...article,
-          status: 'archived'
+          status: "archived",
         }),
       });
 
       if (response.ok) {
-        setArticle(prev => prev ? { ...prev, status: 'archived' } : null);
+        setArticle((prev) => (prev ? { ...prev, status: "archived" } : null));
       }
     } catch (err) {
-      console.error('Error archiving article:', err);
+      console.error("Error archiving article:", err);
     }
   };
 
@@ -139,7 +139,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
           url: window.location.href,
         });
       } catch (err) {
-        console.error('Error sharing:', err);
+        console.error("Error sharing:", err);
       }
     } else {
       // Fallback: copy to clipboard
@@ -154,15 +154,15 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatViews = (views: number | undefined) => {
-    if (!views) return '0';
+    if (!views) return "0";
     return views.toLocaleString();
   };
 
@@ -201,11 +201,6 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                 icon: <Plus size={20} />,
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <ArchiveIcon size={20} />,
-                text: "Archive",
-                href: "/news-dashboard/archive-news",
               },
             ],
           },
@@ -264,13 +259,13 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
             {/* Article Header */}
             <ArticleHeader>
               <ArticleTitle>{article.title}</ArticleTitle>
-              
+
               <ArticleMeta>
                 <MetaItem>
                   <Calendar size={16} />
                   {formatDate(article.date)}
                 </MetaItem>
-                
+
                 <MetaItem>
                   <User size={16} />
                   <AuthorName>{article.author}</AuthorName>
@@ -298,8 +293,17 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                 {/* Status Badge */}
                 {article.status && (
                   <CategoryBadge category={`status-${article.status}`}>
-                    {article.status === 'published' ? '✓' : article.status === 'draft' ? '📝' : '📁'}
-                    {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
+                    // Replace the problematic status badge section in the
+                    ArticleMeta
+                    {article.status && (
+                      <CategoryBadge category={`status-${article.status}`}>
+                        {article.status === "archived" ? "📁" : "✓"}
+                        {article.status.charAt(0).toUpperCase() +
+                          article.status.slice(1)}
+                      </CategoryBadge>
+                    )}
+                    {article.status.charAt(0).toUpperCase() +
+                      article.status.slice(1)}
                   </CategoryBadge>
                 )}
               </ArticleMeta>
@@ -310,16 +314,15 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                   <Edit size={16} />
                   Edit Article
                 </ActionButton>
-                
-                <ActionButton 
-                  variant="archive" 
+                section
+                <ActionButton
+                  variant="archive"
                   onClick={handleArchive}
-                  disabled={article.status === 'archived'}
+                  disabled={article.status === "archived"}
                 >
                   <Archive size={16} />
-                  {article.status === 'archived' ? 'Archived' : 'Archive'}
+                  {article.status === "archived" ? "Archived" : "Archive"}
                 </ActionButton>
-
                 <ActionButton variant="share" onClick={handleShare}>
                   <Share2 size={16} />
                   Share
@@ -332,10 +335,14 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
               <ArticleMediaContainer>
                 {article.newsVideo ? (
                   <ArticleVideo>
-                    <video 
-                      controls 
+                    <video
+                      controls
                       poster={article.newsImage}
-                      style={{ width: '100%', height: '100%', borderRadius: '12px' }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "12px",
+                      }}
                     >
                       <source src={article.newsVideo} type="video/mp4" />
                       Your browser does not support the video tag.
@@ -349,9 +356,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
 
             {/* Article Description/Content */}
             <ArticleContent>
-              <ArticleDescription>
-                {article.description}
-              </ArticleDescription>
+              <ArticleDescription>{article.description}</ArticleDescription>
             </ArticleContent>
           </ArticleContainer>
         )}

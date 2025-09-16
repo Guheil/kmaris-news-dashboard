@@ -21,7 +21,7 @@ export interface NewsArticle {
   category: string;
   description: string; 
   views?: number;
-  status?: 'published' | 'draft' | 'archived';
+  status?: 'published' | 'archived';
 }
 
 export interface FilterOptions {

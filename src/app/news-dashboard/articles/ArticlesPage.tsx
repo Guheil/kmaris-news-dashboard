@@ -75,6 +75,8 @@ const truncateText = (text: string, limit: number): string => {
 };
 
 // Article Card Component
+// Article Card Component
+// Article Card Component
 const ArticleCardComponent: FC<ArticleCardProps> = ({
   article,
   viewMode,
@@ -84,20 +86,22 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
 }) => {
   const titleLimit = viewMode === 'grid' ? 60 : 80;
   const descriptionLimit = viewMode === 'grid' ? 120 : 150;
+  const isArchived = article.status === 'archived';
 
   return (
-    <ArticleCard viewMode={viewMode}>
+    <ArticleCard viewMode={viewMode} isArchived={isArchived}>
       <ArticleImage
         backgroundImage={article.newsImage}
         viewMode={viewMode}
         hasVideo={!!article.newsVideo}
+        isArchived={isArchived}
       >
         {!article.newsImage && !article.newsVideo && <FileText size={32} />}
       </ArticleImage>
 
       <ArticleContent viewMode={viewMode}>
         <ArticleHeader>
-          <ArticleTitle title={article.title}>
+          <ArticleTitle title={article.title} isArchived={isArchived}>
             {truncateText(article.title, titleLimit)}
           </ArticleTitle>
           <ArticleActions>
@@ -108,20 +112,25 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
             >
               <Eye size={16} />
             </ActionButton>
-            <ActionButton
-              variant="edit"
-              onClick={() => onEdit(article._id)}
-              title="Edit Article"
-            >
-              <Edit size={16} />
-            </ActionButton>
-            <ActionButton
-              variant="archive"
-              onClick={() => onArchive(article._id)}
-              title="Archive Article"
-            >
-              <Archive size={16} />
-            </ActionButton>
+            {/* Only show edit and archive buttons for non-archived articles */}
+            {!isArchived && (
+              <>
+                <ActionButton
+                  variant="edit"
+                  onClick={() => onEdit(article._id)}
+                  title="Edit Article"
+                >
+                  <Edit size={16} />
+                </ActionButton>
+                <ActionButton
+                  variant="archive"
+                  onClick={() => onArchive(article._id)}
+                  title="Archive Article"
+                >
+                  <Archive size={16} />
+                </ActionButton>
+              </>
+            )}
           </ArticleActions>
         </ArticleHeader>
 
@@ -151,14 +160,13 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
           )}
         </ArticleMeta>
 
-        <ArticleDescription viewMode={viewMode}>
+        <ArticleDescription viewMode={viewMode} isArchived={isArchived}>
           {truncateText(article.description, descriptionLimit)}
         </ArticleDescription>
       </ArticleContent>
     </ArticleCard>
   );
 };
-
 export const ArticlesPage: FC<ArticlesPageProps> = ({
   sidebarOpen,
   onSidebarToggle,
@@ -177,12 +185,13 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   });
   const [pagination, setPagination] = useState<PaginationOptions>({
     currentPage: 1,
-    itemsPerPage: 12,
+    itemsPerPage: 9,
     totalItems: 0,
   });
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [archiving, setArchiving] = useState<string | null>(null);
 
   // Fetch articles from API
   useEffect(() => {
@@ -213,56 +222,63 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   );
 
   // Filter and sort articles
-  const filteredAndSortedArticles = useMemo(() => {
-    let filtered = articles;
+// Filter and sort articles
+const filteredAndSortedArticles = useMemo(() => {
+  let filtered = articles;
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(
-        (article) =>
-          article.title.toLowerCase().includes(query) ||
-          article.category.toLowerCase().includes(query) ||
-          article.description.toLowerCase().includes(query)
-      );
+  // Apply search filter
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase().trim();
+    filtered = filtered.filter(
+      (article) =>
+        article.title.toLowerCase().includes(query) ||
+        article.category.toLowerCase().includes(query) ||
+        article.description.toLowerCase().includes(query)
+    );
+  }
+
+  // Apply category filter
+  if (filters.category !== "all") {
+    filtered = filtered.filter(
+      (article) => article.category === filters.category
+    );
+  }
+
+  // Apply status filter - UPDATED LOGIC
+  if (filters.status === "all") {
+    // When "all" is selected, only show published articles (hide archived)
+    filtered = filtered.filter(
+      (article) => (article.status || 'published') === 'published'
+    );
+  } else {
+    // When specific status is selected, show articles with that status
+    filtered = filtered.filter(
+      (article) => (article.status || 'published') === filters.status
+    );
+  }
+
+  // Apply sorting
+  filtered.sort((a, b) => {
+    let aValue: any = a[sortOptions.field];
+    let bValue: any = b[sortOptions.field];
+
+    if (sortOptions.field === "date") {
+      aValue = new Date(aValue).getTime();
+      bValue = new Date(bValue).getTime();
+    } else if (typeof aValue === "string") {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
     }
 
-    // Apply category filter
-    if (filters.category !== "all") {
-      filtered = filtered.filter(
-        (article) => article.category === filters.category
-      );
+    if (sortOptions.direction === "asc") {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
     }
+  });
 
-    // Apply status filter
-    if (filters.status !== "all") {
-      filtered = filtered.filter(
-        (article) => (article.status || 'published') === filters.status
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue: any = a[sortOptions.field];
-      let bValue: any = b[sortOptions.field];
-
-      if (sortOptions.field === "date") {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
-      } else if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (sortOptions.direction === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-
-    return filtered;
-  }, [searchQuery, filters, sortOptions, articles]);
+  return filtered;
+}, [searchQuery, filters, sortOptions, articles]);
 
   // Paginate articles
   const paginatedArticles = useMemo(() => {
@@ -304,10 +320,36 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     router.push(`/news-dashboard/articles/edit/${articleId}`);
   };
 
-  const handleArchive = (articleId: string) => {
-    console.log("Archive article:", articleId);
-    // Implement archive functionality
-  };
+  const handleArchive = async (articleId: string) => {
+  if (!confirm("Are you sure you want to archive this article?")) return;
+
+  setArchiving(articleId);
+  try {
+    const response = await fetch(`/api/articles/${articleId}/archive`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    // Update the articles state to reflect the archived status
+    setArticles(prevArticles => 
+      prevArticles.map(article => 
+        article._id === articleId 
+          ? { ...article, status: 'archived' }
+          : article
+      )
+    );
+
+    alert("Article archived successfully");
+  } catch (err) {
+    console.error("Error archiving article:", err);
+    alert("Failed to archive article. Please try again.");
+  } finally {
+    setArchiving(null);
+  }
+};
 
  const handleView = (articleId: string) => {
   router.push(`/news-dashboard/articles/view/${articleId}`);
@@ -355,11 +397,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                 icon: <Plus size={20} />,
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <ArchiveIcon size={20} />,
-                text: "Archive",
-                href: "/news-dashboard/archive-news",
               },
             ],
           },
@@ -445,7 +482,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
               >
                 <option value="all">All Status</option>
                 <option value="published">Published</option>
-                <option value="draft">Draft</option>
                 <option value="archived">Archived</option>
               </FilterSelect>
             </FiltersContainer>

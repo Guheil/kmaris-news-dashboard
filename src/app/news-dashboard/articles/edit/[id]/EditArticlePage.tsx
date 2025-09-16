@@ -86,8 +86,12 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         setLoading(true);
         const response = await fetch(`/api/articles/${articleId}`);
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+          const errorData = await response
+            .json()
+            .catch(() => ({ error: "Unknown error" }));
+          throw new Error(
+            errorData.error || `HTTP ${response.status}: ${response.statusText}`
+          );
         }
         const data = await response.json();
         setFormData({
@@ -101,7 +105,8 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         });
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "An error occurred";
+        const errorMessage =
+          err instanceof Error ? err.message : "An error occurred";
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -113,7 +118,10 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     }
   }, [articleId]);
 
-  const handleInputChange = (field: keyof EditArticleFormData, value: string) => {
+  const handleInputChange = (
+    field: keyof EditArticleFormData,
+    value: string
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -255,7 +263,11 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         throw new Error("Failed to update article");
       }
 
-      alert(`Article ${status === "draft" ? "saved as draft" : "published"} successfully!`);
+      alert(
+        `Article ${
+          status === "draft" ? "saved as draft" : "published"
+        } successfully!`
+      );
       router.push("/news-dashboard/articles");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "An error occurred");
@@ -285,21 +297,37 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   if (loading) {
     return (
       <EditArticleRoot>
-        <SidebarOverlay show={isMobile && sidebarOpen} onClick={handleOverlayClick} />
+        <SidebarOverlay
+          show={isMobile && sidebarOpen}
+          onClick={handleOverlayClick}
+        />
         <Sidebar
           isOpen={sidebarOpen}
           onToggle={onSidebarToggle}
           navSections={[
             {
               title: "Overview",
-              items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
+              items: [
+                {
+                  icon: <Home size={20} />,
+                  text: "Dashboard",
+                  href: "/news-dashboard",
+                },
+              ],
             },
             {
               title: "News Management",
               items: [
-                { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
-                { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
-                { icon: <ArchiveIcon size={20} />, text: "Archive", href: "/news-dashboard/archive-news" },
+                {
+                  icon: <FileText size={20} />,
+                  text: "All Articles",
+                  href: "/news-dashboard/articles",
+                },
+                {
+                  icon: <Plus size={20} />,
+                  text: "Create Article",
+                  href: "/news-dashboard/create-article",
+                },
               ],
             },
           ]}
@@ -349,21 +377,42 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
 
   return (
     <EditArticleRoot>
-      <SidebarOverlay show={isMobile && sidebarOpen} onClick={handleOverlayClick} />
+      <SidebarOverlay
+        show={isMobile && sidebarOpen}
+        onClick={handleOverlayClick}
+      />
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
         navSections={[
           {
             title: "Overview",
-            items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
+            items: [
+              {
+                icon: <Home size={20} />,
+                text: "Dashboard",
+                href: "/news-dashboard",
+              },
+            ],
           },
           {
             title: "News Management",
             items: [
-              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
-              { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
-              { icon: <ArchiveIcon size={20} />, text: "Archive", href: "/news-dashboard/archive-news" },
+              {
+                icon: <FileText size={20} />,
+                text: "All Articles",
+                href: "/news-dashboard/articles",
+              },
+              {
+                icon: <Plus size={20} />,
+                text: "Create Article",
+                href: "/news-dashboard/create-article",
+              },
+              {
+                icon: <ArchiveIcon size={20} />,
+                text: "Archive",
+                href: "/news-dashboard/archive-news",
+              },
             ],
           },
         ]}
@@ -398,7 +447,9 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         >
           <FormHeader>
             <FormTitle>Edit Article</FormTitle>
-            <FormSubtitle>Update the article details below and save your changes</FormSubtitle>
+            <FormSubtitle>
+              Update the article details below and save your changes
+            </FormSubtitle>
           </FormHeader>
           <div style={{ marginBottom: "32px" }}>
             <SectionTitle>Basic Information</SectionTitle>
@@ -433,7 +484,9 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 </Label>
                 <Select
                   value={formData.category}
-                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("category", e.target.value)
+                  }
                 >
                   <option value="">Select category...</option>
                   {categories.map((category) => (
@@ -442,7 +495,9 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                     </option>
                   ))}
                 </Select>
-                {errors.category && <ErrorMessage>{errors.category}</ErrorMessage>}
+                {errors.category && (
+                  <ErrorMessage>{errors.category}</ErrorMessage>
+                )}
               </FormField>
               <FormField>
                 <Label>
@@ -450,7 +505,12 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 </Label>
                 <Select
                   value={formData.status}
-                  onChange={(e) => handleInputChange("status", e.target.value as EditArticleFormData["status"])}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "status",
+                      e.target.value as EditArticleFormData["status"]
+                    )
+                  }
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
@@ -464,15 +524,23 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 <TextArea
                   placeholder="Enter article description..."
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                 />
-                {errors.description && <ErrorMessage>{errors.description}</ErrorMessage>}
+                {errors.description && (
+                  <ErrorMessage>{errors.description}</ErrorMessage>
+                )}
               </FormField>
             </FormGrid>
           </div>
           <div style={{ marginBottom: "32px" }}>
             <SectionTitle>Media</SectionTitle>
-            {uploadError && <ErrorMessage style={{ marginBottom: "16px" }}>{uploadError}</ErrorMessage>}
+            {uploadError && (
+              <ErrorMessage style={{ marginBottom: "16px" }}>
+                {uploadError}
+              </ErrorMessage>
+            )}
             <MediaUploadContainer>
               <div>
                 <input
@@ -484,14 +552,28 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 />
                 <MediaUploadBox
                   hasMedia={!!formData.newsImage}
-                  onClick={() => !formData.newsVideo && imageInputRef.current?.click()}
+                  onClick={() =>
+                    !formData.newsVideo && imageInputRef.current?.click()
+                  }
                 >
                   {formData.newsImage ? (
-                    <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", marginTop: "12px" }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        marginTop: "12px",
+                      }}
+                    >
                       <img
                         src={formData.newsImage}
                         alt="Preview"
-                        style={{ width: "100%", height: "100px", objectFit: "cover", borderRadius: "8px" }}
+                        style={{
+                          width: "100%",
+                          height: "100px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
                       />
                       <button
                         onClick={(e) => {
@@ -534,7 +616,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                       >
                         <ImageIcon size={20} />
                       </div>
-                      <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500, marginBottom: "4px" }}>
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          color: "#64748b",
+                          fontWeight: 500,
+                          marginBottom: "4px",
+                        }}
+                      >
                         Upload Image
                       </div>
                       <div style={{ fontSize: "12px", color: "#94a3b8" }}>
@@ -554,14 +643,27 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 />
                 <MediaUploadBox
                   hasMedia={!!formData.newsVideo}
-                  onClick={() => !formData.newsImage && videoInputRef.current?.click()}
+                  onClick={() =>
+                    !formData.newsImage && videoInputRef.current?.click()
+                  }
                 >
                   {formData.newsVideo ? (
-                    <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", marginTop: "12px" }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        marginTop: "12px",
+                      }}
+                    >
                       <video
                         src={formData.newsVideo}
                         controls
-                        style={{ width: "100%", height: "100px", borderRadius: "8px" }}
+                        style={{
+                          width: "100%",
+                          height: "100px",
+                          borderRadius: "8px",
+                        }}
                       />
                       <button
                         onClick={(e) => {
@@ -604,7 +706,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                       >
                         <Video size={20} />
                       </div>
-                      <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500, marginBottom: "4px" }}>
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          color: "#64748b",
+                          fontWeight: 500,
+                          marginBottom: "4px",
+                        }}
+                      >
                         Upload Video
                       </div>
                       <div style={{ fontSize: "12px", color: "#94a3b8" }}>
@@ -616,25 +725,58 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
               </div>
             </MediaUploadContainer>
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "32px", paddingTop: "24px", borderTop: "1px solid #f1f5f9" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "12px",
+              marginTop: "32px",
+              paddingTop: "24px",
+              borderTop: "1px solid #f1f5f9",
+            }}
+          >
             <Button variant="outline" onClick={handleBack} disabled={saving}>
               <ArrowLeft size={16} />
               Cancel
             </Button>
-            <Button variant="secondary" onClick={handlePreview} disabled={saving}>
+            <Button
+              variant="secondary"
+              onClick={handlePreview}
+              disabled={saving}
+            >
               <Eye size={16} />
               Preview
             </Button>
-            <Button variant="secondary" onClick={() => handleSave("draft")} disabled={saving}>
-              {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            <Button
+              variant="secondary"
+              onClick={() => handleSave("draft")}
+              disabled={saving}
+            >
+              {saving ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Save size={16} />
+              )}
               Save Draft
             </Button>
-            <Button variant="primary" onClick={() => handleSave("published")} disabled={saving}>
-              {saving ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
+            <Button
+              variant="primary"
+              onClick={() => handleSave("published")}
+              disabled={saving}
+            >
+              {saving ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Eye size={16} />
+              )}
               {saving ? "Saving..." : "Update Article"}
             </Button>
           </div>
-          {submitError && <ErrorMessage style={{ display: "block", marginTop: "16px" }}>{submitError}</ErrorMessage>}
+          {submitError && (
+            <ErrorMessage style={{ display: "block", marginTop: "16px" }}>
+              {submitError}
+            </ErrorMessage>
+          )}
         </div>
       </MainContent>
     </EditArticleRoot>

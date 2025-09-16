@@ -5,7 +5,7 @@ export interface NewsArticle {
   author: string;
   category: string;
   description: string;
-  status: "draft" | "published" | "archived";
+  status:  "published" | "archived";
   newsImage: string | null; // Base64 string or URL
   newsVideo: string | null; // Base64 string or URL
   date: string;

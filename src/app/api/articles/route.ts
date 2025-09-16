@@ -23,16 +23,18 @@ export async function GET() {
       await db.collection("articles").createIndex({ title: 1 }, { unique: true });
     }
 
+    // FIXED: Remove the status filter to get ALL articles (published AND archived)
     const articles = await db
       .collection("articles")
-      .find({ status: { $ne: "archived" } })
+      .find({}) // Changed from { status: { $ne: "archived" } } to {}
       .sort({ createdAt: -1 })
       .toArray();
 
-    // Convert ObjectId safely
+    // Convert ObjectId safely and add default status if missing
     const safeArticles = articles.map(a => ({
       ...a,
       _id: a._id?.toString(),
+      status: a.status || 'published' // Add default status if missing
     }));
 
     return NextResponse.json(safeArticles, { status: 200 });

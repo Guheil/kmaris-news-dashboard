@@ -130,7 +130,7 @@ export const ArticlesGrid = styled("div")<{ viewMode: 'grid' | 'list' }>(({ them
 }));
 
 // Article Card Components
-export const ArticleCard = styled("div")<{ viewMode: 'grid' | 'list' }>(({ theme, viewMode }) => ({
+export const ArticleCard = styled("div")<{ viewMode: 'grid' | 'list'; isArchived?: boolean }>(({ theme, viewMode, isArchived }) => ({
   backgroundColor: theme.palette.common.white,
   borderRadius: "16px",
   overflow: "hidden",
@@ -138,18 +138,50 @@ export const ArticleCard = styled("div")<{ viewMode: 'grid' | 'list' }>(({ theme
   border: "1px solid rgba(0,0,0,0.05)",
   transition: "all 0.3s ease",
   display: viewMode === 'list' ? 'flex' : 'block',
+  position: 'relative',
+  
+  // Archived styling
+  ...(isArchived && {
+    opacity: 0.7,
+    backgroundColor: '#f8fafc',
+    border: "1px solid #e2e8f0",
+    
+    '&::before': {
+      content: '"ARCHIVED"',
+      position: 'absolute',
+      top: '12px',
+      right: '12px',
+      backgroundColor: '#fbbf24',
+      color: '#92400e',
+      fontSize: '10px',
+      fontWeight: 700,
+      padding: '4px 8px',
+      borderRadius: '4px',
+      zIndex: 2,
+      letterSpacing: '0.5px',
+    },
+  }),
   
   "&:hover": {
-    boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-    transform: "translateY(-4px)",
+    boxShadow: isArchived ? "0 4px 12px rgba(0,0,0,0.08)" : "0 8px 24px rgba(0,0,0,0.12)",
+    transform: isArchived ? "none" : "translateY(-4px)",
   },
+}));
+
+export const ArticleContent = styled("div")<{ viewMode: 'grid' | 'list' }>(({ viewMode }) => ({
+  padding: "20px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  flex: viewMode === 'list' ? 1 : 'none',
 }));
 
 export const ArticleImage = styled("div")<{ 
   backgroundImage?: string; 
   viewMode: 'grid' | 'list';
   hasVideo?: boolean;
-}>(({ backgroundImage, viewMode, hasVideo }) => ({
+  isArchived?: boolean;
+}>(({ backgroundImage, viewMode, hasVideo, isArchived }) => ({
   width: viewMode === 'list' ? '200px' : '100%',
   height: viewMode === 'list' ? '140px' : '200px',
   backgroundColor: backgroundImage ? 'transparent' : '#f1f5f9',
@@ -162,6 +194,11 @@ export const ArticleImage = styled("div")<{
   color: '#64748b',
   position: 'relative',
   flexShrink: 0,
+
+  // Archived image styling
+  ...(isArchived && {
+    filter: 'grayscale(50%)',
+  }),
 
   ...(hasVideo && {
     '&::after': {
@@ -182,13 +219,6 @@ export const ArticleImage = styled("div")<{
   }),
 }));
 
-export const ArticleContent = styled("div")<{ viewMode: 'grid' | 'list' }>(({ viewMode }) => ({
-  padding: "20px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "12px",
-  flex: viewMode === 'list' ? 1 : 'none',
-}));
 
 export const ArticleHeader = styled("div")({
   display: "flex",
@@ -197,14 +227,14 @@ export const ArticleHeader = styled("div")({
   gap: "12px",
 });
 
-export const ArticleTitle = styled("h3")({
+export const ArticleTitle = styled("h3")<{ isArchived?: boolean }>(({ isArchived }) => ({
   fontSize: "18px",
   fontWeight: 600,
-  color: "#0f172a",
+  color: isArchived ? "#64748b" : "#0f172a",
   margin: 0,
   lineHeight: 1.4,
   flex: 1,
-});
+}));
 
 export const ArticleActions = styled("div")({
   display: "flex",
@@ -304,9 +334,9 @@ export const CategoryBadge = styled("span")<{ category: string }>(({ category })
   }),
 }));
 
-export const ArticleDescription = styled("div")<{ viewMode: 'grid' | 'list' }>(({ viewMode }) => ({
+export const ArticleDescription = styled("div")<{ viewMode: 'grid' | 'list'; isArchived?: boolean }>(({ viewMode, isArchived }) => ({
   fontSize: "14px",
-  color: "#64748b",
+  color: isArchived ? "#94a3b8" : "#64748b",
   lineHeight: 1.6,
   margin: 0,
   display: "-webkit-box",
