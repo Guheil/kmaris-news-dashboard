@@ -18,6 +18,7 @@ import {
   Archive,
   Share2,
   Play,
+  BarChart3,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -201,6 +202,12 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                 icon: <Plus size={20} />,
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
+              },
+              {
+                icon: <BarChart3 size={20} />,
+                text: "Analytics",
+                href: "/news-dashboard/analytics",
+                active: false,
               },
             ],
           },

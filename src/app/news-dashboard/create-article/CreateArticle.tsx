@@ -262,6 +262,12 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 href: "/create-article",
                 active: true,
               },
+                            {
+                icon: <BarChart3 size={20} />,
+                text: "Analytics",
+                href: "/news-dashboard/analytics",
+                active: false,
+              },
             
             ],
           },

@@ -234,6 +234,12 @@ export const NewsDashboard: FC<DashboardProps> = ({
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
               },
+              {
+                icon: <BarChart3 size={20} />,
+                text: "Analytics",
+                href: "/news-dashboard/analytics",
+                active: false,
+              },
             ],
           },
         ]}
@@ -289,7 +295,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                 </StatIcon>
                 <StatNumber>{totalArticles}</StatNumber>
                 <StatLabel>
-                  {searchQuery ? "Found Articles" : "Total Articles"}
+                  {searchQuery ? "Found Articles" : "Total Published Articles"}
                 </StatLabel>
               </StatCard>
               <StatCard>

@@ -70,7 +70,7 @@ import {
 
 // Utility function to truncate text
 const truncateText = (text: string, limit: number): string => {
-  if (!text) return '';
+  if (!text) return "";
   return text.length > limit ? `${text.slice(0, limit)}...` : text;
 };
 
@@ -84,9 +84,9 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
   onArchive,
   onView,
 }) => {
-  const titleLimit = viewMode === 'grid' ? 60 : 80;
-  const descriptionLimit = viewMode === 'grid' ? 120 : 150;
-  const isArchived = article.status === 'archived';
+  const titleLimit = viewMode === "grid" ? 60 : 80;
+  const descriptionLimit = viewMode === "grid" ? 120 : 150;
+  const isArchived = article.status === "archived";
 
   return (
     <ArticleCard viewMode={viewMode} isArchived={isArchived}>
@@ -140,10 +140,10 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
           </CategoryBadge>
           <MetaItem>
             <Calendar size={14} />
-            {new Date(article.date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
+            {new Date(article.date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
             })}
           </MetaItem>
           {article.views !== undefined && (
@@ -222,63 +222,63 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   );
 
   // Filter and sort articles
-// Filter and sort articles
-const filteredAndSortedArticles = useMemo(() => {
-  let filtered = articles;
+  // Filter and sort articles
+  const filteredAndSortedArticles = useMemo(() => {
+    let filtered = articles;
 
-  // Apply search filter
-  if (searchQuery.trim()) {
-    const query = searchQuery.toLowerCase().trim();
-    filtered = filtered.filter(
-      (article) =>
-        article.title.toLowerCase().includes(query) ||
-        article.category.toLowerCase().includes(query) ||
-        article.description.toLowerCase().includes(query)
-    );
-  }
-
-  // Apply category filter
-  if (filters.category !== "all") {
-    filtered = filtered.filter(
-      (article) => article.category === filters.category
-    );
-  }
-
-  // Apply status filter - UPDATED LOGIC
-  if (filters.status === "all") {
-    // When "all" is selected, only show published articles (hide archived)
-    filtered = filtered.filter(
-      (article) => (article.status || 'published') === 'published'
-    );
-  } else {
-    // When specific status is selected, show articles with that status
-    filtered = filtered.filter(
-      (article) => (article.status || 'published') === filters.status
-    );
-  }
-
-  // Apply sorting
-  filtered.sort((a, b) => {
-    let aValue: any = a[sortOptions.field];
-    let bValue: any = b[sortOptions.field];
-
-    if (sortOptions.field === "date") {
-      aValue = new Date(aValue).getTime();
-      bValue = new Date(bValue).getTime();
-    } else if (typeof aValue === "string") {
-      aValue = aValue.toLowerCase();
-      bValue = bValue.toLowerCase();
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        (article) =>
+          article.title.toLowerCase().includes(query) ||
+          article.category.toLowerCase().includes(query) ||
+          article.description.toLowerCase().includes(query)
+      );
     }
 
-    if (sortOptions.direction === "asc") {
-      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    // Apply category filter
+    if (filters.category !== "all") {
+      filtered = filtered.filter(
+        (article) => article.category === filters.category
+      );
+    }
+
+    // Apply status filter - UPDATED LOGIC
+    if (filters.status === "all") {
+      // When "all" is selected, only show published articles (hide archived)
+      filtered = filtered.filter(
+        (article) => (article.status || "published") === "published"
+      );
     } else {
-      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      // When specific status is selected, show articles with that status
+      filtered = filtered.filter(
+        (article) => (article.status || "published") === filters.status
+      );
     }
-  });
 
-  return filtered;
-}, [searchQuery, filters, sortOptions, articles]);
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any = a[sortOptions.field];
+      let bValue: any = b[sortOptions.field];
+
+      if (sortOptions.field === "date") {
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
+      } else if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (sortOptions.direction === "asc") {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+
+    return filtered;
+  }, [searchQuery, filters, sortOptions, articles]);
 
   // Paginate articles
   const paginatedArticles = useMemo(() => {
@@ -321,39 +321,39 @@ const filteredAndSortedArticles = useMemo(() => {
   };
 
   const handleArchive = async (articleId: string) => {
-  if (!confirm("Are you sure you want to archive this article?")) return;
+    if (!confirm("Are you sure you want to archive this article?")) return;
 
-  setArchiving(articleId);
-  try {
-    const response = await fetch(`/api/articles/${articleId}/archive`, {
-      method: "POST",
-    });
+    setArchiving(articleId);
+    try {
+      const response = await fetch(`/api/articles/${articleId}/archive`, {
+        method: "POST",
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+
+      // Update the articles state to reflect the archived status
+      setArticles((prevArticles) =>
+        prevArticles.map((article) =>
+          article._id === articleId
+            ? { ...article, status: "archived" }
+            : article
+        )
+      );
+
+      alert("Article archived successfully");
+    } catch (err) {
+      console.error("Error archiving article:", err);
+      alert("Failed to archive article. Please try again.");
+    } finally {
+      setArchiving(null);
     }
+  };
 
-    // Update the articles state to reflect the archived status
-    setArticles(prevArticles => 
-      prevArticles.map(article => 
-        article._id === articleId 
-          ? { ...article, status: 'archived' }
-          : article
-      )
-    );
-
-    alert("Article archived successfully");
-  } catch (err) {
-    console.error("Error archiving article:", err);
-    alert("Failed to archive article. Please try again.");
-  } finally {
-    setArchiving(null);
-  }
-};
-
- const handleView = (articleId: string) => {
-  router.push(`/news-dashboard/articles/view/${articleId}`);
-};
+  const handleView = (articleId: string) => {
+    router.push(`/news-dashboard/articles/view/${articleId}`);
+  };
 
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({
@@ -397,6 +397,12 @@ const filteredAndSortedArticles = useMemo(() => {
                 icon: <Plus size={20} />,
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
+              },
+              {
+                icon: <BarChart3 size={20} />,
+                text: "Analytics",
+                href: "/news-dashboard/analytics",
+                active: false,
               },
             ],
           },
