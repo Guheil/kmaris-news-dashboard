@@ -176,15 +176,15 @@ export const NewsDashboard: FC<DashboardProps> = ({
 
   // Calculate statistics based on filtered results
   const displayedNews = filteredNews.slice(0, 5); // Limit to 5 articles
-const totalArticles = displayedNews.length;
-const uniqueCategories = new Set(
-  displayedNews.map((article) => article.category)
-).size;
-const totalViews = displayedNews.reduce(
-  (sum, article) => sum + (article.views || 0),
-  0
-);
-const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
+  const totalArticles = displayedNews.length;
+  const uniqueCategories = new Set(
+    displayedNews.map((article) => article.category)
+  ).size;
+  const totalViews = displayedNews.reduce(
+    (sum, article) => sum + (article.views || 0),
+    0
+  );
+  const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
 
   const categoryCounts = displayedNews.reduce((acc, article) => {
     acc[article.category] = (acc[article.category] || 0) + 1;
@@ -234,7 +234,6 @@ const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
                 text: "Create Article",
                 href: "/news-dashboard/create-article",
               },
-             
             ],
           },
         ]}
@@ -307,7 +306,9 @@ const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
                   <TrendingUp size={20} />
                 </StatIcon>
                 <StatNumber>
-                  {averageViews.toFixed(1)}
+                  {averageViews >= 1000
+                    ? `${(averageViews / 1000).toFixed(1)}k`
+                    : averageViews.toFixed(1)}
                 </StatNumber>
                 <StatLabel>Average Views</StatLabel>
               </StatCard>
@@ -336,8 +337,8 @@ const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
                   {searchQuery && (
                     <SearchResultsHeader>
                       <SearchResultsCount>
-                        {totalArticles} result{totalArticles !== 1 ? "s" : ""} for{" "}
-                        <SearchQuery>"{searchQuery}"</SearchQuery>
+                        {totalArticles} result{totalArticles !== 1 ? "s" : ""}{" "}
+                        for <SearchQuery>"{searchQuery}"</SearchQuery>
                       </SearchResultsCount>
                       <ClearSearchButton onClick={clearSearch}>
                         Clear Search
@@ -380,7 +381,10 @@ const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
                             <ActionButton variant="edit" title="Edit Article">
                               <Edit size={14} />
                             </ActionButton>
-                            <ActionButton variant="delete" title="Delete Article">
+                            <ActionButton
+                              variant="delete"
+                              title="Delete Article"
+                            >
                               <Trash2 size={14} />
                             </ActionButton>
                           </ActionButtons>
@@ -426,7 +430,9 @@ const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
               </DashboardCard>
 
               <DashboardCard
-                title={searchQuery ? "Recent Activity (All)" : "Recent Activity"}
+                title={
+                  searchQuery ? "Recent Activity (All)" : "Recent Activity"
+                }
                 gridColumn="span 12"
               >
                 <div>
