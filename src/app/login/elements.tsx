@@ -51,7 +51,7 @@ export const Title = styled("h1")(({ theme }) => ({
   textAlign: "center",
 }));
 
-export const Subtitle = styled("p")(({ theme }) => ({
+export const Subtitle = styled("div")(({ theme }) => ({
   fontSize: "16px",
   color: palette.text.primary,
   textAlign: "center",
