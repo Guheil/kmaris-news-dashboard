@@ -195,7 +195,7 @@ export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
   },
 }));
 
-export const NavIcon = styled("div")(({ active }: { active?: boolean }) => ({
+export const NavIcon = styled("div")(({ }: { active?: boolean }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

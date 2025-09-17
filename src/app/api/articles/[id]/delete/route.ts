@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await context.params; // Await the params Promise
     const client = await clientPromise;
     if (!client) {
       return NextResponse.json(
@@ -15,7 +19,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     }
 
     const db = client.db("kmaris");
-    const id = params.id;
 
     if (!ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -42,7 +45,10 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   } catch (error) {
     console.error("API /api/articles/[id]/delete DELETE error:", error);
     return NextResponse.json(
-      { error: "Error deleting article", details: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Error deleting article",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

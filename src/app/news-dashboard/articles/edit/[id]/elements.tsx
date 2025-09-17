@@ -2,14 +2,13 @@
 
 import { styled } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
-import { Pallet } from "@mui/icons-material";
 
-export const EditArticleRoot = styled("div")(({ theme }) => ({
+export const EditArticleRoot = styled("div")({
   display: "flex",
   minHeight: "100vh",
   backgroundColor: "#F8F9FA",
   position: "relative",
-}));
+});
 
 export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: boolean }>(
   ({ theme, sidebarOpen, isMobile }) => ({

@@ -7,7 +7,6 @@ import {
   BackgroundImage,
   Overlay,
   Content,
-  Title,
   TitleSecondary,
   Text,
   FeatureList,

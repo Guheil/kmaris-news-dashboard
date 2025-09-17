@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import {
   BarChart3,
-  TrendingUp,
   Eye,
   FileText,
-  Calendar,
   Archive,
   Activity,
   Home,
@@ -14,7 +13,6 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
-  Settings,
 } from "lucide-react";
 import {
   LineChart,
@@ -32,6 +30,7 @@ import {
 } from "recharts";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
+import { AnalyticsData, AnalyticsPageProps } from "./interface";
 import { palette } from "@/theme/pallete";
 import {
   AnalyticsRoot,
@@ -56,19 +55,6 @@ import {
   ChartTitle,
   ChartsGrid,
 } from "./elements";
-
-const truncateText = (text: string, limit: number): string => {
-  if (!text) return "";
-  return text.length > limit ? `${text.slice(0, limit)}...` : text;
-};
-
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
 
 const getChangeType = (
   current: number,
@@ -126,6 +112,43 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   const handleOverlayClick = () => {
     if (isMobile) {
       onSidebarToggle();
+    }
+  };
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to log out? You'll be redirected to the login page!",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, log out!",
+      cancelButtonText: "No, stay logged in!",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      localStorage.removeItem("user");
+      localStorage.removeItem("sessionId");
+      await Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "You have been logged out successfully!",
+        confirmButtonText: "OK",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      setTimeout(() => {
+        window.location.href = "http://localhost:3000";
+      }, 3000);
+    } catch (err) {
+      console.error("Error during logout:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to log out. Please try again.",
+        confirmButtonText: "OK",
+      });
     }
   };
 
@@ -191,6 +214,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           notifications={3}
           isSidebarOpen={sidebarOpen}
           isMobile={isMobile}
+          onLogout={handleLogout}
         />
         <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
           <LoadingState>
@@ -261,6 +285,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           notifications={3}
           isSidebarOpen={sidebarOpen}
           isMobile={isMobile}
+          onLogout={handleLogout}
         />
         <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
           <ErrorState>
@@ -352,6 +377,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         notifications={3}
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}
+        onLogout={handleLogout}
       />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <FiltersContainer>
@@ -477,11 +503,14 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                   cy="50%"
                   outerRadius={100}
                   dataKey="value"
-                  label={({ name, percent }: any) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
+                  label={({ name, percent }: { name?: string; percent?: number }) => {
+                    if (name && percent !== undefined) {
+                      return `${name} ${(percent * 100).toFixed(0)}%`;
+                    }
+                    return "";
+                  }}
                 >
-                  {analyticsData.statusDistribution.map((entry, index) => (
+                  {analyticsData.statusDistribution.map((entry, index: number) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>

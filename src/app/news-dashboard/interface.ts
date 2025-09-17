@@ -13,7 +13,7 @@ export interface CardProps {
 }
 
 export interface NewsArticle {
-  status: any;
+  status: string;
   _id: string;
   title: string;
   author: string;
@@ -24,4 +24,17 @@ export interface NewsArticle {
   category: string;
   description: string; 
   views?: number;
+}
+export interface ApiArticle {
+  _id?: string;
+  title?: string;
+  author?: string;
+  date?: string;
+  newsImage?: string;
+  newsVideo?: string;
+  readTime?: string;
+  category?: string;
+  description?: string;
+  views?: number;
+  status?: string;
 }

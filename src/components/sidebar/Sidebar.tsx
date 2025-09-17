@@ -2,6 +2,7 @@
 "use client";
 
 import { FC, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 import { SidebarProps, NavItemProps, NavSection } from './interface';
@@ -131,7 +132,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <SidebarHeader>
           <SidebarHeaderContent>
             <Logo isOpen={isOpen}>
-              <img src={logoSrc} alt="Logo" width={160} height={90} />
+              <Image src={logoSrc} alt="Logo" width={160} height={90} />
               {isOpen && appName && <span>{appName}</span>}
             </Logo>
             

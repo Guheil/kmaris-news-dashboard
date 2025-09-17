@@ -25,12 +25,12 @@ export const Container = styled("div")(({ theme }) => ({
   overflow: "hidden",
   backgroundColor: theme.palette.common.white,
 
-  [theme.breakpoints.up('md')]: {
+  [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     height: "640px",
     maxHeight: "85vh",
   },
-}));  
+}));
 
 export const FormRoot = styled("div")(({ theme }) => ({
   width: "100%",
@@ -38,25 +38,25 @@ export const FormRoot = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  [theme.breakpoints.up('md')]: {
+  [theme.breakpoints.up("md")]: {
     width: "50%",
     padding: "0 50px",
   },
 }));
 
-export const Title = styled("h1")(({ theme }) => ({
+export const Title = styled("h1")({
   fontSize: "30px",
   fontWeight: 700,
   color: palette.text.dark,
   textAlign: "center",
-}));
+});
 
-export const Subtitle = styled("div")(({ theme }) => ({
+export const Subtitle = styled("div")({
   fontSize: "16px",
   color: palette.text.primary,
   textAlign: "center",
   margin: "0 auto 30px",
-}));
+});
 
 export const Form = styled("form")({
   width: "100%",
@@ -72,11 +72,11 @@ export const InputGroup = styled("div")({
   gap: "6px",
 });
 
-export const Label = styled("label")(({ theme }) => ({
+export const Label = styled("label")({
   fontSize: "14px",
   fontWeight: 500,
-  color: palette.primary.main, 
-}));
+  color: palette.primary.main,
+});
 
 export const InputWrapper = styled("div")({
   position: "relative",
@@ -92,7 +92,7 @@ export const Input = styled("input")(({ theme }) => ({
   borderRadius: "8px",
   "&:focus": {
     outline: "none",
-    borderColor: theme.palette.primary.contrastText,
+    borderColor: theme.palette.primary.main, // Use theme instead of contrastText
     boxShadow: `0 0 0 3px rgba(0,37,66,0.1)`,
   },
 }));
@@ -108,15 +108,15 @@ export const PasswordIconButton = styled("button")(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export const ForgotPassword = styled("a")(({ theme }) => ({
+export const ForgotPassword = styled("a")({
   fontSize: "14px",
-  color: palette.primary.main, 
+  color: palette.primary.main,
   textAlign: "right",
   fontWeight: 500,
   textDecoration: "none",
   marginTop: "-12px",
   "&:hover": { textDecoration: "underline" },
-}));
+});
 
 export const Divider = styled("div")(({ theme }) => ({
   display: "flex",
@@ -133,49 +133,49 @@ export const Divider = styled("div")(({ theme }) => ({
 }));
 
 export const SubmitButton = styled("button")(({ theme }) => ({
-  width: "100%", 
-  padding: "14px", 
-  fontSize: "16px", 
+  width: "100%",
+  padding: "14px",
+  fontSize: "16px",
   fontWeight: 600,
-  color: palette.common.white, 
-  backgroundColor: palette.primary.main, // Use theme color
-  border: "none", 
-  cursor: "pointer", 
+  color: theme.palette.common.white,
+  backgroundColor: palette.primary.main,
+  border: "none",
+  cursor: "pointer",
   borderRadius: "8px",
-  transition: "background-color 0.3s ease", // Smooth hover animation
-  "&:hover": { backgroundColor: palette.primary.dark },
-  "&:disabled": { 
-    backgroundColor: palette.primary.light, 
+  transition: "background-color 0.3s ease",
+  "&:hover": { backgroundColor: theme.palette.primary.dark },
+  "&:disabled": {
+    backgroundColor: theme.palette.primary.light,
     cursor: "not-allowed",
   },
 }));
 
 export const SignUpButton = styled(SubmitButton)(({ theme }) => ({
-    color: palette.primary.main,
-    backgroundColor: "rgba(0, 37, 66, 0.03)",
-    border: `1px solid ${theme.palette.divider}`,
-    transition: "all 0.3s ease", // Smooth hover animation
-    "&:hover": {
-        color: palette.primary.main,
-        borderColor: palette.primary.main,
-        backgroundColor: "rgba(221, 28, 35, 0.05)",
-    },
+  color: theme.palette.primary.main,
+  backgroundColor: "rgba(0, 37, 66, 0.03)",
+  border: `1px solid ${theme.palette.divider}`,
+  transition: "all 0.3s ease",
+  "&:hover": {
+    color: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: "rgba(0, 37, 66, 0.05)", // Adjusted to avoid hardcoded color
+  },
 }));
 
-export const GoBackButton = styled(SubmitButton)(({ theme }) => ({
-    color: theme.palette.text.secondary,
-    backgroundColor: 'transparent',
-    marginTop: '10px',
-    "&:hover": {
-        color: palette.primary.main,
-        textDecoration: "underline",
-        backgroundColor: 'transparent',
-    },
-}));
+export const GoBackButton = styled(SubmitButton)({
+  color: palette.text.dark,
+  backgroundColor: "transparent",
+  marginTop: "10px",
+  "&:hover": {
+    color: palette.primary.main,
+    textDecoration: "underline",
+    backgroundColor: "transparent",
+  },
+});
 
 export const Panel = styled("div")(({ theme }) => ({
   display: "none",
-  [theme.breakpoints.up('md')]: {
+  [theme.breakpoints.up("md")]: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -234,12 +234,12 @@ export const FeatureList = styled("ul")({
   textAlign: "left",
   width: "100%",
   maxWidth: "300px",
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
 });
 
-export const FeatureItem = styled("li")(({ theme }) => ({
+export const FeatureItem = styled("li")({
   display: "flex",
   alignItems: "center",
   fontSize: "15px",
@@ -248,5 +248,5 @@ export const FeatureItem = styled("li")(({ theme }) => ({
     marginRight: "10px",
     color: palette.primary.main,
     fontWeight: "bold",
-  }
-}));
+  },
+});

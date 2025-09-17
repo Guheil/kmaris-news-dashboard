@@ -1,15 +1,18 @@
-// app/api/articles/[id]/views/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    console.log("Incrementing view count for article:", params.id);
+    const { id } = await context.params; // Await the params Promise
+    console.log("Incrementing view count for article:", id);
     
     // Validate ObjectId format
-    if (!ObjectId.isValid(params.id)) {
-      console.error("Invalid ObjectId format:", params.id);
+    if (!ObjectId.isValid(id)) {
+      console.error("Invalid ObjectId format:", id);
       return NextResponse.json({ error: "Invalid article ID format" }, { status: 400 });
     }
 
@@ -18,7 +21,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     
     // Increment view count
     const updateResult = await db.collection("articles").updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       { 
         $inc: { views: 1 },
         $set: { updatedAt: new Date() }
@@ -26,13 +29,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
     );
 
     if (updateResult.matchedCount === 0) {
-      console.error("Article not found for view increment, ID:", params.id);
+      console.error("Article not found for view increment, ID:", id);
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
     // Get updated view count
     const article = await db.collection("articles").findOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       { projection: { views: 1 } }
     );
 

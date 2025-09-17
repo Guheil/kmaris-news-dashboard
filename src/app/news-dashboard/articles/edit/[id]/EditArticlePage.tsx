@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Home,
@@ -8,7 +9,6 @@ import {
   Plus,
   Save,
   Eye,
-  Upload,
   Image as ImageIcon,
   Video,
   X,
@@ -55,7 +55,6 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -104,11 +103,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
           newsImage: data.newsImage || null,
           newsVideo: data.newsVideo || null,
         });
-        setError(null);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "An error occurred";
-        setError(errorMessage);
+      } catch  {
       } finally {
         setLoading(false);
       }
@@ -583,9 +578,11 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                         marginTop: "12px",
                       }}
                     >
-                      <img
+                      <Image
                         src={formData.newsImage}
                         alt="Preview"
+                        width={300} 
+                        height={100} 
                         style={{
                           width: "100%",
                           height: "100px",

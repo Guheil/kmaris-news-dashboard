@@ -5,12 +5,12 @@ import { styled, keyframes } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
 
 // Root Container
-export const ViewArticleRoot = styled("div")(({ theme }) => ({
+export const ViewArticleRoot = styled("div")({
   display: "flex",
   minHeight: "100vh",
   backgroundColor: "#F8F9FA",
   position: "relative",
-}));
+});
 
 export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: boolean }>(
   ({ theme, sidebarOpen, isMobile }) => ({
@@ -66,7 +66,7 @@ export const ArticleContainer = styled("div")(({ theme }) => ({
 }));
 
 // Back Button
-export const BackButton = styled("button")(({ theme }) => ({
+export const BackButton = styled("button")({
   display: "flex",
   alignItems: "center",
   gap: "8px",
@@ -86,7 +86,7 @@ export const BackButton = styled("button")(({ theme }) => ({
     borderColor: "#cbd5e1",
     color: "#475569",
   },
-}));
+});
 
 // Article Header
 export const ArticleHeader = styled("div")(({ theme }) => ({

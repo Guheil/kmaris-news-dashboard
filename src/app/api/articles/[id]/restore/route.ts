@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await context.params; // Await the params Promise
     const client = await clientPromise;
     if (!client) {
       return NextResponse.json(
@@ -15,7 +19,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     const db = client.db("kmaris");
-    const id = params.id;
 
     if (!ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -50,7 +53,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
   } catch (error) {
     console.error("API /api/articles/[id]/restore POST error:", error);
     return NextResponse.json(
-      { error: "Error restoring article", details: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Error restoring article",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

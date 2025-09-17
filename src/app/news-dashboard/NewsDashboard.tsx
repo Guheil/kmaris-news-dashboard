@@ -13,14 +13,12 @@ import {
   Trash2,
   TrendingUp,
   Users,
-  Calendar,
-  ArchiveIcon,
   Play,
   Search,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
-import { DashboardProps, CardProps, NewsArticle } from "./interface";
+import { DashboardProps, CardProps, NewsArticle, ApiArticle} from "./interface";
 import {
   DashboardRoot,
   MainContent,
@@ -65,7 +63,6 @@ import {
   SearchQuery,
   ClearSearchButton,
 } from "./elements";
-import { styled } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
 
 // Updated MediaPreview component with consistent sizing
@@ -110,46 +107,46 @@ export const NewsDashboard: FC<DashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch articles from /api/articles
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/articles");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch articles: ${response.statusText}`);
-        }
-        const data = await response.json();
-        // Ensure data conforms to NewsArticle interface
-        const formattedArticles = data.map((article: any) => ({
-          _id: article._id || "",
-          title: article.title || "",
-          author: article.author || "",
-          date: article.date || new Date().toISOString(),
-          newsImage: article.newsImage || "",
-          newsVideo: article.newsVideo || "",
-          readTime: article.readTime || "N/A",
-          category: article.category || "Uncategorized",
-          description: article.description || "",
-          views: article.views || 0,
-          status: article.status || "published",
-        }));
-        const sortedArticles = formattedArticles.sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => {
-          const dateA = new Date(a.date).getTime();
-          const dateB = new Date(b.date).getTime();
-          return dateB - dateA; 
-        });
-        setArticles(sortedArticles);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
+// Fetch articles from /api/articles
+useEffect(() => {
+  const fetchArticles = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/articles");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch articles: ${response.statusText}`);
       }
-    };
+      const data = await response.json();
+      // Ensure data conforms to NewsArticle interface
+      const formattedArticles = data.map((article: ApiArticle) => ({  // Updated type here
+        _id: article._id || "",
+        title: article.title || "",
+        author: article.author || "",
+        date: article.date || new Date().toISOString(),
+        newsImage: article.newsImage || "",
+        newsVideo: article.newsVideo || "",
+        readTime: article.readTime || "N/A",
+        category: article.category || "Uncategorized",
+        description: article.description || "",
+        views: article.views || 0,
+        status: article.status || "published",
+      }));
+      const sortedArticles = formattedArticles.sort((a: NewsArticle, b: NewsArticle) => {  // Updated types here
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA; 
+      });
+      setArticles(sortedArticles);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchArticles();
-  }, []);
+  fetchArticles();
+}, []);
 
   // Enhanced search functionality with sorting
   const filteredNews = useMemo(() => {
@@ -369,7 +366,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                     <SearchResultsHeader>
                       <SearchResultsCount>
                         {totalArticles} result{totalArticles !== 1 ? "s" : ""}{" "}
-                        for <SearchQuery>"{searchQuery}"</SearchQuery>
+                        for <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
                       </SearchResultsCount>
                       <ClearSearchButton onClick={clearSearch}>
                         Clear Search
@@ -430,7 +427,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                       </NoResultsIcon>
                       <NoResultsTitle>No articles found</NoResultsTitle>
                       <NoResultsText>
-                        We couldn't find any articles matching "{searchQuery}".
+                        We couldn&apos;t find any articles matching &quot;{searchQuery}&quot;.
                         <br />
                         Try adjusting your search terms or browse all articles.
                       </NoResultsText>
@@ -475,7 +472,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            New article "{sortedArticlesForActivity[0]?.title}" was published
+                            New article &quot;{sortedArticlesForActivity[0]?.title}&quot; was published
                           </ActivityText>
                           <ActivityTime>2 minutes ago</ActivityTime>
                         </ActivityContent>
@@ -486,7 +483,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article "{sortedArticlesForActivity[1]?.title}" was updated
+                            Article &quot;{sortedArticlesForActivity[1]?.title}&quot; was updated
                           </ActivityText>
                           <ActivityTime>15 minutes ago</ActivityTime>
                         </ActivityContent>
@@ -497,7 +494,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Draft "{sortedArticlesForActivity[2]?.title}" saved
+                            Draft &quot;{sortedArticlesForActivity[2]?.title}&quot; saved
                           </ActivityText>
                           <ActivityTime>1 hour ago</ActivityTime>
                         </ActivityContent>
@@ -508,7 +505,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article "{sortedArticlesForActivity[3]?.title}" was archived
+                            Article &quot;{sortedArticlesForActivity[3]?.title}&quot; was archived
                           </ActivityText>
                           <ActivityTime>3 hours ago</ActivityTime>
                         </ActivityContent>

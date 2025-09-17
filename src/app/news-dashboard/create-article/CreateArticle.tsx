@@ -6,16 +6,13 @@ import {
   Home,
   FileText,
   BarChart3,
-  Settings,
   Plus,
   Save,
   Eye,
-  Upload,
   Image as ImageIcon,
   Video,
   X,
   ArrowLeft,
-  ArchiveIcon,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";

@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Swal from "sweetalert2";
-import { styled } from "@mui/material/styles";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
@@ -18,14 +16,18 @@ import {
   PasswordIconButton,
   ForgotPassword,
   SubmitButton,
-  GoBackButton,
 } from "./elements";
+import { styled } from "@mui/material/styles";
 import { LoginProps } from "./interface";
 
-export function LoginForm({
-  onForgotPassword,
-  isLoading,
-}: LoginProps) {
+const ErrorMessage = styled("div")(({ theme }) => ({
+  color: theme.palette.error.main,
+  fontSize: "14px",
+  textAlign: "center",
+  marginTop: "10px",
+}));
+
+export function LoginForm({ onForgotPassword, isLoading }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +40,7 @@ export function LoginForm({
     // Hardcoded credentials for testing
     const hardcodedEmail = "admin@kmaris.com";
     const hardcodedPassword = "admin123";
-    const user = { email: hardcodedEmail, role: "admin" }; 
+    const user = { email: hardcodedEmail, role: "admin" };
     const sessionId = "mock-session-12345";
 
     try {
@@ -46,36 +48,32 @@ export function LoginForm({
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("sessionId", sessionId);
 
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "Login Successful",
           text: "Redirecting to News Dashboard...",
           timer: 1500,
           showConfirmButton: false,
-        }).then(() => {
-          window.location.href = "/news-dashboard";
         });
+        window.location.href = "/news-dashboard";
       } else {
-        Swal.fire({
+        setLoginError("Invalid admin credentials.");
+        await Swal.fire({
           icon: "error",
           title: "Access Denied",
           text: "Invalid admin credentials.",
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
-      Swal.fire({
+      console.error("Login error:", error); // Fixed: Changed 'err' to 'error'
+      setLoginError("Something went wrong! Please try again later.");
+      await Swal.fire({
         icon: "error",
         title: "Oops...",
         text: "Something went wrong! Please try again later.",
       });
     }
   };
-
-  const handleGoToHomepage = () => {
-    window.location.href = "https://kmaris.netlify.app/";
-  };
-
   return (
     <FormRoot>
       <Title>News Manager Login</Title>
@@ -114,6 +112,8 @@ export function LoginForm({
           </InputWrapper>
         </InputGroup>
 
+        {loginError && <ErrorMessage>{loginError}</ErrorMessage>}
+
         <ForgotPassword href="#" onClick={onForgotPassword}>
           Forgot Password?
         </ForgotPassword>
@@ -121,10 +121,6 @@ export function LoginForm({
         <SubmitButton type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Access Dashboard"}
         </SubmitButton>
-
-        <GoBackButton type="button" onClick={handleGoToHomepage}>
-          Return to Homepage
-        </GoBackButton>
       </Form>
     </FormRoot>
   );

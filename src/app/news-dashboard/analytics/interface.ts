@@ -1,4 +1,5 @@
-interface AnalyticsData {
+// src/app/news-dashboard/analytics/interface.ts
+export interface AnalyticsData {
   overview: {
     totalArticles: number;
     publishedArticles: number;
@@ -62,7 +63,7 @@ interface AnalyticsData {
   };
 }
 
-interface AnalyticsPageProps {
+export interface AnalyticsPageProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
   isMobile?: boolean;

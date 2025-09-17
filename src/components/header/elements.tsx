@@ -153,7 +153,7 @@ export const ActionButtons = styled("div")({
   gap: "4px",
 });
 
-export const IconButton = styled("button")<{ hasNotification?: boolean }>(({ hasNotification }) => ({
+export const IconButton = styled("button")(() => ({
   background: "none",
   border: "none",
   cursor: "pointer",
@@ -328,9 +328,9 @@ export const DropdownItem = styled("button")<{ variant?: 'default' | 'danger' }>
 }));
 
 // Remove breadcrumb, quick actions, and other complex elements for minimalist design
-export const QuickActions = styled("div")(({ theme }) => ({
+export const QuickActions = styled("div")({
   display: "none", // Hidden for minimalist design
-}));
+});
 
 export const QuickActionButton = styled("button")({
   display: "none", // Hidden for minimalist design

@@ -6,7 +6,6 @@ import {
   Home,
   FileText,
   BarChart3,
-  Settings,
   Plus,
   Eye,
   Edit,
@@ -14,12 +13,9 @@ import {
   Grid3X3,
   List,
   Calendar,
-  User,
   Search,
   ChevronLeft,
   ChevronRight,
-  Play,
-  ArchiveIcon,
   RotateCcw,
   Trash2,
 } from "lucide-react";
@@ -213,9 +209,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [archiving, setArchiving] = useState<string | null>(null);
-  const [restoring, setRestoring] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
+
 
   // Fetch articles from API
   useEffect(() => {
@@ -246,60 +240,80 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   );
 
   // Filter and sort articles
-  const filteredAndSortedArticles = useMemo(() => {
-    let filtered = articles;
+const filteredAndSortedArticles = useMemo(() => {
+  let filtered = articles;
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(
-        (article) =>
-          article.title.toLowerCase().includes(query) ||
-          article.category.toLowerCase().includes(query) ||
-          article.description.toLowerCase().includes(query)
-      );
-    }
+  // Apply search filter
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase().trim();
+    filtered = filtered.filter(
+      (article) =>
+        article.title.toLowerCase().includes(query) ||
+        article.category.toLowerCase().includes(query) ||
+        article.description.toLowerCase().includes(query)
+    );
+  }
 
-    // Apply category filter
-    if (filters.category !== "all") {
-      filtered = filtered.filter(
-        (article) => article.category === filters.category
-      );
-    }
+  // Apply category filter
+  if (filters.category !== "all") {
+    filtered = filtered.filter(
+      (article) => article.category === filters.category
+    );
+  }
 
-    // Apply status filter
-    if (filters.status === "all") {
-      filtered = filtered.filter(
-        (article) => (article.status || "published") === "published"
-      );
-    } else {
-      filtered = filtered.filter(
-        (article) => (article.status || "published") === filters.status
-      );
-    }
+  // Apply status filter
+  if (filters.status === "all") {
+    filtered = filtered.filter(
+      (article) => (article.status || "published") === "published"
+    );
+  } else {
+    filtered = filtered.filter(
+      (article) => (article.status || "published") === filters.status
+    );
+  }
 
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue: any = a[sortOptions.field];
-      let bValue: any = b[sortOptions.field];
+  // Apply sorting - FIXED VERSION
+  filtered.sort((a, b) => {
+    let aValue: string | number | undefined = a[sortOptions.field];
+    let bValue: string | number | undefined = b[sortOptions.field];
 
-      if (sortOptions.field === "date") {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
-      } else if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
+    // Handle undefined values
+    if (aValue === undefined) aValue = "";
+    if (bValue === undefined) bValue = "";
 
+    if (sortOptions.field === "date") {
+      const aTime = new Date(aValue as string).getTime();
+      const bTime = new Date(bValue as string).getTime();
+      
       if (sortOptions.direction === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        return aTime - bTime;
       } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        return bTime - aTime;
       }
-    });
+    } else if (typeof aValue === "string" && typeof bValue === "string") {
+      const aLower = aValue.toLowerCase();
+      const bLower = bValue.toLowerCase();
+      
+      if (sortOptions.direction === "asc") {
+        return aLower < bLower ? -1 : aLower > bLower ? 1 : 0;
+      } else {
+        return aLower > bLower ? -1 : aLower < bLower ? 1 : 0;
+      }
+    } else {
+      // Handle numeric values
+      const aNum = Number(aValue) || 0;
+      const bNum = Number(bValue) || 0;
+      
+      if (sortOptions.direction === "asc") {
+        return aNum - bNum;
+      } else {
+        return bNum - aNum;
+      }
+    }
+  });
 
-    return filtered;
-  }, [searchQuery, filters, sortOptions, articles]);
+  return filtered;
+}, [searchQuery, filters, sortOptions, articles]);
 
   // Paginate articles
   const paginatedArticles = useMemo(() => {
@@ -353,7 +367,6 @@ const handleArchive = async (articleId: string) => {
 
   if (!result.isConfirmed) return;
 
-  setArchiving(articleId);
   try {
     const response = await fetch(`/api/articles/${articleId}/archive`, {
       method: "POST",
@@ -388,7 +401,6 @@ const handleArchive = async (articleId: string) => {
       confirmButtonText: "OK",
     });
   } finally {
-    setArchiving(null);
   }
 };
 
@@ -404,7 +416,6 @@ const handleRestore = async (articleId: string) => {
 
   if (!result.isConfirmed) return;
 
-  setRestoring(articleId);
   try {
     const response = await fetch(`/api/articles/${articleId}/restore`, {
       method: "POST",
@@ -440,7 +451,6 @@ const handleRestore = async (articleId: string) => {
       confirmButtonText: "OK",
     });
   } finally {
-    setRestoring(null);
   }
 };
 
@@ -456,7 +466,6 @@ const handleDelete = async (articleId: string) => {
 
   if (!result.isConfirmed) return;
 
-  setDeleting(articleId);
   try {
     const response = await fetch(`/api/articles/${articleId}/delete`, {
       method: "DELETE",
@@ -488,7 +497,6 @@ const handleDelete = async (articleId: string) => {
       confirmButtonText: "OK",
     });
   } finally {
-    setDeleting(null);
   }
 };
 
@@ -591,7 +599,7 @@ const handleDelete = async (articleId: string) => {
             <SearchResultsCount>
               {filteredAndSortedArticles.length} result
               {filteredAndSortedArticles.length !== 1 ? "s" : ""} for{" "}
-              <SearchQuery>"{searchQuery}"</SearchQuery>
+              <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
             </SearchResultsCount>
             <ClearSearchButton onClick={clearSearch}>
               Clear Search
@@ -748,10 +756,10 @@ const handleDelete = async (articleId: string) => {
                 {searchQuery ? "No articles found" : "No articles available"}
               </NoResultsTitle>
               <NoResultsText>
-                {searchQuery
-                  ? `We couldn't find any articles matching "${searchQuery}". Try adjusting your search terms or filters.`
-                  : "There are currently no articles to display. Create your first article to get started!"}
-              </NoResultsText>
+              {searchQuery
+                ? `We couldn&apos;t find any articles matching &quot;${searchQuery}&quot;. Try adjusting your search terms or filters.`
+                : "There are currently no articles to display. Create your first article to get started!"}
+            </NoResultsText>
             </NoResults>
           )
         )}

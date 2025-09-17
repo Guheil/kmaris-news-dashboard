@@ -37,7 +37,7 @@ const HeaderIconButton: FC<IconButtonProps> = ({
   hasNotification, 
   notificationCount 
 }) => (
-  <IconButton onClick={onClick} hasNotification={hasNotification}>
+  <IconButton onClick={onClick}>
     {icon}
     {hasNotification && (
       notificationCount && notificationCount > 0 ? (
