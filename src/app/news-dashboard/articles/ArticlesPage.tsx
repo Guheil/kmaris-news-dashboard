@@ -1,4 +1,3 @@
-// app/news-dashboard/articles/page.tsx
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
@@ -24,6 +23,7 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
 import {
@@ -267,14 +267,12 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       );
     }
 
-    // Apply status filter - UPDATED LOGIC
+    // Apply status filter
     if (filters.status === "all") {
-      // When "all" is selected, only show published articles (hide archived)
       filtered = filtered.filter(
         (article) => (article.status || "published") === "published"
       );
     } else {
-      // When specific status is selected, show articles with that status
       filtered = filtered.filter(
         (article) => (article.status || "published") === filters.status
       );
@@ -343,96 +341,156 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     router.push(`/news-dashboard/articles/edit/${articleId}`);
   };
 
-  const handleArchive = async (articleId: string) => {
-    if (!confirm("Are you sure you want to archive this article?")) return;
+const handleArchive = async (articleId: string) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Are you sure you want to archive me? uwuuu",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, archive it!",
+    cancelButtonText: "No, keep it!",
+  });
 
-    setArchiving(articleId);
-    try {
-      const response = await fetch(`/api/articles/${articleId}/archive`, {
-        method: "POST",
-      });
+  if (!result.isConfirmed) return;
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-      }
+  setArchiving(articleId);
+  try {
+    const response = await fetch(`/api/articles/${articleId}/archive`, {
+      method: "POST",
+    });
 
-      // Update the articles state to reflect the archived status
-      setArticles((prevArticles) =>
-        prevArticles.map((article) =>
-          article._id === articleId
-            ? { ...article, status: "archived" }
-            : article
-        )
-      );
-
-      alert("Article archived successfully");
-    } catch (err) {
-      console.error("Error archiving article:", err);
-      alert("Failed to archive article. Please try again.");
-    } finally {
-      setArchiving(null);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
     }
-  };
 
-  const handleRestore = async (articleId: string) => {
-    if (!confirm("Are you sure you want to restore this article?")) return;
+    setArticles((prevArticles) =>
+      prevArticles.map((article) =>
+        article._id === articleId
+          ? { ...article, status: "archived" }
+          : article
+      )
+    );
 
-    setRestoring(articleId);
-    try {
-      const response = await fetch(`/api/articles/${articleId}/restore`, {
-        method: "POST",
-      });
+    await Swal.fire({
+      title: "Success!",
+      text: "Article archived successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  } catch (err) {
+    console.error("Error archiving article:", err);
+    await Swal.fire({
+      title: "Error!",
+      text: "Failed to archive article. Please try again.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  } finally {
+    setArchiving(null);
+  }
+};
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
+const handleRestore = async (articleId: string) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to restore this article? It will be moved back to published status!",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, restore it!",
+    cancelButtonText: "No, keep it archived!",
+  });
 
-      // Update the articles state to reflect the restored status
-      setArticles((prevArticles) =>
-        prevArticles.map((article) =>
-          article._id === articleId
-            ? { ...article, status: "published" }
-            : article
-        )
-      );
+  if (!result.isConfirmed) return;
 
-      alert("Article restored successfully");
-    } catch (err) {
-      console.error("Error restoring article:", err);
-      alert("Failed to restore article. Please try again.");
-    } finally {
-      setRestoring(null);
+  setRestoring(articleId);
+  try {
+    const response = await fetch(`/api/articles/${articleId}/restore`, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
-  };
 
-  const handleDelete = async (articleId: string) => {
-    if (!confirm("Are you sure you want to permanently delete this article? This action cannot be undone.")) return;
+    setArticles((prevArticles) =>
+      prevArticles.map((article) =>
+        article._id === articleId
+          ? { ...article, status: "published" }
+          : article
+      )
+    );
 
-    setDeleting(articleId);
-    try {
-      const response = await fetch(`/api/articles/${articleId}/delete`, {
-        method: "DELETE",
-      });
+    await Swal.fire({
+      title: "Success!",
+      text: "Article restored successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  } catch (err) {
+    console.error("Error restoring article:", err);
+    await Swal.fire({
+      title: "Error!",
+      text: "Failed to restore article. Please try again.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  } finally {
+    setRestoring(null);
+  }
+};
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
+const handleDelete = async (articleId: string) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This article will be permanently deleted. This action cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "No, keep it!",
+  });
 
-      // Remove the article from the state
-      setArticles((prevArticles) =>
-        prevArticles.filter((article) => article._id !== articleId)
-      );
+  if (!result.isConfirmed) return;
 
-      alert("Article permanently deleted successfully");
-    } catch (err) {
-      console.error("Error deleting article:", err);
-      alert("Failed to delete article. Please try again.");
-    } finally {
-      setDeleting(null);
+  setDeleting(articleId);
+  try {
+    const response = await fetch(`/api/articles/${articleId}/delete`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
-  };
+
+    setArticles((prevArticles) =>
+      prevArticles.filter((article) => article._id !== articleId)
+    );
+
+    await Swal.fire({
+      title: "Success!",
+      text: "Article permanently deleted successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  } catch (err) {
+    console.error("Error deleting article:", err);
+    await Swal.fire({
+      title: "Error!",
+      text: "Failed to delete article. Please try again.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  } finally {
+    setDeleting(null);
+  }
+};
 
   const handleView = (articleId: string) => {
     router.push(`/news-dashboard/articles/view/${articleId}`);
@@ -447,7 +505,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
 
   return (
     <ArticlesRoot>
-      {/* Mobile overlay */}
       <SidebarOverlay
         show={isMobile && sidebarOpen}
         onClick={handleOverlayClick}
@@ -510,7 +567,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       />
 
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-        {/* Loading State */}
         {loading && (
           <NoResults>
             <NoResultsIcon>
@@ -520,7 +576,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </NoResults>
         )}
 
-        {/* Error State */}
         {error && !loading && (
           <NoResults>
             <NoResultsIcon>
@@ -531,7 +586,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </NoResults>
         )}
 
-        {/* Search Results Header */}
         {!loading && !error && searchQuery && (
           <SearchResultsHeader>
             <SearchResultsCount>
@@ -545,7 +599,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </SearchResultsHeader>
         )}
 
-        {/* Controls */}
         {!loading && !error && (
           <ControlsContainer>
             <FiltersContainer>
@@ -615,7 +668,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </ControlsContainer>
         )}
 
-        {/* Articles Grid/List */}
         {!loading && !error && paginatedArticles.length > 0 ? (
           <>
             <ArticlesGrid viewMode={viewMode}>
@@ -633,7 +685,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
               ))}
             </ArticlesGrid>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <PaginationContainer>
                 <PaginationButton
@@ -687,7 +738,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
             )}
           </>
         ) : (
-          // No Results State
           !loading &&
           !error && (
             <NoResults>

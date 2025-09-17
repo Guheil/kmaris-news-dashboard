@@ -1,4 +1,3 @@
-// app/news-dashboard/edit/[id]/EditArticlePage.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -18,6 +17,7 @@ import {
   Loader2,
   BarChart3,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
 import {
@@ -264,14 +264,25 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         throw new Error("Failed to update article");
       }
 
-      alert(
-        `Article ${
+      await Swal.fire({
+        title: "Success!",
+        text: `Article ${
           status === "draft" ? "saved as draft" : "published"
-        } successfully!`
-      );
+        } successfully!`,
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 3000,
+        timerProgressBar: true,
+      });
       router.push("/news-dashboard/articles");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "An error occurred");
+      await Swal.fire({
+        title: "Error!",
+        text: submitError || "Failed to update article. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } finally {
       setSaving(false);
     }

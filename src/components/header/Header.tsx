@@ -2,6 +2,7 @@
 
 import { FC, useState, useRef, useEffect } from 'react';
 import { Menu, Search, Bell, Settings, User, LogOut, ChevronDown } from 'lucide-react';
+import Swal from "sweetalert2";
 import { HeaderProps, IconButtonProps } from './interface';
 import {
   HeaderRoot,
@@ -85,18 +86,47 @@ export const Header: FC<HeaderProps> = ({
     }
   };
 
-  const handleLogout = () => {
-    setIsDropdownOpen(false);
-    if (onLogout) {
-      onLogout();
-    } else {
-      // Default logout behavior - you can customize this
-      console.log('Logout clicked');
-      // For example: redirect to login page
-      // window.location.href = '/login';
-    }
-  };
+ const handleLogout = async () => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to log out? You'll be redirected to the login page!",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, log out!",
+    cancelButtonText: "No, stay logged in!",
+  });
 
+  if (!result.isConfirmed) return;
+
+  try {
+    setIsDropdownOpen(false);
+
+    // Perform logout API call if provided
+    if (onLogout) {
+      await onLogout();
+    }
+
+    // Redirect to login page
+    window.location.href = "http://localhost:3000";
+
+    await Swal.fire({
+      title: "Success!",
+      text: "You have been logged out successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  } catch (err) {
+    console.error("Error during logout:", err);
+    await Swal.fire({
+      title: "Error!",
+      text: "Failed to log out. Please try again.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+};
   const handleProfileClick = () => {
     setIsDropdownOpen(false);
     console.log('Profile clicked');

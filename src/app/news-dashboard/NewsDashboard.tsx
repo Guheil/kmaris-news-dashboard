@@ -1,3 +1,4 @@
+
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
@@ -131,8 +132,14 @@ export const NewsDashboard: FC<DashboardProps> = ({
           category: article.category || "Uncategorized",
           description: article.description || "",
           views: article.views || 0,
+          status: article.status || "published",
         }));
-        setArticles(formattedArticles);
+        const sortedArticles = formattedArticles.sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateB - dateA; 
+        });
+        setArticles(sortedArticles);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -144,20 +151,29 @@ export const NewsDashboard: FC<DashboardProps> = ({
     fetchArticles();
   }, []);
 
-  // Enhanced search functionality
+  // Enhanced search functionality with sorting
   const filteredNews = useMemo(() => {
     if (!searchQuery.trim()) {
+      // Return sorted articles (already sorted from fetch)
       return articles;
     }
 
     const query = searchQuery.toLowerCase().trim();
-    return articles.filter(
+    // Filter first
+    let filtered = articles.filter(
       (article) =>
         article.title.toLowerCase().includes(query) ||
         article.author.toLowerCase().includes(query) ||
         article.category.toLowerCase().includes(query) ||
         article.description.toLowerCase().includes(query)
     );
+    // Then sort by date descending (latest first)
+    filtered = filtered.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA;
+    });
+    return filtered;
   }, [searchQuery, articles]);
 
   const handleSearch = (query: string) => {
@@ -174,19 +190,18 @@ export const NewsDashboard: FC<DashboardProps> = ({
     }
   };
 
-  // Calculate statistics based on filtered results
-  const displayedNews = filteredNews.slice(0, 5); // Limit to 5 articles
-  const totalArticles = displayedNews.length;
+  // Calculate statistics based on ALL filtered results (not limited to 5)
+  const totalArticles = filteredNews.length;
   const uniqueCategories = new Set(
-    displayedNews.map((article) => article.category)
+    filteredNews.map((article) => article.category)
   ).size;
-  const totalViews = displayedNews.reduce(
+  const totalViews = filteredNews.reduce(
     (sum, article) => sum + (article.views || 0),
     0
   );
   const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
 
-  const categoryCounts = displayedNews.reduce((acc, article) => {
+  const categoryCounts = filteredNews.reduce((acc, article) => {
     acc[article.category] = (acc[article.category] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -197,6 +212,16 @@ export const NewsDashboard: FC<DashboardProps> = ({
           categoryCounts[a] > categoryCounts[b] ? a : b
         )
       : "N/A";
+
+  // Limit displayed news to 5 for the table
+  const displayedNews = filteredNews.slice(0, 5);
+
+  // Sort articles for activity feed (latest first)
+  const sortedArticlesForActivity = articles.sort((a, b) => {
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    return dateB - dateA;
+  });
 
   return (
     <DashboardRoot>
@@ -287,7 +312,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
 
         {!loading && !error && (
           <>
-            {/* Updated Statistics Cards - now reflect search results */}
+            {/* Updated Statistics Cards - reflect ALL filtered results */}
             <StatsGrid>
               <StatCard>
                 <StatIcon color={palette.primary.main}>
@@ -442,7 +467,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                 gridColumn="span 12"
               >
                 <div>
-                  {articles.length > 0 ? (
+                  {sortedArticlesForActivity.length > 0 ? (
                     <>
                       <ActivityItem>
                         <ActivityIcon color={palette.primary.main}>
@@ -450,7 +475,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            New article "{articles[0]?.title}" was published
+                            New article "{sortedArticlesForActivity[0]?.title}" was published
                           </ActivityText>
                           <ActivityTime>2 minutes ago</ActivityTime>
                         </ActivityContent>
@@ -461,7 +486,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article "{articles[1]?.title}" was updated
+                            Article "{sortedArticlesForActivity[1]?.title}" was updated
                           </ActivityText>
                           <ActivityTime>15 minutes ago</ActivityTime>
                         </ActivityContent>
@@ -472,7 +497,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Draft "{articles[2]?.title}" saved
+                            Draft "{sortedArticlesForActivity[2]?.title}" saved
                           </ActivityText>
                           <ActivityTime>1 hour ago</ActivityTime>
                         </ActivityContent>
@@ -483,7 +508,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article "{articles[3]?.title}" was archived
+                            Article "{sortedArticlesForActivity[3]?.title}" was archived
                           </ActivityText>
                           <ActivityTime>3 hours ago</ActivityTime>
                         </ActivityContent>

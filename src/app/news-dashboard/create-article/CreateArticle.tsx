@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   ArchiveIcon,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
 import {
@@ -158,8 +159,17 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   const handleSubmit = async (status: "draft" | "published") => {
     if (!validateForm()) return;
 
-    if (status === "published" && !confirm("Are you sure you want to publish this article?")) {
-      return;
+    if (status === "published") {
+      const result = await Swal.fire({
+        title: "Ready to publish?",
+        text: "Are you sure you want to publish this article?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, publish it",
+        cancelButtonText: "No, keep editing",
+      });
+
+      if (!result.isConfirmed) return;
     }
 
     setIsSubmitting(true);
@@ -188,9 +198,14 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       const result = await response.json();
       console.log("Article saved:", result);
 
-      alert(
-        `Article ${status === "draft" ? "saved as draft" : "published"} successfully!`
-      );
+      await Swal.fire({
+        title: "Draft Saved",
+        text: `Article ${status === "draft" ? "saved as draft" : "published"} successfully`,
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 3000,
+        timerProgressBar: true,
+      });
 
       if (status === "published") {
         router.push("/news-dashboard/articles");
@@ -211,7 +226,12 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       setSubmitError(
         error instanceof Error ? error.message : "Failed to save article"
       );
-      alert("Error saving article. Please try again.");
+      await Swal.fire({
+        title: "Oops!",
+        text: "Error saving article. Please try again. uwuuu",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -262,13 +282,12 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 href: "/create-article",
                 active: true,
               },
-                            {
+              {
                 icon: <BarChart3 size={20} />,
                 text: "Analytics",
                 href: "/news-dashboard/analytics",
                 active: false,
               },
-            
             ],
           },
         ]}
