@@ -300,8 +300,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                 {/* Status Badge */}
                 {article.status && (
                   <CategoryBadge category={`status-${article.status}`}>
-                    // Replace the problematic status badge section in the
-                    ArticleMeta
+                    
                     {article.status && (
                       <CategoryBadge category={`status-${article.status}`}>
                         {article.status === "archived" ? "📁" : "✓"}
@@ -321,7 +320,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                   <Edit size={16} />
                   Edit Article
                 </ActionButton>
-                section
+          
                 <ActionButton
                   variant="archive"
                   onClick={handleArchive}

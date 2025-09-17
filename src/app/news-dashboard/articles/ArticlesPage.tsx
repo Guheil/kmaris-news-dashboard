@@ -21,6 +21,8 @@ import {
   ChevronRight,
   Play,
   ArchiveIcon,
+  RotateCcw,
+  Trash2,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -75,14 +77,14 @@ const truncateText = (text: string, limit: number): string => {
 };
 
 // Article Card Component
-// Article Card Component
-// Article Card Component
 const ArticleCardComponent: FC<ArticleCardProps> = ({
   article,
   viewMode,
   onEdit,
   onArchive,
   onView,
+  onRestore,
+  onDelete,
 }) => {
   const titleLimit = viewMode === "grid" ? 60 : 80;
   const descriptionLimit = viewMode === "grid" ? 120 : 150;
@@ -112,8 +114,27 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
             >
               <Eye size={16} />
             </ActionButton>
-            {/* Only show edit and archive buttons for non-archived articles */}
-            {!isArchived && (
+            
+            {isArchived ? (
+              // Show restore and delete buttons for archived articles
+              <>
+                <ActionButton
+                  variant="restore"
+                  onClick={() => onRestore?.(article._id)}
+                  title="Restore Article"
+                >
+                  <RotateCcw size={16} />
+                </ActionButton>
+                <ActionButton
+                  variant="delete"
+                  onClick={() => onDelete?.(article._id)}
+                  title="Delete Permanently"
+                >
+                  <Trash2 size={16} />
+                </ActionButton>
+              </>
+            ) : (
+              // Show edit and archive buttons for non-archived articles
               <>
                 <ActionButton
                   variant="edit"
@@ -167,6 +188,7 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
     </ArticleCard>
   );
 };
+
 export const ArticlesPage: FC<ArticlesPageProps> = ({
   sidebarOpen,
   onSidebarToggle,
@@ -192,6 +214,8 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [archiving, setArchiving] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   // Fetch articles from API
   useEffect(() => {
@@ -221,7 +245,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     [articles]
   );
 
-  // Filter and sort articles
   // Filter and sort articles
   const filteredAndSortedArticles = useMemo(() => {
     let filtered = articles;
@@ -348,6 +371,66 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       alert("Failed to archive article. Please try again.");
     } finally {
       setArchiving(null);
+    }
+  };
+
+  const handleRestore = async (articleId: string) => {
+    if (!confirm("Are you sure you want to restore this article?")) return;
+
+    setRestoring(articleId);
+    try {
+      const response = await fetch(`/api/articles/${articleId}/restore`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      // Update the articles state to reflect the restored status
+      setArticles((prevArticles) =>
+        prevArticles.map((article) =>
+          article._id === articleId
+            ? { ...article, status: "published" }
+            : article
+        )
+      );
+
+      alert("Article restored successfully");
+    } catch (err) {
+      console.error("Error restoring article:", err);
+      alert("Failed to restore article. Please try again.");
+    } finally {
+      setRestoring(null);
+    }
+  };
+
+  const handleDelete = async (articleId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this article? This action cannot be undone.")) return;
+
+    setDeleting(articleId);
+    try {
+      const response = await fetch(`/api/articles/${articleId}/delete`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      // Remove the article from the state
+      setArticles((prevArticles) =>
+        prevArticles.filter((article) => article._id !== articleId)
+      );
+
+      alert("Article permanently deleted successfully");
+    } catch (err) {
+      console.error("Error deleting article:", err);
+      alert("Failed to delete article. Please try again.");
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -544,6 +627,8 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                   onEdit={handleEdit}
                   onArchive={handleArchive}
                   onView={handleView}
+                  onRestore={handleRestore}
+                  onDelete={handleDelete}
                 />
               ))}
             </ArticlesGrid>

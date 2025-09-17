@@ -49,4 +49,6 @@ export interface ArticleCardProps {
   onEdit: (articleId: string) => void;
   onArchive: (articleId: string) => void;
   onView: (articleId: string) => void;
+  onRestore?: (articleId: string) => void;
+  onDelete?: (articleId: string) => void;
 }

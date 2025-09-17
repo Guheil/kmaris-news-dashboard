@@ -240,9 +240,12 @@ export const ArticleActions = styled("div")({
   display: "flex",
   gap: "8px",
   alignItems: "center",
+  flexWrap: "wrap",
 });
 
-export const ActionButton = styled("button")<{ variant?: 'edit' | 'archive' | 'view' }>(({ variant = 'view' }) => ({
+export const ActionButton = styled("button")<{ 
+  variant?: 'edit' | 'archive' | 'view' | 'restore' | 'delete' 
+}>(({ variant = 'view' }) => ({
   width: "36px",
   height: "36px",
   borderRadius: "8px",
@@ -277,6 +280,22 @@ export const ActionButton = styled("button")<{ variant?: 'edit' | 'archive' | 'v
     '&:hover': {
       backgroundColor: '#e2e8f0',
       color: '#475569',
+      transform: "scale(1.05)",
+    },
+  }),
+  ...(variant === 'restore' && {
+    backgroundColor: '#d1fae5',
+    color: '#059669',
+    '&:hover': {
+      backgroundColor: '#a7f3d0',
+      transform: "scale(1.05)",
+    },
+  }),
+  ...(variant === 'delete' && {
+    backgroundColor: '#fee2e2',
+    color: '#dc2626',
+    '&:hover': {
+      backgroundColor: '#fecaca',
       transform: "scale(1.05)",
     },
   }),
