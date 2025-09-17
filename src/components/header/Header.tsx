@@ -107,7 +107,7 @@ export const Header: FC<HeaderProps> = ({
     }
 
     // Redirect to login page
-    window.location.href = "http://localhost:3000";
+    window.location.href = "https://kmaris-news-dashboard.vercel.app/";
 
     await Swal.fire({
       title: "Success!",
