@@ -14,23 +14,34 @@ export const Container = styled("div")(({ theme }) => ({
   margin: '0 auto',
   padding: theme.spacing(6, 2),
   fontFamily: theme.typography.fontFamily,
+  [theme.breakpoints.down('md')]: {
+    padding: theme.spacing(4, 2),
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(3, 1),
+  },
 }));
 
 export const TopSection = styled("div")(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '1fr',
-  gap: theme.spacing(5),
+  gap: theme.spacing(4),
   marginBottom: theme.spacing(6),
+  [theme.breakpoints.up('md')]: {
+    gridTemplateColumns: '1.2fr 1fr',
+    gap: theme.spacing(5),
+  },
   [theme.breakpoints.up('lg')]: {
     gridTemplateColumns: '1.5fr 1fr',
   },
 }));
 
-export const ArticleList = styled("div")({
+export const ArticleList = styled("div")(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-around',
-});
+  justifyContent: 'flex-start',
+  gap: theme.spacing(2),
+}));
 
 export const BottomGrid = styled("div")(({ theme }) => ({
   display: 'grid',
@@ -39,6 +50,10 @@ export const BottomGrid = styled("div")(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     gridTemplateColumns: 'repeat(2, 1fr)',
   },
+  [theme.breakpoints.up('lg')]: {
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: theme.spacing(4),
+  },
 }));
 
 export const SectionDivider = styled("hr")(({ theme }) => ({
@@ -46,6 +61,9 @@ export const SectionDivider = styled("hr")(({ theme }) => ({
   height: '1px',
   backgroundColor: theme.palette.divider,
   margin: `${theme.spacing(6)} 0`,
+  [theme.breakpoints.down('sm')]: {
+    margin: `${theme.spacing(4)} 0`,
+  },
 }));
 
 export const SectionTitle = styled("h2")(({ theme }) => ({
@@ -54,22 +72,36 @@ export const SectionTitle = styled("h2")(({ theme }) => ({
   fontWeight: theme.typography.fontWeightBold,
   color: theme.palette.text.primary,
   margin: `0 0 ${theme.spacing(3)} 0`,
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '24px',
+    margin: `0 0 ${theme.spacing(2)} 0`,
+  },
 }));
 
-export const FeaturedArticleRoot = styled(Link)({
+// Featured Article Styles
+export const FeaturedArticleRoot = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
-});
+  [theme.breakpoints.up('md')]: {
+    gap: '20px',
+  },
+}));
 
 export const FeaturedTitle = styled('h2')(({ theme }) => ({
   fontFamily: 'inherit',
-  fontSize: '36px',
+  fontSize: '28px',
   fontWeight: theme.typography.fontWeightBold,
   color: theme.palette.text.primary,
   lineHeight: 1.25,
   margin: '0 0 12px 0',
+  [theme.breakpoints.up('sm')]: {
+    fontSize: '32px',
+  },
+  [theme.breakpoints.up('md')]: {
+    fontSize: '36px',
+  },
 }));
 
 export const FeaturedMeta = styled('div')(({ theme }) => ({
@@ -85,30 +117,47 @@ export const FeaturedCategory = styled('span')(({ theme }) => ({
   fontWeight: theme.typography.fontWeightBold,
 }));
 
-export const FeaturedImageWrapper = styled('div')({
+export const FeaturedImageWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  aspectRatio: '16 / 9.5',
+  height: '300px',
   borderRadius: '12px',
   overflow: 'hidden',
-});
+  [theme.breakpoints.up('sm')]: {
+    height: '350px',
+  },
+  [theme.breakpoints.up('md')]: {
+    height: '400px',
+  },
+  [theme.breakpoints.up('lg')]: {
+    height: '450px',
+  },
+}));
 
+// List Item Styles
 export const ListItemRoot = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   display: 'flex',
   gap: '16px',
-  paddingTop: '1rem',
-  paddingBottom: '2rem',
+  paddingTop: '3rem',
+  paddingBottom: '1.5rem',
   borderBottom: `1px solid ${theme.palette.divider}`,
   '&:last-of-type': {
     borderBottom: 'none',
     paddingBottom: 0,
+  },
+  [theme.breakpoints.down('sm')]: {
+    gap: '12px',
+    paddingTop: '0.75rem',
+    paddingBottom: '1.25rem',
   },
 }));
 
 export const ListItemTextContent = styled('div')({
   display: 'flex',
   flexDirection: 'column',
+  flex: 1,
+  minWidth: 0, // Prevents flex item from overflowing
 });
 
 export const ListItemTitle = styled('h3')(({ theme }) => ({
@@ -118,21 +167,24 @@ export const ListItemTitle = styled('h3')(({ theme }) => ({
   color: theme.palette.text.primary,
   lineHeight: 1.4,
   margin: 0,
+  [theme.breakpoints.up('sm')]: {
+    fontSize: '18px',
+  },
 }));
 
-export const ListItemSummary = styled('p')<{ truncate?: boolean }>(({ theme, truncate = true }) => ({
+export const ListItemSummary = styled('p')(({ theme }) => ({
   fontSize: '14px',
   color: theme.palette.text.secondary,
   margin: '8px 0',
   lineHeight: 1.5,
-  ...(truncate && {
-    display: '-webkit-box',
-    WebkitLineClamp: 3, // Fixed: Changed from '-webkit-line-clamp'
-    WebkitBoxOrient: 'vertical', // Fixed: Changed from '-webkit-box-orient'
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    lineClamp: 3, // Added for modern browser support
-  }),
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  [theme.breakpoints.down('sm')]: {
+    WebkitLineClamp: 1,
+  },
 }));
 
 export const ListItemMeta = styled('div')(({ theme }) => ({
@@ -142,6 +194,10 @@ export const ListItemMeta = styled('div')(({ theme }) => ({
   fontSize: '13px',
   color: theme.palette.text.secondary,
   marginTop: 'auto',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '12px',
+    gap: theme.spacing(1),
+  },
 }));
 
 export const ListItemCategory = styled('span')(({ theme }) => ({
@@ -149,20 +205,25 @@ export const ListItemCategory = styled('span')(({ theme }) => ({
   fontWeight: theme.typography.fontWeightBold,
 }));
 
-export const ListItemImageWrapper = styled('div')({
+export const ListItemImageWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '120px',
-  height: '100%',
+  height: '90px',
   flexShrink: 0,
   borderRadius: '8px',
   overflow: 'hidden',
-});
+  [theme.breakpoints.down('sm')]: {
+    width: '100px',
+    height: '75px',
+  },
+}));
 
+// Grid Card Styles
 export const GridCardRoot = styled(Link)(({ theme }) => ({
   display: 'block',
   position: 'relative',
   width: '100%',
-  aspectRatio: '16 / 10',
+  height: '280px',
   borderRadius: '12px',
   overflow: 'hidden',
   boxShadow: theme.shadows[1],
@@ -170,6 +231,12 @@ export const GridCardRoot = styled(Link)(({ theme }) => ({
   '&:hover': {
     transform: 'translateY(-4px)',
     boxShadow: theme.shadows[4],
+  },
+  [theme.breakpoints.up('sm')]: {
+    height: '320px',
+  },
+  [theme.breakpoints.up('md')]: {
+    height: '350px',
   },
 }));
 
@@ -181,14 +248,25 @@ export const GridCardOverlay = styled('div')(({ theme }) => ({
   padding: theme.spacing(2),
   color: theme.palette.common.white,
   background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+  },
 }));
 
 export const GridCardTitle = styled('h3')(({ theme }) => ({
   fontFamily: 'inherit',
-  fontSize: '18px',
+  fontSize: '16px',
   fontWeight: theme.typography.fontWeightBold,
   lineHeight: 1.3,
   margin: '0 0 8px 0',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  [theme.breakpoints.up('sm')]: {
+    fontSize: '18px',
+  },
 }));
 
 export const GridCardMeta = styled('div')(({ theme }) => ({
@@ -198,18 +276,28 @@ export const GridCardMeta = styled('div')(({ theme }) => ({
   marginTop: theme.spacing(1),
   fontSize: '13px',
   opacity: 0.9,
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '12px',
+    gap: theme.spacing(1),
+  },
 }));
 
 export const GridCardCategory = styled('span')({
   fontWeight: 700,
 });
 
+// Latest Articles Grid
 export const LatestArticlesGrid = styled("div")(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '1fr',
   gap: theme.spacing(3),
-  overflowX: 'auto',
   [theme.breakpoints.up('sm')]: {
+    gridTemplateColumns: 'repeat(2, 1fr)',
+  },
+  [theme.breakpoints.up('md')]: {
+    gridTemplateColumns: 'repeat(3, 1fr)',
+  },
+  [theme.breakpoints.up('lg')]: {
     gridTemplateColumns: 'repeat(4, 1fr)',
   },
 }));
@@ -219,21 +307,35 @@ export const LatestArticleCardLink = styled(Link)({
   display: 'flex',
   flexDirection: 'column',
   gap: '12px',
+  height: 'fit-content',
 });
 
-export const LatestImageWrapper = styled("div")({
+export const LatestImageWrapper = styled("div")(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  aspectRatio: '16 / 10',
+  height: '200px',
   borderRadius: '12px',
   overflow: 'hidden',
-});
+  [theme.breakpoints.up('sm')]: {
+    height: '180px',
+  },
+  [theme.breakpoints.up('md')]: {
+    height: '160px',
+  },
+  [theme.breakpoints.up('lg')]: {
+    height: '180px',
+  },
+}));
 
-export const AuthorInfo = styled("div")({
+export const AuthorInfo = styled("div")(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: '8px',
-});
+  flexWrap: 'wrap',
+  [theme.breakpoints.down('sm')]: {
+    gap: '4px',
+  },
+}));
 
 export const Avatar = styled(Image)({
   borderRadius: '50%',
@@ -243,15 +345,32 @@ export const Avatar = styled(Image)({
 export const LatestMetaText = styled("span")(({ theme }) => ({
   fontSize: '13px',
   color: theme.palette.text.secondary,
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '12px',
+  },
 }));
 
 export const LatestTitle = styled("h3")(({ theme }) => ({
   fontFamily: 'inherit',
-  fontSize: '18px',
+  fontSize: '16px',
   fontWeight: theme.typography.fontWeightBold,
   color: theme.palette.text.primary,
   lineHeight: 1.4,
   margin: 0,
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  [theme.breakpoints.up('sm')]: {
+    fontSize: '16px',
+  },
+  [theme.breakpoints.up('md')]: {
+    fontSize: '15px',
+  },
+  [theme.breakpoints.up('lg')]: {
+    fontSize: '16px',
+  },
 }));
 
 export const LatestCategoryMeta = styled(LatestMetaText)({});

@@ -27,6 +27,7 @@ export interface Article {
   readTime: string;
   author?: string;
   publishedAt?: string;
+  type?: 'article' | 'video';
 }
 
 export interface ArticleCardProps {

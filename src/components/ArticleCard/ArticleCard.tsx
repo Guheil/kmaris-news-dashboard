@@ -4,9 +4,23 @@ import React from "react";
 import Image from "next/image";
 import { ArticleCardProps } from "./interface";
 import {
-  FeaturedArticleRoot, FeaturedTitle, FeaturedMeta, FeaturedCategory, FeaturedImageWrapper,
-  ListItemRoot, ListItemTextContent, ListItemTitle, ListItemSummary, ListItemMeta, ListItemCategory, ListItemImageWrapper,
-  GridCardRoot, GridCardOverlay, GridCardTitle, GridCardMeta, GridCardCategory
+  FeaturedArticleRoot, 
+  FeaturedTitle, 
+  FeaturedMeta, 
+  FeaturedCategory, 
+  FeaturedImageWrapper,
+  ListItemRoot, 
+  ListItemTextContent, 
+  ListItemTitle, 
+  ListItemSummary, 
+  ListItemMeta, 
+  ListItemCategory, 
+  ListItemImageWrapper,
+  GridCardRoot, 
+  GridCardOverlay, 
+  GridCardTitle, 
+  GridCardMeta, 
+  GridCardCategory
 } from "./elements";
 
 export function ArticleCard({ article, variant, truncate = true }: ArticleCardProps) {
@@ -22,13 +36,20 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
           </FeaturedMeta>
         </div>
         <FeaturedImageWrapper>
-          <Image src={article.imageUrl} alt={article.title} fill style={{ objectFit: 'cover' }} />
+          <Image 
+            src={article.imageUrl} 
+            alt={article.title} 
+            fill 
+            style={{ objectFit: 'cover' }}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 60vw, 50vw"
+            priority
+          />
         </FeaturedImageWrapper>
       </FeaturedArticleRoot>
     );
   }
-  if (variant === 'list') {
 
+  if (variant === 'list') {
     const truncatedSummary = truncate && article.summary
       ? article.summary.split(' ').slice(0, 20).join(' ') + (article.summary.split(' ').length > 20 ? '...' : '')
       : article.summary;
@@ -45,15 +66,28 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
           </ListItemMeta>
         </ListItemTextContent>
         <ListItemImageWrapper>
-          <Image src={article.imageUrl} alt={article.title} fill style={{ objectFit: 'cover' }} />
+          <Image 
+            src={article.imageUrl} 
+            alt={article.title} 
+            fill 
+            style={{ objectFit: 'cover' }}
+            sizes="120px"
+          />
         </ListItemImageWrapper>
       </ListItemRoot>
     );
   }
+
   if (variant === 'grid') {
     return (
       <GridCardRoot href={`/News/${article.id}`}>
-        <Image src={article.imageUrl} alt={article.title} fill style={{ objectFit: 'cover' }} />
+        <Image 
+          src={article.imageUrl} 
+          alt={article.title} 
+          fill 
+          style={{ objectFit: 'cover' }}
+          sizes="(max-width: 640px) 100vw, 50vw"
+        />
         <GridCardOverlay>
           <GridCardTitle>{article.title}</GridCardTitle>
           <GridCardMeta>
@@ -65,5 +99,6 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
       </GridCardRoot>
     );
   }
+
   return null;
 }

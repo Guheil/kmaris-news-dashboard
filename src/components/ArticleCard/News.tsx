@@ -55,7 +55,7 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
     <LatestArticlesGrid>
       {articles.map((article) => {
         const mediaUrl = getMediaUrl(article.newsImage, article.newsVideo);
-        const hasMedia = (article.newsImage || article.newsVideo);
+        const hasMedia = Boolean(article.newsImage || article.newsVideo);
         
         return (
           <LatestArticleCardLink key={article.id || article._id} href={`/News/${article.id || article._id}`}>
@@ -66,6 +66,7 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
                   alt={article.title}
                   fill
                   style={{ objectFit: "cover" }}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
               ) : (
                 <div style={{
@@ -84,9 +85,9 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
             {article.author && (
               <AuthorInfo>
                 <LatestMetaText>{article.author}</LatestMetaText>
-                <LatestMetaText>â€¢</LatestMetaText>
+                <LatestMetaText>•</LatestMetaText>
                 <LatestMetaText>{article.publishedAt}</LatestMetaText>
-                <LatestMetaText>â€¢</LatestMetaText>
+                <LatestMetaText>•</LatestMetaText>
                 <LatestMetaText>{article.readTime || "3 mins"}</LatestMetaText>
               </AuthorInfo>
             )}
@@ -109,7 +110,7 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
     <LatestArticlesGrid>
       {videos.map((video) => {
         const mediaUrl = getMediaUrl(video.newsImage, video.newsVideo);
-        const hasMedia = (video.newsImage || video.newsVideo);
+        const hasMedia = Boolean(video.newsImage || video.newsVideo);
         
         return (
           <LatestArticleCardLink key={video.id || video._id} href={`/News/${video.id || video._id}`}>
@@ -121,6 +122,7 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
                     alt={video.title}
                     fill
                     style={{ objectFit: "cover" }}
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                   {video.newsVideo && (
                     <PlayCircleFilledIcon
@@ -131,6 +133,7 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
                         transform: "translate(-50%, -50%)",
                         color: "white",
                         fontSize: "48px",
+                        zIndex: 1,
                       }}
                     />
                   )}
@@ -178,7 +181,7 @@ export default function News() {
         const data = await response.json();
         
         // Format articles to match the expected Article interface
-        const formattedArticles = data.map((article: ApiArticle) => ({
+        const formattedArticles: Article[] = data.map((article: ApiArticle) => ({
           _id: article._id || "",
           id: article._id || "",
           title: article.title || "",
@@ -207,7 +210,8 @@ export default function News() {
         setArticles(sortedArticles);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
