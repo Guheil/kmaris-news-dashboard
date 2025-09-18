@@ -6,6 +6,7 @@ import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import { Article, ApiArticle } from "./interface";
 import { ArticleCard } from "./ArticleCard";
 import { FloatingDashboardButton } from './FloatingDashboardButton';
+import { NewsLoadingScreen } from "./NewsLoadingScreen";
 import {
   NewsSection,
   Container,
@@ -114,7 +115,6 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
         const hasMedia = Boolean(video.newsImage || video.newsVideo);
         
         return (
-
           <LatestArticleCardLink key={video.id || video._id} href={`/News/${video.id || video._id}`}>
             <LatestImageWrapper>
               {hasMedia ? (
@@ -225,11 +225,8 @@ export default function News() {
   if (loading) {
     return (
       <NewsSection>
-        <Container>
-          <div style={{ padding: '2rem', textAlign: 'center' }}>
-            Loading articles...
-          </div>
-        </Container>
+        <NewsLoadingScreen />
+        <FloatingDashboardButton />
       </NewsSection>
     );
   }
@@ -238,10 +235,24 @@ export default function News() {
     return (
       <NewsSection>
         <Container>
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
-            Error loading articles: {error}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center', 
+            color: '#ef4444',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '8px',
+            margin: '2rem 0'
+          }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '18px', fontWeight: 600 }}>
+              Unable to Load Articles
+            </h3>
+            <p style={{ margin: 0, fontSize: '14px' }}>
+              {error}
+            </p>
           </div>
         </Container>
+        <FloatingDashboardButton />
       </NewsSection>
     );
   }
@@ -257,10 +268,7 @@ export default function News() {
   const gridArticles = mainArticles.slice(4);
 
   return (
-    
-          
     <NewsSection>
-      
       <Container>
         <TopSection>
           {featuredArticle && (
