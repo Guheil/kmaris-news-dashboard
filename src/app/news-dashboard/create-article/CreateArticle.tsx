@@ -14,6 +14,7 @@ import {
   X,
   ArrowLeft,
   EyeIcon,
+  Link,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -69,6 +70,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
     description: "",
     newsImage: "",
     newsVideo: "",
+    videoUrl: "",
     status: "draft",
   });
 
@@ -101,6 +103,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
           ...prev,
           newsImage: e.target?.result as string,
           newsVideo: "",
+          videoUrl: "",
         }));
       };
       reader.readAsDataURL(file);
@@ -115,8 +118,28 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
         ...prev,
         newsVideo: url,
         newsImage: "",
+        videoUrl: "",
       }));
     }
+  };
+
+  const handleVideoUrlChange = (value: string) => {
+    // General URL validation
+    const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.\/]*)*$/;
+    if (value && !urlRegex.test(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        videoUrl: "Please enter a valid video URL",
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, videoUrl: undefined }));
+    }
+    setFormData((prev) => ({
+      ...prev,
+      videoUrl: value,
+      newsImage: "",
+      newsVideo: "",
+    }));
   };
 
   const removeMedia = () => {
@@ -124,6 +147,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       ...prev,
       newsImage: "",
       newsVideo: "",
+      videoUrl: "",
     }));
     if (imageInputRef.current) imageInputRef.current.value = "";
     if (videoInputRef.current) videoInputRef.current.value = "";
@@ -215,6 +239,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
           description: "",
           newsImage: "",
           newsVideo: "",
+          videoUrl: "",
           status: "draft",
         });
         setErrors({});
@@ -244,6 +269,33 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   const goBack = () => {
     console.log("Navigate back to articles");
     router.push("/news-dashboard/articles");
+  };
+
+  // Convert video URL to embed URL for preview
+  const getVideoEmbedUrl = (url: string): string => {
+    // YouTube
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const youtubeMatch = url.match(youtubeRegex);
+    if (youtubeMatch) {
+      return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    }
+
+    // Vimeo
+    const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
+    const vimeoMatch = url.match(vimeoRegex);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
+
+    // Dailymotion
+    const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
+    const dailymotionMatch = url.match(dailymotionRegex);
+    if (dailymotionMatch) {
+      return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`;
+    }
+
+    // Fallback: Return the original URL if no specific embed format is found
+    return url;
   };
 
   return (
@@ -288,17 +340,17 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               },
             ],
           },
-           {
+          {
             title: "Preview",
             items: [
-                {
+              {
                 icon: <EyeIcon size={20} />,
                 text: "News Preview",
                 href: "/news-preview",
                 active: false,
-                }
-            ]
-          }
+              },
+            ],
+          },
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -407,7 +459,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 <MediaUploadBox
                   hasMedia={!!formData.newsImage}
                   onClick={() =>
-                    !formData.newsVideo && imageInputRef.current?.click()
+                    !formData.newsVideo && !formData.videoUrl && imageInputRef.current?.click()
                   }
                 >
                   {formData.newsImage ? (
@@ -449,7 +501,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 <MediaUploadBox
                   hasMedia={!!formData.newsVideo}
                   onClick={() =>
-                    !formData.newsImage && videoInputRef.current?.click()
+                    !formData.newsImage && !formData.videoUrl && videoInputRef.current?.click()
                   }
                 >
                   {formData.newsVideo ? (
@@ -491,6 +543,39 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 </MediaUploadBox>
               </div>
             </MediaUploadContainer>
+            <FormField fullWidth style={{ marginTop: "20px" }}>
+              <Label>Video URL (YouTube, Vimeo, Dailymotion, etc.)</Label>
+              <Input
+                type="text"
+                placeholder="Enter video URL..."
+                value={formData.videoUrl}
+                onChange={(e) => handleVideoUrlChange(e.target.value)}
+                error={!!errors.videoUrl}
+              />
+              {errors.videoUrl && <ErrorMessage>{errors.videoUrl}</ErrorMessage>}
+              {formData.videoUrl && !errors.videoUrl && (
+                <MediaPreview style={{ marginTop: "12px" }}>
+                  <iframe
+                    width="100%"
+                    height="100px"
+                    src={getVideoEmbedUrl(formData.videoUrl)}
+                    title="Video Preview"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: "8px" }}
+                  />
+                  <MediaRemoveButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeMedia();
+                    }}
+                  >
+                    <X size={12} />
+                  </MediaRemoveButton>
+                </MediaPreview>
+              )}
+            </FormField>
           </FormSection>
           <ActionButtons>
             <Button variant="outline" onClick={goBack} disabled={isSubmitting}>

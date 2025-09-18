@@ -1,9 +1,8 @@
-// app/api/articles/[id]/route.ts
 import { NextResponse } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-// Define the Article type to match your database schema, excluding content
+// Define the Article type to match your database schema, including videoUrl
 type Article = {
   _id: ObjectId;
   title: string;
@@ -13,6 +12,7 @@ type Article = {
   status: "draft" | "published" | "archived";
   newsImage?: string | null; // Base64 string or URL
   newsVideo?: string | null; // Base64 string or URL
+  videoUrl?: string; // Video URL (YouTube, Vimeo, Google Drive, or direct link)
   createdAt?: Date;
   updatedAt?: Date;
   date?: string;
@@ -51,6 +51,7 @@ export async function GET(
     const safeArticle = {
       ...article,
       _id: article._id.toString(),
+      videoUrl: article.videoUrl || "", // Ensure videoUrl is included, default to empty string
     };
 
     console.log("Article found:", article.title);
@@ -87,10 +88,16 @@ export async function PUT(
     const body = await request.json();
 
     // Validate incoming data
-    const { title, author, category, description, status, newsImage, newsVideo } = body;
+    const { title, author, category, description, status, newsImage, newsVideo, videoUrl } = body;
     if (!title || !author || !category || !description || !status) {
       console.error("Missing required fields in update data:", body);
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Validate videoUrl (optional, but must be a string if provided)
+    if (videoUrl !== undefined && typeof videoUrl !== "string") {
+      console.error("Invalid videoUrl format:", videoUrl);
+      return NextResponse.json({ error: "Invalid video URL format" }, { status: 400 });
     }
 
     const updateData = {
@@ -101,6 +108,7 @@ export async function PUT(
       status,
       newsImage: newsImage || null,
       newsVideo: newsVideo || null,
+      videoUrl: videoUrl || "", // Include videoUrl, default to empty string
       updatedAt: new Date(),
     };
 
@@ -130,6 +138,7 @@ export async function PUT(
     const safeArticle = {
       ...updatedArticle,
       _id: updatedArticle._id.toString(),
+      videoUrl: updatedArticle.videoUrl || "", // Ensure videoUrl is included
     };
 
     console.log("Article updated successfully:", updatedArticle.title);

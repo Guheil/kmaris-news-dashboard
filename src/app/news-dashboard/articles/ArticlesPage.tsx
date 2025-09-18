@@ -73,6 +73,50 @@ const truncateText = (text: string, limit: number): string => {
   return text.length > limit ? `${text.slice(0, limit)}...` : text;
 };
 
+// Utility function to get video embed details
+const getVideoEmbedDetails = (url: string) => {
+  // Helper to normalize URL (add https:// if missing)
+  const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
+
+  // Direct video file check (e.g., .mp4, .webm)
+  const directVideoRegex = /\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv)$/i;
+  if (directVideoRegex.test(normalizedUrl)) {
+    return { type: "video" as const, src: normalizedUrl };
+  }
+
+  // YouTube
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const youtubeMatch = normalizedUrl.match(youtubeRegex);
+  if (youtubeMatch) {
+    return { type: "iframe" as const, src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
+  }
+
+  // Vimeo
+  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
+  const vimeoMatch = normalizedUrl.match(vimeoRegex);
+  if (vimeoMatch) {
+    return { type: "iframe" as const, src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  }
+
+  // Dailymotion
+  const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
+  const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
+  if (dailymotionMatch) {
+    return { type: "iframe" as const, src: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}` };
+  }
+
+  // Google Drive
+  const driveRegex = /\/file\/d\/([a-zA-Z0-9-_]+)(?:\/[^\/\s]*)?|open\?id=([a-zA-Z0-9-_]+)/;
+  const driveMatch = normalizedUrl.match(driveRegex);
+  if (driveMatch) {
+    const fileId = driveMatch[1] || driveMatch[2];
+    return { type: "iframe" as const, src: `https://drive.google.com/file/d/${fileId}/preview` };
+  }
+
+  // Fallback: Generic iframe for other URLs
+  return { type: "iframe" as const, src: normalizedUrl };
+};
+
 // Article Card Component
 const ArticleCardComponent: FC<ArticleCardProps> = ({
   article,
@@ -87,15 +131,59 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
   const descriptionLimit = viewMode === "grid" ? 120 : 150;
   const isArchived = article.status === "archived";
 
+  // Get video embed details if videoUrl exists
+  const videoEmbedDetails = article.videoUrl
+    ? getVideoEmbedDetails(article.videoUrl)
+    : null;
+
   return (
     <ArticleCard viewMode={viewMode} isArchived={isArchived}>
       <ArticleImage
         backgroundImage={article.newsImage}
         viewMode={viewMode}
-        hasVideo={!!article.newsVideo}
+        hasVideo={!!article.newsVideo || !!article.videoUrl}
         isArchived={isArchived}
       >
-        {!article.newsImage && !article.newsVideo && <FileText size={32} />}
+        {videoEmbedDetails ? (
+          videoEmbedDetails.type === "video" ? (
+            <video
+              width="100%"
+              height="100%"
+              src={videoEmbedDetails.src}
+              controls
+              style={{ borderRadius: "8px", objectFit: "cover" }}
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <>
+              <iframe
+                width="100%"
+                height="100%"
+                src={videoEmbedDetails.src}
+                title="Video Preview"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ borderRadius: "8px" }}
+              />
+              {/drive\.google\.com/.test(article.videoUrl) && (
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: "#64748b",
+                    textAlign: "center",
+                    marginTop: "4px",
+                  }}
+                >
+                  Drive: Must be publicly shared
+                </div>
+              )}
+            </>
+          )
+        ) : !article.newsImage && !article.newsVideo ? (
+          <FileText size={32} />
+        ) : null}
       </ArticleImage>
 
       <ArticleContent viewMode={viewMode}>
@@ -111,9 +199,7 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
             >
               <Eye size={16} />
             </ActionButton>
-            
             {isArchived ? (
-              // Show restore and delete buttons for archived articles
               <>
                 <ActionButton
                   variant="restore"
@@ -131,7 +217,6 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
                 </ActionButton>
               </>
             ) : (
-              // Show edit and archive buttons for non-archived articles
               <>
                 <ActionButton
                   variant="edit"
@@ -211,7 +296,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
   // Fetch articles from API
   useEffect(() => {
     const fetchArticles = async () => {
@@ -241,94 +325,84 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
   );
 
   // Filter and sort articles
-const filteredAndSortedArticles = useMemo(() => {
-  let filtered = articles;
+  const filteredAndSortedArticles = useMemo(() => {
+    let filtered = articles;
 
-  // Apply search filter
-  if (searchQuery.trim()) {
-    const query = searchQuery.toLowerCase().trim();
-    filtered = filtered.filter(
-      (article) =>
-        article.title.toLowerCase().includes(query) ||
-        article.category.toLowerCase().includes(query) ||
-        article.description.toLowerCase().includes(query)
-    );
-  }
-
-  // Apply category filter
-  if (filters.category !== "all") {
-    filtered = filtered.filter(
-      (article) => article.category === filters.category
-    );
-  }
-
-  // Apply status filter
-  if (filters.status === "all") {
-    filtered = filtered.filter(
-      (article) => (article.status || "published") === "published"
-    );
-  } else {
-    filtered = filtered.filter(
-      (article) => (article.status || "published") === filters.status
-    );
-  }
-
-  // Apply sorting - FIXED VERSION
-  filtered.sort((a, b) => {
-    let aValue: string | number | undefined = a[sortOptions.field];
-    let bValue: string | number | undefined = b[sortOptions.field];
-
-    // Handle undefined values
-    if (aValue === undefined) aValue = "";
-    if (bValue === undefined) bValue = "";
-
-    if (sortOptions.field === "date") {
-      const aTime = new Date(aValue as string).getTime();
-      const bTime = new Date(bValue as string).getTime();
-      
-      if (sortOptions.direction === "asc") {
-        return aTime - bTime;
-      } else {
-        return bTime - aTime;
-      }
-    } else if (typeof aValue === "string" && typeof bValue === "string") {
-      const aLower = aValue.toLowerCase();
-      const bLower = bValue.toLowerCase();
-      
-      if (sortOptions.direction === "asc") {
-        return aLower < bLower ? -1 : aLower > bLower ? 1 : 0;
-      } else {
-        return aLower > bLower ? -1 : aLower < bLower ? 1 : 0;
-      }
-    } else {
-      // Handle numeric values
-      const aNum = Number(aValue) || 0;
-      const bNum = Number(bValue) || 0;
-      
-      if (sortOptions.direction === "asc") {
-        return aNum - bNum;
-      } else {
-        return bNum - aNum;
-      }
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        (article) =>
+          article.title.toLowerCase().includes(query) ||
+          article.category.toLowerCase().includes(query) ||
+          article.description.toLowerCase().includes(query)
+      );
     }
-  });
 
-  return filtered;
-}, [searchQuery, filters, sortOptions, articles]);
+    // Apply category filter
+    if (filters.category !== "all") {
+      filtered = filtered.filter(
+        (article) => article.category === filters.category
+      );
+    }
+
+    // Apply status filter
+    if (filters.status !== "all") {
+      filtered = filtered.filter(
+        (article) => (article.status || "published") === filters.status
+      );
+    } else {
+      filtered = filtered.filter(
+        (article) => (article.status || "published") === "published"
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: string | number | undefined = a[sortOptions.field];
+      let bValue: string | number | undefined = b[sortOptions.field];
+
+      // Handle undefined values
+      if (aValue === undefined) aValue = "";
+      if (bValue === undefined) bValue = "";
+
+      if (sortOptions.field === "date") {
+        const aTime = new Date(aValue as string).getTime();
+        const bTime = new Date(bValue as string).getTime();
+        return sortOptions.direction === "asc" ? aTime - bTime : bTime - aTime;
+      } else if (typeof aValue === "string" && typeof bValue === "string") {
+        const aLower = aValue.toLowerCase();
+        const bLower = bValue.toLowerCase();
+        return sortOptions.direction === "asc"
+          ? aLower < bLower
+            ? -1
+            : aLower > bLower
+            ? 1
+            : 0
+          : aLower > bLower
+          ? -1
+          : aLower < bLower
+          ? 1
+          : 0;
+      } else {
+        const aNum = Number(aValue) || 0;
+        const bNum = Number(bValue) || 0;
+        return sortOptions.direction === "asc" ? aNum - bNum : bNum - aNum;
+      }
+    });
+
+    return filtered;
+  }, [searchQuery, filters, sortOptions, articles]);
 
   // Paginate articles
   const paginatedArticles = useMemo(() => {
     const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
     const endIndex = startIndex + pagination.itemsPerPage;
     return filteredAndSortedArticles.slice(startIndex, endIndex);
-  }, [
-    filteredAndSortedArticles,
-    pagination.currentPage,
-    pagination.itemsPerPage,
-  ]);
+  }, [filteredAndSortedArticles, pagination.currentPage, pagination.itemsPerPage]);
 
   // Update total items when filtered articles change
-  useMemo(() => {
+  useEffect(() => {
     setPagination((prev) => ({
       ...prev,
       totalItems: filteredAndSortedArticles.length,
@@ -356,150 +430,145 @@ const filteredAndSortedArticles = useMemo(() => {
     router.push(`/news-dashboard/articles/edit/${articleId}`);
   };
 
-const handleArchive = async (articleId: string) => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "Are you sure you want to archive this?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, archive it!",
-    cancelButtonText: "No, keep it!",
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    const response = await fetch(`/api/articles/${articleId}/archive`, {
-      method: "POST",
+  const handleArchive = async (articleId: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to archive this?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, archive it!",
+      cancelButtonText: "No, keep it!",
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await fetch(`/api/articles/${articleId}/archive`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+
+      setArticles((prevArticles) =>
+        prevArticles.map((article) =>
+          article._id === articleId
+            ? { ...article, status: "archived" }
+            : article
+        )
+      );
+
+      await Swal.fire({
+        title: "Success!",
+        text: "Article archived successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Error archiving article:", err);
+      await Swal.fire({
+        title: "Error!",
+        text: "Failed to archive article. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
+  };
 
-    setArticles((prevArticles) =>
-      prevArticles.map((article) =>
-        article._id === articleId
-          ? { ...article, status: "archived" }
-          : article
-      )
-    );
-
-    await Swal.fire({
-      title: "Success!",
-      text: "Article archived successfully!",
-      icon: "success",
-      confirmButtonText: "OK",
-      timer: 3000,
-      timerProgressBar: true,
-    });
-  } catch (err) {
-    console.error("Error archiving article:", err);
-    await Swal.fire({
-      title: "Error!",
-      text: "Failed to archive article. Please try again.",
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  } finally {
-  }
-};
-
-const handleRestore = async (articleId: string) => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to restore this article? It will be moved back to published status!",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Yes, restore it!",
-    cancelButtonText: "No, keep it archived!",
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    const response = await fetch(`/api/articles/${articleId}/restore`, {
-      method: "POST",
+  const handleRestore = async (articleId: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to restore this article? It will be moved back to published status!",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, restore it!",
+      cancelButtonText: "No, keep it archived!",
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await fetch(`/api/articles/${articleId}/restore`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+
+      setArticles((prevArticles) =>
+        prevArticles.map((article) =>
+          article._id === articleId
+            ? { ...article, status: "published" }
+            : article
+        )
+      );
+
+      await Swal.fire({
+        title: "Success!",
+        text: "Article restored successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Error restoring article:", err);
+      await Swal.fire({
+        title: "Error!",
+        text: "Failed to restore article. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
+  };
 
-    setArticles((prevArticles) =>
-      prevArticles.map((article) =>
-        article._id === articleId
-          ? { ...article, status: "published" }
-          : article
-      )
-    );
-
-    await Swal.fire({
-      title: "Success!",
-      text: "Article restored successfully!",
-      icon: "success",
-      confirmButtonText: "OK",
-      timer: 3000,
-      timerProgressBar: true,
-    });
-  } catch (err) {
-    console.error("Error restoring article:", err);
-    await Swal.fire({
-      title: "Error!",
-      text: "Failed to restore article. Please try again.",
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  } finally {
-  }
-};
-
-const handleDelete = async (articleId: string) => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "This article will be permanently deleted. This action cannot be undone!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, delete it!",
-    cancelButtonText: "No, keep it!",
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    const response = await fetch(`/api/articles/${articleId}/delete`, {
-      method: "DELETE",
+  const handleDelete = async (articleId: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This article will be permanently deleted. This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, keep it!",
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await fetch(`/api/articles/${articleId}/delete`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+
+      setArticles((prevArticles) =>
+        prevArticles.filter((article) => article._id !== articleId)
+      );
+
+      await Swal.fire({
+        title: "Success!",
+        text: "Article permanently deleted successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } catch (err) {
+      console.error("Error deleting article:", err);
+      await Swal.fire({
+        title: "Error!",
+        text: "Failed to delete article. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
-
-    setArticles((prevArticles) =>
-      prevArticles.filter((article) => article._id !== articleId)
-    );
-
-    await Swal.fire({
-      title: "Success!",
-      text: "Article permanently deleted successfully!",
-      icon: "success",
-      confirmButtonText: "OK",
-      timer: 3000,
-      timerProgressBar: true,
-    });
-  } catch (err) {
-    console.error("Error deleting article:", err);
-    await Swal.fire({
-      title: "Error!",
-      text: "Failed to delete article. Please try again.",
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  } finally {
-  }
-};
+  };
 
   const handleView = (articleId: string) => {
     router.push(`/news-dashboard/articles/view/${articleId}`);
@@ -555,17 +624,17 @@ const handleDelete = async (articleId: string) => {
               },
             ],
           },
-           {
+          {
             title: "Preview",
             items: [
-                {
+              {
                 icon: <EyeIcon size={20} />,
                 text: "News Preview",
                 href: "/news-preview",
                 active: false,
-                }
-            ]
-          }
+              },
+            ],
+          },
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -768,10 +837,10 @@ const handleDelete = async (articleId: string) => {
                 {searchQuery ? "No articles found" : "No articles available"}
               </NoResultsTitle>
               <NoResultsText>
-              {searchQuery
-                ? `We couldn&apos;t find any articles matching &quot;${searchQuery}&quot;. Try adjusting your search terms or filters.`
-                : "There are currently no articles to display. Create your first article to get started!"}
-            </NoResultsText>
+                {searchQuery
+                  ? `We couldn't find any articles matching "${searchQuery}". Try adjusting your search terms or filters.`
+                  : "There are currently no articles to display. Create your first article to get started!"}
+              </NoResultsText>
             </NoResults>
           )
         )}

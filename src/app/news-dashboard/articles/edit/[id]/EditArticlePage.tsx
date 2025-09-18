@@ -41,8 +41,68 @@ import {
   TextArea,
   Input,
 } from "./elements";
-import { EditArticleFormData } from "./interface";
-import { EditArticlePageProps } from "./interface";
+
+// Update interface to include videoUrl
+export interface EditArticleFormData {
+  title: string;
+  author: string;
+  category: string;
+  description: string;
+  status: "draft" | "published" | "archived";
+  newsImage: string | null;
+  newsVideo: string | null;
+  videoUrl: string;
+}
+
+export interface EditArticlePageProps {
+  sidebarOpen: boolean;
+  onSidebarToggle: () => void;
+  isMobile: boolean;
+  articleId: string;
+}
+
+// Utility function for universal video embedding
+const getVideoEmbedDetails = (url: string) => {
+  const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
+
+  // Direct video file check
+  const directVideoRegex = /\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv)$/i;
+  if (directVideoRegex.test(normalizedUrl)) {
+    return { type: "video" as const, src: normalizedUrl };
+  }
+
+  // YouTube
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const youtubeMatch = normalizedUrl.match(youtubeRegex);
+  if (youtubeMatch) {
+    return { type: "iframe" as const, src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
+  }
+
+  // Vimeo
+  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
+  const vimeoMatch = normalizedUrl.match(vimeoRegex);
+  if (vimeoMatch) {
+    return { type: "iframe" as const, src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  }
+
+  // Dailymotion
+  const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
+  const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
+  if (dailymotionMatch) {
+    return { type: "iframe" as const, src: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}` };
+  }
+
+  // Google Drive
+  const driveRegex = /\/file\/d\/([a-zA-Z0-9-_]+)(?:\/[^\/\s]*)?|open\?id=([a-zA-Z0-9-_]+)/;
+  const driveMatch = normalizedUrl.match(driveRegex);
+  if (driveMatch) {
+    const fileId = driveMatch[1] || driveMatch[2];
+    return { type: "iframe" as const, src: `https://drive.google.com/file/d/${fileId}/preview` };
+  }
+
+  // Fallback
+  return { type: "iframe" as const, src: normalizedUrl };
+};
 
 export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   sidebarOpen,
@@ -58,6 +118,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   const [saving, setSaving] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: "",
@@ -67,9 +128,8 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     status: "draft",
     newsImage: null,
     newsVideo: null,
+    videoUrl: "",
   });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const categories = [
     "Technology",
@@ -80,19 +140,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     "Health",
   ];
 
-  // Fetch article data from MongoDB
   useEffect(() => {
     const fetchArticle = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/articles/${articleId}`);
         if (!response.ok) {
-          const errorData = await response
-            .json()
-            .catch(() => ({ error: "Unknown error" }));
-          throw new Error(
-            errorData.error || `HTTP ${response.status}: ${response.statusText}`
-          );
+          const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
         }
         const data = await response.json();
         setFormData({
@@ -103,8 +158,10 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
           status: data.status || "draft",
           newsImage: data.newsImage || null,
           newsVideo: data.newsVideo || null,
+          videoUrl: data.videoUrl || "",
         });
-      } catch  {
+      } catch {
+        setSubmitError("Failed to load article");
       } finally {
         setLoading(false);
       }
@@ -115,10 +172,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     }
   }, [articleId]);
 
-  const handleInputChange = (
-    field: keyof EditArticleFormData,
-    value: string
-  ) => {
+  const handleInputChange = (field: keyof EditArticleFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -135,9 +189,8 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       return;
     }
 
-    // Validate file type and size (e.g., max 5MB)
     const validTypes = ["image/png", "image/jpeg", "image/jpg"];
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024;
     if (!validTypes.includes(file.type)) {
       setUploadError("Only PNG and JPG files are allowed");
       return;
@@ -147,14 +200,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       return;
     }
 
-    // Use FileReader to convert image to base64
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result as string;
       setFormData((prev) => ({
         ...prev,
         newsImage: base64String,
-        newsVideo: null, // Clear video if image is uploaded
+        newsVideo: null,
+        videoUrl: "",
       }));
       setUploadError(null);
     };
@@ -171,9 +224,8 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       return;
     }
 
-    // Validate file type and size (e.g., max 50MB)
     const validTypes = ["video/mp4", "video/avi"];
-    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    const maxSize = 50 * 1024 * 1024;
     if (!validTypes.includes(file.type)) {
       setUploadError("Only MP4 and AVI files are allowed");
       return;
@@ -183,14 +235,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       return;
     }
 
-    // Use FileReader to convert video to base64
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result as string;
       setFormData((prev) => ({
         ...prev,
         newsVideo: base64String,
-        newsImage: null, // Clear image if video is uploaded
+        newsImage: null,
+        videoUrl: "",
       }));
       setUploadError(null);
     };
@@ -200,11 +252,27 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     reader.readAsDataURL(file);
   };
 
+  const handleVideoUrlChange = (value: string) => {
+    const supportedRegex = /^(https?:\/\/)?((www\.)?(youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com|dailymotion\.com|www\.dailymotion\.com|drive\.google\.com)|.*\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv))/i;
+    if (value && !supportedRegex.test(value)) {
+      setErrors((prev) => ({ ...prev, videoUrl: "Please enter a valid video URL (YouTube, Vimeo, Dailymotion, Google Drive, or direct video link)" }));
+    } else {
+      setErrors((prev) => ({ ...prev, videoUrl: "" }));
+    }
+    setFormData((prev) => ({
+      ...prev,
+      videoUrl: value,
+      newsImage: null,
+      newsVideo: null,
+    }));
+  };
+
   const removeMedia = () => {
     setFormData((prev) => ({
       ...prev,
       newsImage: null,
       newsVideo: null,
+      videoUrl: "",
     }));
     if (imageInputRef.current) imageInputRef.current.value = "";
     if (videoInputRef.current) videoInputRef.current.value = "";
@@ -248,6 +316,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         status,
         newsImage: formData.newsImage,
         newsVideo: formData.newsVideo,
+        videoUrl: formData.videoUrl,
       };
 
       const response = await fetch(`/api/articles/${articleId}`, {
@@ -262,9 +331,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
 
       await Swal.fire({
         title: "Success!",
-        text: `Article ${
-          status === "draft" ? "saved as draft" : "published"
-        } successfully!`,
+        text: `Article ${status === "draft" ? "saved as draft" : "published"} successfully!`,
         icon: "success",
         confirmButtonText: "OK",
         timer: 3000,
@@ -305,56 +372,27 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   if (loading) {
     return (
       <EditArticleRoot>
-        <SidebarOverlay
-          show={isMobile && sidebarOpen}
-          onClick={handleOverlayClick}
-        />
+        <SidebarOverlay show={isMobile && sidebarOpen} onClick={handleOverlayClick} />
         <Sidebar
           isOpen={sidebarOpen}
           onToggle={onSidebarToggle}
           navSections={[
             {
               title: "Overview",
-              items: [
-                {
-                  icon: <Home size={20} />,
-                  text: "Dashboard",
-                  href: "/news-dashboard",
-                },
-              ],
+              items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
             },
             {
               title: "News Management",
               items: [
-                {
-                  icon: <FileText size={20} />,
-                  text: "All Articles",
-                  href: "/news-dashboard/articles",
-                },
-                {
-                  icon: <Plus size={20} />,
-                  text: "Create Article",
-                  href: "/news-dashboard/create-article",
-                },
-                {
-                  icon: <BarChart3 size={20} />,
-                  text: "Analytics",
-                  href: "/news-dashboard/analytics",
-                  active: false,
-                },
+                { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
+                { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
+                { icon: <BarChart3 size={20} />, text: "Analytics", href: "/news-dashboard/analytics", active: false },
               ],
             },
-             {
-            title: "Preview",
-            items: [
-                {
-                icon: <EyeIcon size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-                active: false,
-                }
-            ]
-          }
+            {
+              title: "Preview",
+              items: [{ icon: <EyeIcon size={20} />, text: "News Preview", href: "/news-preview", active: false }],
+            },
           ]}
           userName="John Doe"
           userRole="Editor"
@@ -402,55 +440,27 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
 
   return (
     <EditArticleRoot>
-      <SidebarOverlay
-        show={isMobile && sidebarOpen}
-        onClick={handleOverlayClick}
-      />
+      <SidebarOverlay show={isMobile && sidebarOpen} onClick={handleOverlayClick} />
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
         navSections={[
           {
             title: "Overview",
-            items: [
-              {
-                icon: <Home size={20} />,
-                text: "Dashboard",
-                href: "/news-dashboard",
-              },
-            ],
+            items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
           },
           {
             title: "News Management",
             items: [
-              {
-                icon: <FileText size={20} />,
-                text: "All Articles",
-                href: "/news-dashboard/articles",
-              },
-              {
-                icon: <Plus size={20} />,
-                text: "Create Article",
-                href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <ArchiveIcon size={20} />,
-                text: "Archive",
-                href: "/news-dashboard/archive-news",
-              },
+              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
+              { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
+              { icon: <ArchiveIcon size={20} />, text: "Archive", href: "/news-dashboard/archive-news" },
             ],
           },
           {
             title: "Preview",
-            items: [
-                {
-                icon: <EyeIcon size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-                active: false,
-                }
-            ]
-          }
+            items: [{ icon: <EyeIcon size={20} />, text: "News Preview", href: "/news-preview", active: false }],
+          },
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -483,9 +493,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         >
           <FormHeader>
             <FormTitle>Edit Article</FormTitle>
-            <FormSubtitle>
-              Update the article details below and save your changes
-            </FormSubtitle>
+            <FormSubtitle>Update the article details below and save your changes</FormSubtitle>
           </FormHeader>
           <div style={{ marginBottom: "32px" }}>
             <SectionTitle>Basic Information</SectionTitle>
@@ -520,9 +528,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 </Label>
                 <Select
                   value={formData.category}
-                  onChange={(e) =>
-                    handleInputChange("category", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("category", e.target.value)}
                 >
                   <option value="">Select category...</option>
                   {categories.map((category) => (
@@ -531,9 +537,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                     </option>
                   ))}
                 </Select>
-                {errors.category && (
-                  <ErrorMessage>{errors.category}</ErrorMessage>
-                )}
+                {errors.category && <ErrorMessage>{errors.category}</ErrorMessage>}
               </FormField>
               <FormField>
                 <Label>
@@ -541,12 +545,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 </Label>
                 <Select
                   value={formData.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "status",
-                      e.target.value as EditArticleFormData["status"]
-                    )
-                  }
+                  onChange={(e) => handleInputChange("status", e.target.value as EditArticleFormData["status"])}
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
@@ -560,23 +559,15 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 <TextArea
                   placeholder="Enter article description..."
                   value={formData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("description", e.target.value)}
                 />
-                {errors.description && (
-                  <ErrorMessage>{errors.description}</ErrorMessage>
-                )}
+                {errors.description && <ErrorMessage>{errors.description}</ErrorMessage>}
               </FormField>
             </FormGrid>
           </div>
           <div style={{ marginBottom: "32px" }}>
             <SectionTitle>Media</SectionTitle>
-            {uploadError && (
-              <ErrorMessage style={{ marginBottom: "16px" }}>
-                {uploadError}
-              </ErrorMessage>
-            )}
+            {uploadError && <ErrorMessage style={{ marginBottom: "16px" }}>{uploadError}</ErrorMessage>}
             <MediaUploadContainer>
               <div>
                 <input
@@ -588,30 +579,16 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 />
                 <MediaUploadBox
                   hasMedia={!!formData.newsImage}
-                  onClick={() =>
-                    !formData.newsVideo && imageInputRef.current?.click()
-                  }
+                  onClick={() => !formData.newsVideo && !formData.videoUrl && imageInputRef.current?.click()}
                 >
                   {formData.newsImage ? (
-                    <div
-                      style={{
-                        position: "relative",
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                        marginTop: "12px",
-                      }}
-                    >
+                    <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", height: "100%", width: "100%" }}>
                       <Image
                         src={formData.newsImage}
                         alt="Preview"
-                        width={300} 
-                        height={100} 
-                        style={{
-                          width: "100%",
-                          height: "100px",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                        }}
+                        width={300}
+                        height={200}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
                       />
                       <button
                         onClick={(e) => {
@@ -654,19 +631,10 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                       >
                         <ImageIcon size={20} />
                       </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: 500,
-                          marginBottom: "4px",
-                        }}
-                      >
+                      <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500, marginBottom: "4px" }}>
                         Upload Image
                       </div>
-                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-                        PNG, JPG up to 5MB
-                      </div>
+                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>PNG, JPG up to 5MB</div>
                     </>
                   )}
                 </MediaUploadBox>
@@ -681,27 +649,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 />
                 <MediaUploadBox
                   hasMedia={!!formData.newsVideo}
-                  onClick={() =>
-                    !formData.newsImage && videoInputRef.current?.click()
-                  }
+                  onClick={() => !formData.newsImage && !formData.videoUrl && videoInputRef.current?.click()}
                 >
                   {formData.newsVideo ? (
-                    <div
-                      style={{
-                        position: "relative",
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                        marginTop: "12px",
-                      }}
-                    >
+                    <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", height: "100%", width: "100%" }}>
                       <video
                         src={formData.newsVideo}
                         controls
-                        style={{
-                          width: "100%",
-                          height: "100px",
-                          borderRadius: "8px",
-                        }}
+                        style={{ width: "100%", height: "100%", borderRadius: "8px" }}
                       />
                       <button
                         onClick={(e) => {
@@ -744,24 +699,84 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                       >
                         <Video size={20} />
                       </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: 500,
-                          marginBottom: "4px",
-                        }}
-                      >
+                      <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500, marginBottom: "4px" }}>
                         Upload Video
                       </div>
-                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-                        MP4, AVI up to 50MB
-                      </div>
+                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>MP4, AVI up to 50MB</div>
                     </>
                   )}
                 </MediaUploadBox>
               </div>
             </MediaUploadContainer>
+            <FormField fullWidth style={{ marginTop: "20px" }}>
+              <Label>Video URL</Label>
+              <Input
+                type="text"
+                placeholder="Enter video URL (YouTube, Vimeo, Google Drive, or direct link)..."
+                value={formData.videoUrl}
+                onChange={(e) => handleVideoUrlChange(e.target.value)}
+              />
+              {errors.videoUrl && <ErrorMessage>{errors.videoUrl}</ErrorMessage>}
+              {formData.videoUrl && !errors.videoUrl && (
+                <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", height: "200px", width: "100%" }}>
+                  {getVideoEmbedDetails(formData.videoUrl).type === "video" ? (
+                    <video
+                      src={getVideoEmbedDetails(formData.videoUrl).src}
+                      controls
+                      style={{ width: "100%", height: "100%", borderRadius: "8px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <>
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={getVideoEmbedDetails(formData.videoUrl).src}
+                        title="Video Preview"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{ borderRadius: "8px" }}
+                      />
+                      {/drive\.google\.com/.test(formData.videoUrl) && (
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "#64748b",
+                            textAlign: "center",
+                            marginTop: "4px",
+                          }}
+                        >
+                          Google Drive: Must be publicly shared
+                        </div>
+                      )}
+                    </>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeMedia();
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      border: "none",
+                      backgroundColor: "rgba(0,0,0,0.7)",
+                      color: "white",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+            </FormField>
           </div>
           <div
             style={{
@@ -777,44 +792,20 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
               <ArrowLeft size={16} />
               Cancel
             </Button>
-            <Button
-              variant="secondary"
-              onClick={handlePreview}
-              disabled={saving}
-            >
+            <Button variant="secondary" onClick={handlePreview} disabled={saving}>
               <Eye size={16} />
               Preview
             </Button>
-            <Button
-              variant="secondary"
-              onClick={() => handleSave("draft")}
-              disabled={saving}
-            >
-              {saving ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Save size={16} />
-              )}
+            <Button variant="secondary" onClick={() => handleSave("draft")} disabled={saving}>
+              {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               Save Draft
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => handleSave("published")}
-              disabled={saving}
-            >
-              {saving ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Eye size={16} />
-              )}
+            <Button variant="primary" onClick={() => handleSave("published")} disabled={saving}>
+              {saving ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
               {saving ? "Saving..." : "Update Article"}
             </Button>
           </div>
-          {submitError && (
-            <ErrorMessage style={{ display: "block", marginTop: "16px" }}>
-              {submitError}
-            </ErrorMessage>
-          )}
+          {submitError && <ErrorMessage style={{ display: "block", marginTop: "16px" }}>{submitError}</ErrorMessage>}
         </div>
       </MainContent>
     </EditArticleRoot>

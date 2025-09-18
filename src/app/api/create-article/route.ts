@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // Validate required fields
-    const { title, author, category, description, status, newsImage, newsVideo } = body;
+    const { title, author, category, description, status, newsImage, newsVideo, videoUrl } = body;
     if (!title || !author || !category || !description || !status) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -32,6 +32,7 @@ export async function POST(request: Request) {
       description,
       newsImage,
       newsVideo,
+      videoUrl, 
       status,
       date: new Date().toISOString(),
       views: 0,

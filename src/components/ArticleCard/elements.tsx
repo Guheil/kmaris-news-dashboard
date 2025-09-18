@@ -84,6 +84,7 @@ export const FeaturedArticleRoot = styled(Link)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
+  width: '100%',
   [theme.breakpoints.up('md')]: {
     gap: '20px',
   },
@@ -132,6 +133,16 @@ export const FeaturedImageWrapper = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('lg')]: {
     height: '450px',
   },
+}));
+
+export const IframeWrapper = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  borderRadius: '12px',
+  overflow: 'hidden',
 }));
 
 // List Item Styles

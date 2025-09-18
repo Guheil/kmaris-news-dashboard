@@ -6,7 +6,7 @@ import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import { Article, ApiArticle } from "./interface";
 import { ArticleCard } from "./ArticleCard";
 import { FloatingDashboardButton } from './FloatingDashboardButton';
-import  NewsLoadingScreen  from "./NewsLoadingScreen";
+import NewsLoadingScreen from "./NewsLoadingScreen";
 import {
   NewsSection,
   Container,
@@ -25,28 +25,78 @@ import {
   LatestCategory,
 } from "./elements";
 
-// Helper function to safely extract image/video URL
-const getMediaUrl = (
+// Helper function to safely extract media URL or embed details
+const getMediaDetails = (
   newsImage?: string | { url: string; alt?: string; width?: number; height?: number },
-  newsVideo?: string | { url: string; title?: string; duration?: number }
-): string => {
+  newsVideo?: string | { url: string; title?: string; duration?: number },
+  videoUrl?: string
+) => {
+  if (videoUrl) {
+    // For videoUrl, return embed details instead of URL
+    const embedDetails = getVideoEmbedDetails(videoUrl);
+    return { type: embedDetails.type, src: embedDetails.src, isEmbed: true };
+  }
+
   if (newsImage) {
     if (typeof newsImage === 'string') {
-      return newsImage;
+      return { type: "image" as const, src: newsImage, isEmbed: false };
     } else if (newsImage.url) {
-      return newsImage.url;
+      return { type: "image" as const, src: newsImage.url, isEmbed: false };
     }
   }
-  
+
   if (newsVideo) {
     if (typeof newsVideo === 'string') {
-      return newsVideo;
+      return { type: "video" as const, src: newsVideo, isEmbed: false };
     } else if (newsVideo.url) {
-      return newsVideo.url;
+      return { type: "video" as const, src: newsVideo.url, isEmbed: false };
     }
   }
-  
-  return '/placeholder-image.jpg';
+
+  return { type: "placeholder" as const, src: '/placeholder-image.jpg', isEmbed: false };
+};
+
+// Utility function for universal video embedding (for videoUrl)
+const getVideoEmbedDetails = (url: string) => {
+  const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
+
+  // Direct video file check
+  const directVideoRegex = /\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv)$/i;
+  if (directVideoRegex.test(normalizedUrl)) {
+    return { type: "video" as const, src: normalizedUrl };
+  }
+
+  // YouTube
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const youtubeMatch = normalizedUrl.match(youtubeRegex);
+  if (youtubeMatch) {
+    return { type: "iframe" as const, src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
+  }
+
+  // Vimeo
+  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
+  const vimeoMatch = normalizedUrl.match(vimeoRegex);
+  if (vimeoMatch) {
+    return { type: "iframe" as const, src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  }
+
+  // Dailymotion
+  const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
+  const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
+  if (dailymotionMatch) {
+    return { type: "iframe" as const, src: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}` };
+  }
+
+  // Google Drive
+  const driveRegex = /\/file\/d\/([a-zA-Z0-9-_]+)(?:\/[^\/\s]*)?|open\?id=([a-zA-Z0-9-_]+)/;
+  const driveMatch = normalizedUrl.match(driveRegex);
+  if (driveMatch) {
+    const fileId = driveMatch[1] || driveMatch[2];
+    return { type: "iframe" as const, src: `https://drive.google.com/file/d/${fileId}/preview` };
+  }
+
+  // Fallback
+  return { type: "iframe" as const, src: normalizedUrl };
 };
 
 const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
@@ -56,20 +106,66 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
     <SectionTitle>Articles</SectionTitle>
     <LatestArticlesGrid>
       {articles.map((article) => {
-        const mediaUrl = getMediaUrl(article.newsImage, article.newsVideo);
-        const hasMedia = Boolean(article.newsImage || article.newsVideo);
-        
+        const mediaDetails = getMediaDetails(article.newsImage, article.newsVideo, article.videoUrl);
+        const hasMedia = mediaDetails.type !== "placeholder";
+
         return (
           <LatestArticleCardLink key={article.id || article._id} href={`/News/${article.id || article._id}`}>
             <LatestImageWrapper>
               {hasMedia ? (
-                <Image
-                  src={mediaUrl}
-                  alt={article.title}
-                  fill
-                  style={{ objectFit: "cover" }}
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                />
+                mediaDetails.isEmbed && mediaDetails.type === "iframe" ? (
+                  <iframe
+                    src={mediaDetails.src as string}
+                    title={article.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ 
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%", 
+                      height: "100%", 
+                      borderRadius: "12px",
+                      border: "none"
+                    }}
+                  />
+                ) : mediaDetails.type === "video" ? (
+                  <>
+                    <video
+                      src={mediaDetails.src as string}
+                      controls={false}
+                      style={{ 
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%", 
+                        height: "100%", 
+                        objectFit: "cover", 
+                        borderRadius: "12px" 
+                      }}
+                    />
+                    <PlayCircleFilledIcon
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        color: "white",
+                        fontSize: "48px",
+                        zIndex: 1,
+                      }}
+                    />
+                  </>
+                ) : (
+                  <Image
+                    src={mediaDetails.src as string}
+                    alt={article.title}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                )
               ) : (
                 <div style={{
                   width: '100%',
@@ -87,9 +183,9 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
             {article.author && (
               <AuthorInfo>
                 <LatestMetaText>{article.author}</LatestMetaText>
-                <LatestMetaText>•</LatestMetaText>
+                <LatestMetaText>â€¢</LatestMetaText>
                 <LatestMetaText>{article.publishedAt}</LatestMetaText>
-                <LatestMetaText>•</LatestMetaText>
+                <LatestMetaText>â€¢</LatestMetaText>
                 <LatestMetaText>{article.readTime || "3 mins"}</LatestMetaText>
               </AuthorInfo>
             )}
@@ -111,22 +207,45 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
     <SectionTitle>News in Video</SectionTitle>
     <LatestArticlesGrid>
       {videos.map((video) => {
-        const mediaUrl = getMediaUrl(video.newsImage, video.newsVideo);
-        const hasMedia = Boolean(video.newsImage || video.newsVideo);
-        
+        const mediaDetails = getMediaDetails(video.newsImage, video.newsVideo, video.videoUrl);
+        const hasMedia = mediaDetails.type !== "placeholder";
+
         return (
           <LatestArticleCardLink key={video.id || video._id} href={`/News/${video.id || video._id}`}>
             <LatestImageWrapper>
               {hasMedia ? (
-                <>
-                  <Image
-                    src={mediaUrl}
-                    alt={video.title}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                mediaDetails.isEmbed && mediaDetails.type === "iframe" ? (
+                  <iframe
+                    src={mediaDetails.src as string}
+                    title={video.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ 
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%", 
+                      height: "100%", 
+                      borderRadius: "12px",
+                      border: "none"
+                    }}
                   />
-                  {video.newsVideo && (
+                ) : mediaDetails.type === "video" ? (
+                  <>
+                    <video
+                      src={mediaDetails.src as string}
+                      controls={false}
+                      style={{ 
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%", 
+                        height: "100%", 
+                        objectFit: "cover", 
+                        borderRadius: "12px" 
+                      }}
+                    />
                     <PlayCircleFilledIcon
                       style={{
                         position: "absolute",
@@ -138,8 +257,16 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
                         zIndex: 1,
                       }}
                     />
-                  )}
-                </>
+                  </>
+                ) : (
+                  <Image
+                    src={mediaDetails.src as string}
+                    alt={video.title}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                )
               ) : (
                 <div style={{
                   width: '100%',
@@ -181,7 +308,7 @@ export default function News() {
           throw new Error(`Failed to fetch articles: ${response.statusText}`);
         }
         const data = await response.json();
-        
+
         // Format articles to match the expected Article interface
         const formattedArticles: Article[] = data.map((article: ApiArticle) => ({
           _id: article._id || "",
@@ -190,16 +317,17 @@ export default function News() {
           author: article.author || "Unknown Author",
           publishedAt: article.date ? new Date(article.date).toLocaleDateString() : new Date().toLocaleDateString(),
           date: article.date || new Date().toISOString(),
-          imageUrl: getMediaUrl(article.newsImage, article.newsVideo),
+          imageUrl: getMediaDetails(article.newsImage, article.newsVideo, article.videoUrl).src,
           newsImage: article.newsImage || '',
           newsVideo: article.newsVideo || '',
+          videoUrl: article.videoUrl || '',
           readTime: article.readTime || "3 mins",
           category: article.category || "Uncategorized",
           description: article.description || "",
           summary: article.description || "",
           views: article.views || 0,
           status: article.status || "published",
-          type: article.newsVideo ? 'video' : 'article'
+          type: article.videoUrl || article.newsVideo ? 'video' : 'article'
         }));
 
         // Sort by date (latest first)
@@ -235,9 +363,9 @@ export default function News() {
     return (
       <NewsSection>
         <Container>
-          <div style={{ 
-            padding: '2rem', 
-            textAlign: 'center', 
+          <div style={{
+            padding: '2rem',
+            textAlign: 'center',
             color: '#ef4444',
             backgroundColor: '#fef2f2',
             border: '1px solid #fecaca',
@@ -259,13 +387,13 @@ export default function News() {
 
   // Filter and organize articles
   const publishedArticles = articles.filter(article => article.status === 'published');
-  const mainArticles = publishedArticles.filter(article => !article.newsVideo);
+  // Select the latest article for the featured section
+  const featuredArticle = publishedArticles[0]; // Latest article (sorted by date)
+  const mainArticles = publishedArticles.filter(article => !article.videoUrl && !article.newsVideo);
+  const listArticles = mainArticles.slice(0, 3); // Adjusted to take first 3 non-video articles
+  const gridArticles = mainArticles.slice(3); // Remaining non-video articles for grid
   const latestArticles = publishedArticles.slice(0, 6);
-  const videoNews = publishedArticles.filter(article => article.newsVideo);
-
-  const featuredArticle = mainArticles[0];
-  const listArticles = mainArticles.slice(1, 4);
-  const gridArticles = mainArticles.slice(5);
+  const videoNews = publishedArticles.filter(article => article.videoUrl || article.newsVideo);
 
   return (
     <NewsSection>

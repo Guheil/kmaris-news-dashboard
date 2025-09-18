@@ -1,4 +1,3 @@
-// app/news-dashboard/articles/view/[id]/ViewArticlePage.tsx
 "use client";
 
 import { FC, useState, useEffect } from "react";
@@ -49,6 +48,49 @@ import {
   ErrorMessage,
   RetryButton,
 } from "./elements";
+
+// Utility function for universal video embedding
+const getVideoEmbedDetails = (url: string) => {
+  const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
+
+  // Direct video file check
+  const directVideoRegex = /\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv)$/i;
+  if (directVideoRegex.test(normalizedUrl)) {
+    return { type: "video" as const, src: normalizedUrl };
+  }
+
+  // YouTube
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const youtubeMatch = normalizedUrl.match(youtubeRegex);
+  if (youtubeMatch) {
+    return { type: "iframe" as const, src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
+  }
+
+  // Vimeo
+  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
+  const vimeoMatch = normalizedUrl.match(vimeoRegex);
+  if (vimeoMatch) {
+    return { type: "iframe" as const, src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  }
+
+  // Dailymotion
+  const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
+  const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
+  if (dailymotionMatch) {
+    return { type: "iframe" as const, src: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}` };
+  }
+
+  // Google Drive
+  const driveRegex = /\/file\/d\/([a-zA-Z0-9-_]+)(?:\/[^\/\s]*)?|open\?id=([a-zA-Z0-9-_]+)/;
+  const driveMatch = normalizedUrl.match(driveRegex);
+  if (driveMatch) {
+    const fileId = driveMatch[1] || driveMatch[2];
+    return { type: "iframe" as const, src: `https://drive.google.com/file/d/${fileId}/preview` };
+  }
+
+  // Fallback
+  return { type: "iframe" as const, src: normalizedUrl };
+};
 
 interface ViewArticlePageProps {
   sidebarOpen: boolean;
@@ -208,17 +250,17 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
               },
             ],
           },
-           {
+          {
             title: "Preview",
             items: [
-                {
+              {
                 icon: <EyeIcon size={20} />,
                 text: "News Preview",
                 href: "/news-preview",
                 active: false,
-                }
-            ]
-          }
+              },
+            ],
+          },
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -305,19 +347,10 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                   {article.category}
                 </CategoryBadge>
 
-                {/* Status Badge */}
                 {article.status && (
                   <CategoryBadge category={`status-${article.status}`}>
-                    
-                    {article.status && (
-                      <CategoryBadge category={`status-${article.status}`}>
-                        {article.status === "archived" ? "📁" : "✓"}
-                        {article.status.charAt(0).toUpperCase() +
-                          article.status.slice(1)}
-                      </CategoryBadge>
-                    )}
-                    {article.status.charAt(0).toUpperCase() +
-                      article.status.slice(1)}
+                    {article.status === "archived" ? <Archive size={14} /> : <Eye size={14} />}
+                    {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
                   </CategoryBadge>
                 )}
               </ArticleMeta>
@@ -328,7 +361,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                   <Edit size={16} />
                   Edit Article
                 </ActionButton>
-          
+
                 <ActionButton
                   variant="archive"
                   onClick={handleArchive}
@@ -345,9 +378,55 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
             </ArticleHeader>
 
             {/* Media Content */}
-            {(article.newsImage || article.newsVideo) && (
+            {(article.videoUrl || article.newsVideo || article.newsImage) && (
               <ArticleMediaContainer>
-                {article.newsVideo ? (
+                {article.videoUrl ? (
+                  <ArticleVideo>
+                    {getVideoEmbedDetails(article.videoUrl).type === "video" ? (
+                      <video
+                        controls
+                        poster={article.newsImage}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "12px",
+                          objectFit: "cover",
+                        }}
+                      >
+                        <source
+                          src={getVideoEmbedDetails(article.videoUrl).src}
+                          type="video/mp4"
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <>
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={getVideoEmbedDetails(article.videoUrl).src}
+                          title="Video Preview"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          style={{ borderRadius: "12px" }}
+                        />
+                        {/drive\.google\.com/.test(article.videoUrl) && (
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#64748b",
+                              textAlign: "center",
+                              marginTop: "8px",
+                            }}
+                          >
+                            Google Drive: Must be publicly shared
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </ArticleVideo>
+                ) : article.newsVideo ? (
                   <ArticleVideo>
                     <video
                       controls
@@ -356,6 +435,7 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                         width: "100%",
                         height: "100%",
                         borderRadius: "12px",
+                        objectFit: "cover",
                       }}
                     >
                       <source src={article.newsVideo} type="video/mp4" />

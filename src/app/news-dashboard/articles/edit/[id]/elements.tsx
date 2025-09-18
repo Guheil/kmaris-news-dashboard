@@ -296,12 +296,21 @@ export const FormGrid = ({ children }: { children: React.ReactNode }) => (
   }}>{children}</div>
 );
 
-export const FormField = ({ children, fullWidth = false }: { children: React.ReactNode; fullWidth?: boolean }) => (
+export const FormField = ({ 
+  children, 
+  fullWidth = false, 
+  style = {} 
+}: { 
+  children: React.ReactNode; 
+  fullWidth?: boolean; 
+  style?: React.CSSProperties;
+}) => (
   <div style={{
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
     gridColumn: fullWidth ? '1 / -1' : 'auto',
+    ...style,
   }}>{children}</div>
 );
 
