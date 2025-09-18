@@ -359,7 +359,7 @@ const filteredAndSortedArticles = useMemo(() => {
 const handleArchive = async (articleId: string) => {
   const result = await Swal.fire({
     title: "Are you sure?",
-    text: "Are you sure you want to archive me? uwuuu",
+    text: "Are you sure you want to archive this?",
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "Yes, archive it!",

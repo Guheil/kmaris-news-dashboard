@@ -226,7 +226,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       );
       await Swal.fire({
         title: "Oops!",
-        text: "Error saving article. Please try again. uwuuu",
+        text: "Error saving article. Please try again.",
         icon: "error",
         confirmButtonText: "OK",
       });

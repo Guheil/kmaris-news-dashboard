@@ -6,7 +6,7 @@ import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import { Article, ApiArticle } from "./interface";
 import { ArticleCard } from "./ArticleCard";
 import { FloatingDashboardButton } from './FloatingDashboardButton';
-import { NewsLoadingScreen } from "./NewsLoadingScreen";
+import  NewsLoadingScreen  from "./NewsLoadingScreen";
 import {
   NewsSection,
   Container,
@@ -265,7 +265,7 @@ export default function News() {
 
   const featuredArticle = mainArticles[0];
   const listArticles = mainArticles.slice(1, 4);
-  const gridArticles = mainArticles.slice(4);
+  const gridArticles = mainArticles.slice(5);
 
   return (
     <NewsSection>
