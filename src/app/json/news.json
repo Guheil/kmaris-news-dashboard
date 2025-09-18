@@ -1,0 +1,132 @@
+{
+  "main_articles": [
+    {
+      "id": "1",
+      "category": "Olympics",
+      "readTime": "6 minute read",
+      "title": "Olympic Games Paris 2024: A Spectacular Opening Ceremony",
+      "summary": "The Paris 2024 Olympic Games kicked off with a breathtaking opening ceremony along the Seine River, showcasing France's cultural heritage and innovation. The event featured stunning performances, dazzling fireworks, and a celebration of athletic excellence that captivated audiences worldwide. Athletes from over 200 countries participated, marking a historic moment in the Olympic movement. The ceremony also highlighted sustainability efforts and technological advancements, setting a new standard for future games. Spectators were treated to a blend of tradition and modernity, reflecting the spirit of Paris and the global community coming together in unity and competition.",
+      "imageUrl": "/image.webp"
+    },
+    {
+      "id": "2",
+      "category": "Sports",
+      "readTime": "4 min read",
+      "title": "Athletes Prepare for Historic Competitions",
+      "summary": "Top athletes from around the world are gearing up for intense competitions in various sports, with new records expected to be broken. Training regimens have intensified, and strategies are being refined to maximize performance. The anticipation is building as fans eagerly await the thrilling contests that promise to showcase human endurance, skill, and determination. Behind the scenes, coaches and support teams work tirelessly to ensure athletes are in peak condition. The upcoming events are set to be some of the most memorable in sports history.",
+      "imageUrl": "/image.webp"
+    },
+    {
+      "id": "3",
+      "category": "Events",
+      "readTime": "6 min read",
+      "title": "Paris Welcomes the World to the Olympics",
+      "summary": "The city of Paris is transformed as it hosts the 2024 Summer Olympics, with events spread across iconic landmarks and modern venues. Visitors from all over the globe have arrived to witness the spectacle, contributing to a vibrant atmosphere filled with excitement and cultural exchange. The city has implemented extensive infrastructure improvements to accommodate the influx of guests, ensuring smooth transportation and enhanced security. Local businesses are thriving, and community engagement is at an all-time high. The Olympics serve as a catalyst for urban development and international cooperation.",
+      "imageUrl":"/image.webp"
+    },
+    {
+      "id": "4",
+      "category": "Athletics",
+      "readTime": "2 min read",
+      "title": "Breakthrough Performances in Early Events",
+      "summary": "Early Olympic events have seen remarkable performances, setting the stage for an unforgettable games. Athletes have shattered previous records and demonstrated exceptional skill and sportsmanship. The energy in the arenas is electric, with fans cheering passionately for their favorites. These initial competitions have provided a glimpse of the intense rivalries and inspiring stories that will unfold throughout the Olympics. The momentum is building, promising a thrilling continuation of the games.",
+      "imageUrl": "/image.webp"
+    },
+    {
+      "id": "5",
+      "category": "Environment",
+      "readTime": "24 hours ago",
+      "title": "Sustainability at the Heart of Paris 2024",
+      "summary": "The Paris Olympics emphasize environmental sustainability, with eco-friendly initiatives throughout the games. Organizers have implemented measures to reduce carbon emissions, promote recycling, and conserve water. Renewable energy sources power many venues, and efforts are made to minimize waste and encourage sustainable transportation. These initiatives reflect a commitment to protecting the planet while celebrating athletic achievement. The games aim to inspire future events to prioritize environmental responsibility and innovation.",
+      "imageUrl": "/image.webp"
+    },
+    {
+      "id": "6",
+      "category": "Global",
+      "readTime": "24 hours ago",
+      "title": "Global Unity Through Sports",
+      "summary": "The Olympics bring together nations in a spirit of competition and camaraderie, fostering global unity. Athletes from diverse backgrounds share their stories and cultures, promoting mutual understanding and respect. The games serve as a platform for peace and collaboration, transcending political and social differences. Through sportsmanship and shared goals, the Olympics inspire hope and solidarity worldwide. This celebration of human potential highlights the power of sports to unite and uplift communities across the globe.",
+      "imageUrl": "/image.webp"
+    }
+  ],
+  "latest_articles": [
+    {
+      "id": "latest-1",
+      "title": "New Records Set in Swimming Events",
+      "category": "Swimming",
+      "readTime": "3 minute read",
+      "imageUrl": "/image.webp",
+      "author": {
+        "name": "Leslie Alexander",
+        "avatarUrl": "/avatars/leslie.jpg"
+      },
+      "publishedAt": "7 hours ago"
+    },
+    {
+      "id": "latest-2",
+      "title": "Gymnastics Stars Shine in Qualification Rounds",
+      "category": "Gymnastics",
+      "readTime": "5 minute read",
+      "imageUrl": "/image.webp",
+      "author": {
+        "name": "Maggie Hendricks",
+        "avatarUrl": "/avatars/maggie.jpg"
+      },
+      "publishedAt": "9 hours ago"
+    },
+     {
+      "id": "latest-3",
+      "title": "Track and Field Highlights from Day One",
+      "category": "Athletics",
+      "readTime": "3 minute read",
+      "imageUrl": "/image.webp",
+      "author": {
+        "name": "Leslie Alexander",
+        "avatarUrl": "/avatars/leslie.jpg"
+      },
+      "publishedAt": "7 hours ago"
+    },
+      {
+      "id": "latest-4",
+      "title": "Team USA Dominates Basketball Preliminaries",
+      "category": "Basketball",
+      "readTime": "3 minute read",
+      "imageUrl": "/image.webp",
+      "author": {
+        "name": "Leslie Alexander",
+        "avatarUrl": "/avatars/leslie.jpg"
+      },
+      "publishedAt": "7 hours ago"
+    },
+      {
+      "id": "latest-5",
+      "title": "Diving Competition Delivers Thrilling Moments",
+      "category": "Diving",
+      "readTime": "3 minute read",
+      "imageUrl": "/image.webp",
+      "author": {
+        "name": "Leslie Alexander",
+        "avatarUrl": "/avatars/leslie.jpg"
+      },
+      "publishedAt": "7 hours ago"
+    }
+  ],
+  "video_news": [
+    {
+      "id": "video-1",
+      "title": "Behind the Scenes: Olympic Village Life",
+      "summary": "Get an exclusive look at the daily life of athletes in the Olympic Village, from training sessions to team bonding activities.",
+      "category": "Olympics",
+      "readTime": "3 minutes to watch",
+      "imageUrl": "/image.webp"
+    },
+    {
+      "id": "video-2",
+      "title": "Highlights from the Opening Ceremony",
+      "summary": "Relive the magic of the Paris 2024 opening ceremony with stunning visuals and performances from around the world.",
+      "category": "Events",
+      "readTime": "5 minutes to watch",
+      "imageUrl": "/image.webp"
+    }
+  ]
+}
