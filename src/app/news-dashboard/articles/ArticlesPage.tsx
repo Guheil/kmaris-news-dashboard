@@ -18,6 +18,7 @@ import {
   ChevronRight,
   RotateCcw,
   Trash2,
+  EyeIcon,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -554,6 +555,17 @@ const handleDelete = async (articleId: string) => {
               },
             ],
           },
+           {
+            title: "Preview",
+            items: [
+                {
+                icon: <EyeIcon size={20} />,
+                text: "News Preview",
+                href: "/news-preview",
+                active: false,
+                }
+            ]
+          }
         ]}
         userName="John Doe"
         userRole="Editor"

@@ -16,6 +16,7 @@ import {
   ArchiveIcon,
   Loader2,
   BarChart3,
+  EyeIcon,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -343,6 +344,17 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 },
               ],
             },
+             {
+            title: "Preview",
+            items: [
+                {
+                icon: <EyeIcon size={20} />,
+                text: "News Preview",
+                href: "/news-preview",
+                active: false,
+                }
+            ]
+          }
           ]}
           userName="John Doe"
           userRole="Editor"
@@ -428,6 +440,17 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
               },
             ],
           },
+          {
+            title: "Preview",
+            items: [
+                {
+                icon: <EyeIcon size={20} />,
+                text: "News Preview",
+                href: "/news-preview",
+                active: false,
+                }
+            ]
+          }
         ]}
         userName="John Doe"
         userRole="Editor"

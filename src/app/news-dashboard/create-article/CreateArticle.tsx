@@ -13,6 +13,7 @@ import {
   Video,
   X,
   ArrowLeft,
+  EyeIcon,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -287,6 +288,17 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               },
             ],
           },
+           {
+            title: "Preview",
+            items: [
+                {
+                icon: <EyeIcon size={20} />,
+                text: "News Preview",
+                href: "/news-preview",
+                active: false,
+                }
+            ]
+          }
         ]}
         userName="John Doe"
         userRole="Editor"

@@ -5,6 +5,7 @@ import Image from "next/image";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import { Article, ApiArticle } from "./interface";
 import { ArticleCard } from "./ArticleCard";
+import { FloatingDashboardButton } from './FloatingDashboardButton';
 import {
   NewsSection,
   Container,
@@ -113,6 +114,7 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
         const hasMedia = Boolean(video.newsImage || video.newsVideo);
         
         return (
+
           <LatestArticleCardLink key={video.id || video._id} href={`/News/${video.id || video._id}`}>
             <LatestImageWrapper>
               {hasMedia ? (
@@ -255,7 +257,10 @@ export default function News() {
   const gridArticles = mainArticles.slice(4);
 
   return (
+    
+          
     <NewsSection>
+      
       <Container>
         <TopSection>
           {featuredArticle && (
@@ -279,6 +284,7 @@ export default function News() {
         <SectionDivider />
         <VideoNewsSection videos={videoNews} />
       </Container>
+      <FloatingDashboardButton />
     </NewsSection>
   );
 }

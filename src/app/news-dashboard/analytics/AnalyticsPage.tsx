@@ -14,6 +14,7 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
+  EyeIcon,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -241,6 +242,17 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                 },
               ],
             },
+            {
+              title: "Preview",
+              items: [
+                {
+                  icon: <EyeIcon size={20} />,
+                  text: "News Preview",
+                  href: "/news-preview",
+                  active: false,
+                },
+              ],
+            },
           ]}
           userName="John Doe"
           userRole="Editor"
@@ -309,6 +321,17 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                   text: "Analytics",
                   href: "/news-dashboard/analytics",
                   active: true,
+                },
+              ],
+            },
+            {
+              title: "Preview",
+              items: [
+                {
+                  icon: <EyeIcon size={20} />,
+                  text: "News Preview",
+                  href: "/news-preview",
+                  active: false,
                 },
               ],
             },
@@ -401,6 +424,17 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                 text: "Analytics",
                 href: "/news-dashboard/analytics",
                 active: true,
+              },
+            ],
+          },
+          {
+            title: "Preview",
+            items: [
+              {
+                icon: <EyeIcon size={20} />,
+                text: "News Preview",
+                href: "/news-preview",
+                active: false,
               },
             ],
           },

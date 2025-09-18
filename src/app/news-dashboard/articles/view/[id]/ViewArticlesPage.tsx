@@ -17,6 +17,7 @@ import {
   Archive,
   Share2,
   BarChart3,
+  EyeIcon,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -207,6 +208,17 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
               },
             ],
           },
+           {
+            title: "Preview",
+            items: [
+                {
+                icon: <EyeIcon size={20} />,
+                text: "News Preview",
+                href: "/news-preview",
+                active: false,
+                }
+            ]
+          }
         ]}
         userName="John Doe"
         userRole="Editor"
