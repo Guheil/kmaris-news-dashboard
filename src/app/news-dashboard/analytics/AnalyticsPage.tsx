@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import Swal from "sweetalert2";
 import {
   BarChart3,
@@ -14,20 +15,6 @@ import {
   ArrowDown,
   Minus,
 } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
 import { AnalyticsData, AnalyticsPageProps } from "./interface";
@@ -39,8 +26,8 @@ import {
   LoadingState,
   LoadingSpinner,
   ErrorState,
-  ErrorText,
   ErrorTitle,
+  ErrorText,
   FilterSelect,
   FiltersContainer,
   MetricCard,
@@ -55,6 +42,47 @@ import {
   ChartTitle,
   ChartsGrid,
 } from "./elements";
+
+// Dynamically import Recharts components to avoid SSR issues
+const LineChart = dynamic(
+  () => import("recharts").then((mod) => mod.LineChart),
+  { ssr: false }
+);
+const Line = dynamic(() => import("recharts").then((mod) => mod.Line), {
+  ssr: false,
+});
+const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), {
+  ssr: false,
+});
+const Bar = dynamic(() => import("recharts").then((mod) => mod.Bar), {
+  ssr: false,
+});
+const XAxis = dynamic(() => import("recharts").then((mod) => mod.XAxis), {
+  ssr: false,
+});
+const YAxis = dynamic(() => import("recharts").then((mod) => mod.YAxis), {
+  ssr: false,
+});
+const CartesianGrid = dynamic(
+  () => import("recharts").then((mod) => mod.CartesianGrid),
+  { ssr: false }
+);
+const Tooltip = dynamic(() => import("recharts").then((mod) => mod.Tooltip), {
+  ssr: false,
+});
+const ResponsiveContainer = dynamic(
+  () => import("recharts").then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+);
+const PieChart = dynamic(() => import("recharts").then((mod) => mod.PieChart), {
+  ssr: false,
+});
+const Pie = dynamic(() => import("recharts").then((mod) => mod.Pie), {
+  ssr: false,
+});
+const Cell = dynamic(() => import("recharts").then((mod) => mod.Cell), {
+  ssr: false,
+});
 
 const getChangeType = (
   current: number,
@@ -83,10 +111,18 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   onSidebarToggle,
   isMobile = false,
 }) => {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState("12m");
+  const [isClient, setIsClient] = useState(false);
+
+  // Fix hydration by ensuring client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -106,8 +142,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
       }
     };
 
-    fetchAnalytics();
-  }, []);
+    if (isClient) {
+      fetchAnalytics();
+    }
+  }, [isClient]);
 
   const handleOverlayClick = () => {
     if (isMobile) {
@@ -128,8 +166,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     if (!result.isConfirmed) return;
 
     try {
-      localStorage.removeItem("user");
-      localStorage.removeItem("sessionId");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user");
+        localStorage.removeItem("sessionId");
+      }
       await Swal.fire({
         icon: "success",
         title: "Success!",
@@ -139,7 +179,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         timerProgressBar: true,
       });
       setTimeout(() => {
-        window.location.href = "http://localhost:3000";
+        if (typeof window !== "undefined") {
+          window.location.href = "http://localhost:3000";
+        }
       }, 3000);
     } catch (err) {
       console.error("Error during logout:", err);
@@ -152,10 +194,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     }
   };
 
-  // Ensure consistent rendering for SSR by checking if we're on the client
-  const isClient = typeof window !== "undefined";
+  // Don't render anything until client-side hydration is complete
+  if (!isClient) {
+    return null;
+  }
 
-  if (loading && isClient) {
+  if (loading) {
     return (
       <AnalyticsRoot>
         <SidebarOverlay
@@ -226,7 +270,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     );
   }
 
-  if (error && isClient) {
+  if (error) {
     return (
       <AnalyticsRoot>
         <SidebarOverlay
@@ -503,16 +547,24 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                   cy="50%"
                   outerRadius={100}
                   dataKey="value"
-                  label={({ name, percent }: { name?: string; percent?: number }) => {
+                  label={({
+                    name,
+                    percent,
+                  }: {
+                    name?: string;
+                    percent?: number;
+                  }) => {
                     if (name && percent !== undefined) {
                       return `${name} ${(percent * 100).toFixed(0)}%`;
                     }
                     return "";
                   }}
                 >
-                  {analyticsData.statusDistribution.map((entry, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  {analyticsData.statusDistribution.map(
+                    (entry, index: number) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    )
+                  )}
                 </Pie>
                 <Tooltip />
               </PieChart>
