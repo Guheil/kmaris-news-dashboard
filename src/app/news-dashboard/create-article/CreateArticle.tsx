@@ -14,7 +14,6 @@ import {
   X,
   ArrowLeft,
   EyeIcon,
-  Link,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";

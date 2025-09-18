@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { styled } from "@mui/material/styles";
+import { palette } from "@/theme/pallete";
 
 export const NewsSection = styled("section")(({ theme }) => ({
   width: '100%',
@@ -27,12 +28,9 @@ export const TopSection = styled("div")(({ theme }) => ({
   gridTemplateColumns: '1fr',
   gap: theme.spacing(4),
   marginBottom: theme.spacing(6),
-  [theme.breakpoints.up('md')]: {
-    gridTemplateColumns: '1.2fr 1fr',
-    gap: theme.spacing(5),
-  },
+  width: '100%', // Ensure full width of Container
   [theme.breakpoints.up('lg')]: {
-    gridTemplateColumns: '1.5fr 1fr',
+    gridTemplateColumns: '1.5fr 1fr', // Make FeaturedArticleRoot wider than ArticleList
   },
 }));
 
@@ -41,6 +39,7 @@ export const ArticleList = styled("div")(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'flex-start',
   gap: theme.spacing(2),
+  width: '100%', 
 }));
 
 export const BottomGrid = styled("div")(({ theme }) => ({
@@ -78,7 +77,6 @@ export const SectionTitle = styled("h2")(({ theme }) => ({
   },
 }));
 
-// Featured Article Styles
 export const FeaturedArticleRoot = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   display: 'flex',
@@ -114,40 +112,34 @@ export const FeaturedMeta = styled('div')(({ theme }) => ({
 }));
 
 export const FeaturedCategory = styled('span')(({ theme }) => ({
-  color: theme.palette.primary.main,
+  color: palette.primary.main,
   fontWeight: theme.typography.fontWeightBold,
 }));
 
 export const FeaturedImageWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '100%',
+  maxWidth: '100%',
   height: '300px',
   borderRadius: '12px',
   overflow: 'hidden',
+  [theme.breakpoints.up('xs')]: {
+    height: '320px',
+  },
   [theme.breakpoints.up('sm')]: {
-    height: '350px',
+    height: '380px',
   },
   [theme.breakpoints.up('md')]: {
-    height: '400px',
+    height: '430px',
   },
   [theme.breakpoints.up('lg')]: {
-    height: '450px',
+    height: '480px',
   },
 }));
 
-export const IframeWrapper = styled('div')(({ theme }) => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  borderRadius: '12px',
-  overflow: 'hidden',
-}));
-
-// List Item Styles
 export const ListItemRoot = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
+  width: '100%',
   display: 'flex',
   gap: '16px',
   paddingTop: '3rem',
@@ -160,7 +152,10 @@ export const ListItemRoot = styled(Link)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     gap: '12px',
     paddingTop: '0.75rem',
-    paddingBottom: '1.25rem',
+    paddingBottom: '1.25rem', 
+  },
+  [theme.breakpoints.up('lg')]: {
+    maxWidth: '550px', 
   },
 }));
 
@@ -168,7 +163,7 @@ export const ListItemTextContent = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  minWidth: 0, // Prevents flex item from overflowing
+  minWidth: 0, 
 });
 
 export const ListItemTitle = styled('h3')(({ theme }) => ({
@@ -212,19 +207,19 @@ export const ListItemMeta = styled('div')(({ theme }) => ({
 }));
 
 export const ListItemCategory = styled('span')(({ theme }) => ({
-  color: theme.palette.primary.main,
+  color: palette.primary.main,
   fontWeight: theme.typography.fontWeightBold,
 }));
 
 export const ListItemImageWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
-  width: '120px',
+  width: '25%', 
   height: '90px',
   flexShrink: 0,
   borderRadius: '8px',
   overflow: 'hidden',
   [theme.breakpoints.down('sm')]: {
-    width: '100px',
+    width: '25%', 
     height: '75px',
   },
 }));
@@ -324,7 +319,7 @@ export const LatestArticleCardLink = styled(Link)({
 export const LatestImageWrapper = styled("div")(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  height: '200px',
+  height: '300px',
   borderRadius: '12px',
   overflow: 'hidden',
   [theme.breakpoints.up('sm')]: {
@@ -386,7 +381,7 @@ export const LatestTitle = styled("h3")(({ theme }) => ({
 
 export const LatestCategoryMeta = styled(LatestMetaText)({});
 
-export const LatestCategory = styled('span')(({ theme }) => ({
-  color: theme.palette.primary.main,
+export const LatestCategory = styled('span')({
+  color: palette.primary.main,
   fontWeight: 700,
-}));
+});

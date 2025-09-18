@@ -9,7 +9,6 @@ import {
   FeaturedMeta,
   FeaturedCategory,
   FeaturedImageWrapper,
-  IframeWrapper,
   ListItemRoot,
   ListItemTextContent,
   ListItemTitle,
@@ -128,7 +127,7 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
               alt={article.title}
               fill
               style={{ objectFit: "cover" }}
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 60vw, 50vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 69vw, 50vw"
               priority
             />
           )}

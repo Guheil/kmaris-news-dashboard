@@ -183,9 +183,9 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
             {article.author && (
               <AuthorInfo>
                 <LatestMetaText>{article.author}</LatestMetaText>
-                <LatestMetaText>â€¢</LatestMetaText>
+                <LatestMetaText>•</LatestMetaText>
                 <LatestMetaText>{article.publishedAt}</LatestMetaText>
-                <LatestMetaText>â€¢</LatestMetaText>
+                <LatestMetaText>•</LatestMetaText>
                 <LatestMetaText>{article.readTime || "3 mins"}</LatestMetaText>
               </AuthorInfo>
             )}
@@ -391,7 +391,7 @@ export default function News() {
   const featuredArticle = publishedArticles[0]; // Latest article (sorted by date)
   const mainArticles = publishedArticles.filter(article => !article.videoUrl && !article.newsVideo);
   const listArticles = mainArticles.slice(0, 3); // Adjusted to take first 3 non-video articles
-  const gridArticles = mainArticles.slice(3); // Remaining non-video articles for grid
+  const gridArticles = mainArticles.slice(6); // Remaining non-video articles for grid
   const latestArticles = publishedArticles.slice(0, 6);
   const videoNews = publishedArticles.filter(article => article.videoUrl || article.newsVideo);
 

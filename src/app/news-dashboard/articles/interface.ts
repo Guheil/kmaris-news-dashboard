@@ -9,9 +9,9 @@ export interface ArticlesPageProps {
 }
 
 export interface NewsArticle {
-  videoUrl: any;
+  videoUrl: string;
   readTime: ReactNode;
-  _id: string; // Corrected from (_id: any) => void to string
+  _id: string; 
   createdAt: string | number | Date;
   id: string;
   title: string;
