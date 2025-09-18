@@ -21,9 +21,7 @@ import {
   IconRow,
   IconButton,
   StyledSearchIcon,
-  StyledCartIcon,
   StyledAccountIcon,
-  CartBadge,
 } from "./icons";
 import {
   MobileDrawerOverlay,
@@ -50,9 +48,7 @@ const defaultLinks: NavLink[] = [
 
 export function Header({
   navLinks = defaultLinks,
-  cartCount = 0,
   onSearchClick,
-  onCartClick,
 }: HeaderProps) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);

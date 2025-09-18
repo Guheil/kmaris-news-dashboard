@@ -3,8 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import React from 'react';
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from '@/theme/theme';
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],

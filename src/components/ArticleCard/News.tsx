@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
-import { Article } from "./interface";
+import { ApiArticle, Article } from "./interface";
 import { ArticleCard } from "./ArticleCard";
 import {
   NewsSection,
@@ -30,32 +30,41 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
     <SectionTitle>Articles</SectionTitle>
     <LatestArticlesGrid>
       {articles.map((article) => (
-        <LatestArticleCardLink key={article.id || article._id} href={`/News/${article.id || article._id}`}>
+        <LatestArticleCardLink
+          key={article.id || article._id}
+          href={`/News/${article.id || article._id}`}
+        >
           <LatestImageWrapper>
-            {(article.newsImage || article.newsVideo) ? (
+            {article.newsImage ? (
               <Image
-                src={article.newsImage || article.newsVideo || "/placeholder-image.jpg"}
+                src={
+                  typeof article.newsImage === "string"
+                    ? article.newsImage
+                    : article.newsImage.url
+                }
                 alt={article.title}
                 fill
                 style={{ objectFit: "cover" }}
               />
             ) : (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f3f4f6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#6b7280'
-              }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "#f3f4f6",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#6b7280",
+                }}
+              >
                 No Image
               </div>
             )}
           </LatestImageWrapper>
           {article.author && (
             <AuthorInfo>
-              <LatestMetaText>{article.author.name}</LatestMetaText>
+              <LatestMetaText>{article.author}</LatestMetaText>
               <LatestMetaText>•</LatestMetaText>
               <LatestMetaText>{article.publishedAt}</LatestMetaText>
               <LatestMetaText>•</LatestMetaText>
@@ -79,12 +88,19 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
     <SectionTitle>News in Video</SectionTitle>
     <LatestArticlesGrid>
       {videos.map((video) => (
-        <LatestArticleCardLink key={video.id || video._id} href={`/News/${video.id || video._id}`}>
+        <LatestArticleCardLink
+          key={video.id || video._id}
+          href={`/News/${video.id || video._id}`}
+        >
           <LatestImageWrapper>
-            {(video.newsImage || video.newsVideo) ? (
+            {video.newsImage ? (
               <>
                 <Image
-                  src={video.newsImage || video.newsVideo || "/placeholder-image.jpg"}
+                  src={
+                    typeof video.newsImage === "string"
+                      ? video.newsImage
+                      : video.newsImage.url
+                  }
                   alt={video.title}
                   fill
                   style={{ objectFit: "cover" }}
@@ -102,16 +118,53 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
                   />
                 )}
               </>
+            ) : video.newsVideo ? (
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                <video
+                  controls
+                  width="100%"
+                  height="100%"
+                  style={{ objectFit: "cover" }}
+                >
+                  <source
+                    src={
+                      typeof video.newsVideo === "string"
+                        ? video.newsVideo
+                        : video.newsVideo.url
+                    }
+                    type="video/mp4"
+                  />
+                  Your browser does not support the video tag.
+                </video>
+                <PlayCircleFilledIcon
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    color: "white",
+                    fontSize: "48px",
+                  }}
+                />
+              </div>
             ) : (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f3f4f6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#6b7280'
-              }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "#f3f4f6",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#6b7280",
+                }}
+              >
                 No Media
               </div>
             )}
@@ -137,45 +190,46 @@ export default function News() {
     const fetchArticles = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/articles');
+        const response = await fetch("/api/articles");
         if (!response.ok) {
           throw new Error(`Failed to fetch articles: ${response.statusText}`);
         }
         const data = await response.json();
-        
+
         // Format articles to match the expected Article interface
-        const formattedArticles = data.map((article: any) => ({
+        const formattedArticles: Article[] = data.map((article: ApiArticle) => ({
           _id: article._id || "",
-          id: article._id || "", // Add id field for compatibility
+          id: article._id || "",
           title: article.title || "",
           author: {
-            name: article.author || "Unknown Author"
+            name: article.author || "Unknown Author",
           },
-          publishedAt: article.date ? new Date(article.date).toLocaleDateString() : new Date().toLocaleDateString(),
+          publishedAt: article.date
+            ? new Date(article.date).toLocaleDateString()
+            : new Date().toLocaleDateString(),
           date: article.date || new Date().toISOString(),
-          imageUrl: article.newsImage || article.newsVideo || "/placeholder-image.jpg", // Use newsImage or newsVideo as imageUrl
-          newsImage: article.newsImage || "",
-          newsVideo: article.newsVideo || "",
+          imageUrl: article.newsImage || article.newsVideo || "/placeholder-image.jpg",
+          newsImage: article.newsImage || undefined,
+          newsVideo: article.newsVideo || undefined,
           readTime: article.readTime || "3 mins",
           category: article.category || "Uncategorized",
           description: article.description || "",
-          summary: article.description || "", // Use description as summary
+          summary: article.description || "",
           views: article.views || 0,
           status: article.status || "published",
-          type: article.newsVideo ? 'video' : 'article' // Determine if it's a video or article
+          type: article.newsVideo ? "video" : "article",
         }));
 
         // Sort by date (latest first)
-        const sortedArticles = formattedArticles.sort((a: any, b: any) => {
-          const dateA = new Date(a.date).getTime();
-          const dateB = new Date(b.date).getTime();
-          return dateB - dateA;
-        });
+        const sortedArticles = formattedArticles.sort(
+          (a, b) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
 
         setArticles(sortedArticles);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -188,7 +242,7 @@ export default function News() {
     return (
       <NewsSection>
         <Container>
-          <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <div style={{ padding: "2rem", textAlign: "center" }}>
             Loading articles...
           </div>
         </Container>
@@ -200,7 +254,7 @@ export default function News() {
     return (
       <NewsSection>
         <Container>
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
+          <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
             Error loading articles: {error}
           </div>
         </Container>
@@ -209,10 +263,14 @@ export default function News() {
   }
 
   // Filter and organize articles based on your database structure
-  const publishedArticles = articles.filter(article => article.status === 'published');
-  const mainArticles = publishedArticles.filter(article => !article.newsVideo); // Articles without video
-  const latestArticles = publishedArticles.slice(0, 6); // Get latest 6 published articles
-  const videoNews = publishedArticles.filter(article => article.newsVideo); // Articles with video
+  const publishedArticles = articles.filter(
+    (article) => article.status === "published"
+  );
+  const mainArticles = publishedArticles.filter(
+    (article) => !article.newsVideo
+  );
+  const latestArticles = publishedArticles.slice(0, 6);
+  const videoNews = publishedArticles.filter((article) => article.newsVideo);
 
   const featuredArticle = mainArticles[0];
   const listArticles = mainArticles.slice(1, 4);
@@ -227,14 +285,22 @@ export default function News() {
           )}
           <ArticleList>
             {listArticles.map((article) => (
-              <ArticleCard key={article.id || article._id} article={article} variant="list" />
+              <ArticleCard
+                key={article.id || article._id}
+                article={article}
+                variant="list"
+              />
             ))}
           </ArticleList>
         </TopSection>
 
         <BottomGrid>
           {gridArticles.map((article) => (
-            <ArticleCard key={article.id || article._id} article={article} variant="grid" />
+            <ArticleCard
+              key={article.id || article._id}
+              article={article}
+              variant="grid"
+            />
           ))}
         </BottomGrid>
 
