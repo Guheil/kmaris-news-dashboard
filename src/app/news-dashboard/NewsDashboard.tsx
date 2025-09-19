@@ -1,4 +1,3 @@
-
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
@@ -15,11 +14,16 @@ import {
   Users,
   Play,
   Search,
-  EyeIcon
+  EyeIcon,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
-import { DashboardProps, CardProps, NewsArticle, ApiArticle} from "./interface";
+import {
+  DashboardProps,
+  CardProps,
+  NewsArticle,
+  ApiArticle,
+} from "./interface";
 import {
   DashboardRoot,
   MainContent,
@@ -65,6 +69,7 @@ import {
   ClearSearchButton,
 } from "./elements";
 import { palette } from "@/theme/pallete";
+import Link from "next/link";
 
 // Updated MediaPreview component with consistent sizing
 const MediaPreview: FC<{ article: NewsArticle }> = ({ article }) => {
@@ -108,46 +113,50 @@ export const NewsDashboard: FC<DashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-// Fetch articles from /api/articles
-useEffect(() => {
-  const fetchArticles = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/articles");
-      if (!response.ok) {
-        throw new Error(`Failed to fetch articles: ${response.statusText}`);
+  // Fetch articles from /api/articles
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/articles");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch articles: ${response.statusText}`);
+        }
+        const data = await response.json();
+        // Ensure data conforms to NewsArticle interface
+        const formattedArticles = data.map((article: ApiArticle) => ({
+          // Updated type here
+          _id: article._id || "",
+          title: article.title || "",
+          author: article.author || "",
+          date: article.date || new Date().toISOString(),
+          newsImage: article.newsImage || "",
+          newsVideo: article.newsVideo || "",
+          readTime: article.readTime || "N/A",
+          category: article.category || "Uncategorized",
+          description: article.description || "",
+          views: article.views || 0,
+          status: article.status || "published",
+        }));
+        const sortedArticles = formattedArticles.sort(
+          (a: NewsArticle, b: NewsArticle) => {
+            // Updated types here
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+            return dateB - dateA;
+          }
+        );
+        setArticles(sortedArticles);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      // Ensure data conforms to NewsArticle interface
-      const formattedArticles = data.map((article: ApiArticle) => ({  // Updated type here
-        _id: article._id || "",
-        title: article.title || "",
-        author: article.author || "",
-        date: article.date || new Date().toISOString(),
-        newsImage: article.newsImage || "",
-        newsVideo: article.newsVideo || "",
-        readTime: article.readTime || "N/A",
-        category: article.category || "Uncategorized",
-        description: article.description || "",
-        views: article.views || 0,
-        status: article.status || "published",
-      }));
-      const sortedArticles = formattedArticles.sort((a: NewsArticle, b: NewsArticle) => {  // Updated types here
-        const dateA = new Date(a.date).getTime();
-        const dateB = new Date(b.date).getTime();
-        return dateB - dateA; 
-      });
-      setArticles(sortedArticles);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchArticles();
-}, []);
+    fetchArticles();
+  }, []);
 
   // Enhanced search functionality with sorting
   const filteredNews = useMemo(() => {
@@ -268,14 +277,14 @@ useEffect(() => {
           {
             title: "Preview",
             items: [
-                {
+              {
                 icon: <EyeIcon size={20} />,
                 text: "News Preview",
                 href: "/news-preview",
                 active: false,
-                }
-            ]
-          }
+              },
+            ],
+          },
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -439,7 +448,8 @@ useEffect(() => {
                       </NoResultsIcon>
                       <NoResultsTitle>No articles found</NoResultsTitle>
                       <NoResultsText>
-                        We couldn&apos;t find any articles matching &quot;{searchQuery}&quot;.
+                        We couldn&apos;t find any articles matching &quot;
+                        {searchQuery}&quot;.
                         <br />
                         Try adjusting your search terms or browse all articles.
                       </NoResultsText>
@@ -450,18 +460,23 @@ useEffect(() => {
 
               <DashboardCard title="Quick Actions" gridColumn="span 4">
                 <QuickActionGrid>
-                  <QuickActionButton>
-                    <Plus size={16} />
-                    Create New Article
-                  </QuickActionButton>
+                  <Link href="/news-dashboard/create-article" passHref>
+                    <QuickActionButton>
+                      <Plus size={16} />
+                      Create New Article
+                    </QuickActionButton>
+                  </Link>
                   <QuickActionButton>
                     <FileText size={16} />
                     Manage Categories
                   </QuickActionButton>
-                  <QuickActionButton>
-                    <BarChart3 size={16} />
-                    View Analytics
-                  </QuickActionButton>
+                  
+                  <Link href="/news-dashboard/analytics" passHref>
+                    <QuickActionButton>
+                      <BarChart3 size={16} />
+                      View Analytics
+                    </QuickActionButton>
+                  </Link>
                   <QuickActionButton>
                     <Settings size={16} />
                     Dashboard Settings
@@ -484,7 +499,9 @@ useEffect(() => {
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            New article &quot;{sortedArticlesForActivity[0]?.title}&quot; was published
+                            New article &quot;
+                            {sortedArticlesForActivity[0]?.title}&quot; was
+                            published
                           </ActivityText>
                           <ActivityTime>2 minutes ago</ActivityTime>
                         </ActivityContent>
@@ -495,7 +512,8 @@ useEffect(() => {
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article &quot;{sortedArticlesForActivity[1]?.title}&quot; was updated
+                            Article &quot;{sortedArticlesForActivity[1]?.title}
+                            &quot; was updated
                           </ActivityText>
                           <ActivityTime>15 minutes ago</ActivityTime>
                         </ActivityContent>
@@ -506,7 +524,8 @@ useEffect(() => {
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Draft &quot;{sortedArticlesForActivity[2]?.title}&quot; saved
+                            Draft &quot;{sortedArticlesForActivity[2]?.title}
+                            &quot; saved
                           </ActivityText>
                           <ActivityTime>1 hour ago</ActivityTime>
                         </ActivityContent>
@@ -517,7 +536,8 @@ useEffect(() => {
                         </ActivityIcon>
                         <ActivityContent>
                           <ActivityText>
-                            Article &quot;{sortedArticlesForActivity[3]?.title}&quot; was archived
+                            Article &quot;{sortedArticlesForActivity[3]?.title}
+                            &quot; was archived
                           </ActivityText>
                           <ActivityTime>3 hours ago</ActivityTime>
                         </ActivityContent>

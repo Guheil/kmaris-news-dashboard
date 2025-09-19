@@ -7,8 +7,8 @@ import { NavItemProps } from "./interface";
 export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }) => ({
   width: isOpen ? "280px" : "80px",
   height: "100vh",
-  backgroundColor: palette.navy.main,
-  borderRight: `1px solid ${palette.navy.dark}`,
+  backgroundColor: palette.common.white,
+  borderRight: `1px solid ${palette.grey[200]}`, // Light gray border
   display: "flex",
   flexDirection: "column",
   transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -16,7 +16,7 @@ export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }
   left: 0,
   top: 0,
   zIndex: 1000,
-  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Softer shadow for white background
 
   [theme.breakpoints.down('md')]: {
     width: isOpen ? "280px" : "0px",
@@ -26,7 +26,6 @@ export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }
   },
 }));
 
-// Mobile overlay backdrop
 export const MobileOverlay = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }) => ({
   display: "none",
   
@@ -44,7 +43,6 @@ export const MobileOverlay = styled("div")<{ isOpen: boolean }>(({ theme, isOpen
   },
 }));
 
-// Mobile burger button
 export const MobileBurgerButton = styled("button")(({ theme }) => ({
   display: "none",
   
@@ -57,17 +55,17 @@ export const MobileBurgerButton = styled("button")(({ theme }) => ({
     width: "44px",
     height: "44px",
     borderRadius: "12px",
-    backgroundColor: palette.navy.main,
-    border: "none",
+    backgroundColor: palette.common.white,
+    border: `1px solid ${palette.grey[200]}`, // Light border for contrast
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
     transition: "all 0.2s ease",
-    color: palette.common.white,
-    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.2)",
+    color: palette.navy.main, // Dark text for visibility
+    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
 
     "&:hover": {
-      backgroundColor: palette.navy.dark,
+      backgroundColor: palette.grey[100], // Light gray hover
       transform: "scale(1.05)",
     },
   },
@@ -75,11 +73,11 @@ export const MobileBurgerButton = styled("button")(({ theme }) => ({
 
 export const SidebarHeader = styled("div")(({ theme }) => ({
   padding: "24px 20px",
-  borderBottom: `1px solid ${palette.navy.dark}`,
+  borderBottom: `1px solid ${palette.grey[200]}`,
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  backgroundColor: palette.navy.main,
+  backgroundColor: palette.common.white,
   minHeight: "80px",
   position: "relative",
 
@@ -102,7 +100,7 @@ export const Logo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
   gap: "12px",
   fontSize: "22px",
   fontWeight: 800,
-  color: palette.common.white,
+  color: palette.navy.main, 
   letterSpacing: "-0.5px",
   opacity: isOpen ? 1 : 0,
   transform: isOpen ? "scale(1)" : "scale(0.8)",
@@ -117,28 +115,26 @@ export const Logo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
   },
 }));
 
-
-
 export const CollapseButton = styled("button")(({ theme }) => ({
   width: "32px",
   height: "32px",
   borderRadius: "8px",
-  backgroundColor: "rgba(255, 255, 255, 0.1)",
+  backgroundColor: palette.grey[100], // Light gray background
   border: "none",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
   transition: "all 0.2s ease",
-  color: palette.common.white,
+  color: palette.navy.main, // Dark icon for contrast
 
   "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: palette.grey[200],
     transform: "scale(1.05)",
   },
 
   [theme.breakpoints.down('md')]: {
-    display: "none", // Hide on mobile since we use burger menu
+    display: "none",
   },
 }));
 
@@ -157,8 +153,8 @@ export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
   padding: "14px 16px",
   gap: "14px",
   textDecoration: "none",
-  color: active ? palette.primary.main : palette.common.white,
-  backgroundColor: active ? "rgba(255, 255, 255, 0.15)" : "transparent",
+  color: active ? palette.primary.main : palette.navy.main, // Dark text for white background
+  backgroundColor: active ? palette.grey[100] : "transparent", // Light gray for active
   borderRadius: "12px",
   transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
   cursor: "pointer",
@@ -180,8 +176,8 @@ export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
   },
 
   "&:hover": {
-    backgroundColor: active ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
-    color: active ? palette.primary.main : palette.common.white,
+    backgroundColor: active ? palette.grey[100] : palette.grey[50], // Subtle hover effect
+    color: active ? palette.primary.main : palette.navy.main,
     transform: "translateX(2px)",
     
     "&::before": {
@@ -195,7 +191,7 @@ export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
   },
 }));
 
-export const NavIcon = styled("div")(({ }: { active?: boolean }) => ({
+export const NavIcon = styled("div")(({ active }: { active?: boolean }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -204,7 +200,7 @@ export const NavIcon = styled("div")(({ }: { active?: boolean }) => ({
   opacity: 1,
   transition: "opacity 0.2s ease",
   color: "inherit",
-  minWidth: "22px", // Prevent shrinking
+  minWidth: "22px",
 }));
 
 export const NavText = styled("span")<{ isOpen?: boolean }>(({ isOpen = true }) => ({
@@ -221,8 +217,8 @@ export const NavText = styled("span")<{ isOpen?: boolean }>(({ isOpen = true }) 
 
 export const SidebarFooter = styled("div")(({ theme }) => ({
   padding: "20px",
-  borderTop: `1px solid ${palette.navy.dark}`,
-  backgroundColor: palette.navy.main,
+  borderTop: `1px solid ${palette.grey[200]}`, // Light gray border
+  backgroundColor: palette.common.white,
 
   [theme.breakpoints.down('md')]: {
     padding: "16px",
@@ -239,7 +235,7 @@ export const UserProfile = styled("div")({
   cursor: "pointer",
 
   "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: palette.grey[50], // Subtle hover effect
   },
 });
 
@@ -254,8 +250,8 @@ export const UserAvatar = styled("div")({
   color: palette.common.white,
   fontSize: "16px",
   fontWeight: 700,
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  minWidth: "40px", // Prevent shrinking
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+  minWidth: "40px",
 });
 
 export const UserInfo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
@@ -271,13 +267,13 @@ export const UserInfo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
 export const UserName = styled("span")({
   fontSize: "15px",
   fontWeight: 700,
-  color: palette.common.white,
+  color: palette.navy.main, // Dark text for white background
   lineHeight: 1.4,
 });
 
 export const UserRole = styled("span")({
   fontSize: "13px",
-  color: "rgba(255, 255, 255, 0.7)",
+  color: palette.grey[600], // Medium gray for secondary text
   fontWeight: 600,
   lineHeight: 1.3,
 });
@@ -289,7 +285,7 @@ export const NavSection = styled("div")({
 export const NavSectionTitle = styled("div")<{ isOpen?: boolean }>(({ isOpen = true }) => ({
   fontSize: "11px",
   fontWeight: 700,
-  color: "rgba(255, 255, 255, 0.6)",
+  color: palette.grey[500], 
   textTransform: "uppercase",
   letterSpacing: "1px",
   padding: "0 16px 8px 16px",

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { HeaderProps, NavLink } from "./interface";
 import Image from "next/image";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 // Import all styled components
 import {
@@ -40,10 +41,22 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import MenuIcon from "@mui/icons-material/Menu";
 
 const defaultLinks: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "About Us", href: "/about" },
-  { label: "All Services", href: "/All_forms" },
-  { label: "News", href: "/News" },
+  {
+    label: "Home",
+    href: ""
+  },
+  {
+    label: "About Us",
+    href: ""
+  },
+  {
+    label: "All Services",
+    href: ""
+  },
+  {
+    label: "News",
+    href: ""
+  },
 ];
 
 export function Header({
@@ -58,12 +71,28 @@ export function Header({
   const toggleDrawer = () => setDrawerOpen((v) => !v);
   const closeDrawer = () => setDrawerOpen(false);
 
+  const handleNavClick = (label: string) => {
+    if (pathname?.startsWith("/news-dashboard") && label !== "News") {
+      Swal.fire({
+        title: "Preview Mode",
+        text: `This is a preview for the News section in the News Dashboard only. To view the ${label} page, visit the full KMARIS website.`,
+        icon: "info",
+        confirmButtonText: "Go to KMARIS",
+        showCancelButton: true,
+        cancelButtonText: "Stay on Dashboard",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "https://accesskmaris.vercel.app";
+        }
+      });
+    } else if (label === "News") {
+      // Trigger News-specific action (e.g., navigate to /News or custom logic)
+      console.log("News link clicked"); // Replace with actual News action
+    }
+  };
+
   const userIcons = (
     <>
-      {/* <IconButton onClick={onCartClick}>
-        <StyledCartIcon />
-        {cartCount > 0 && <CartBadge>{cartCount}</CartBadge>}
-      </IconButton> */}
       <ProfileMenu ref={dropdownRef}>
         <IconButton onClick={() => setDropdownOpen((o) => !o)}>
           <StyledAccountIcon />
@@ -104,9 +133,13 @@ export function Header({
           <DesktopOnly style={{ gap: "20px" }}>
             <Nav aria-label="Primary Navigation">
               {navLinks.map((item) => (
-                <Link key={item.href} href={item.href}>
+                <span
+                  key={item.label}
+                  onClick={() => handleNavClick(item.label)}
+                  style={{ cursor: "pointer" }}
+                >
                   <LinkItem>{item.label}</LinkItem>
-                </Link>
+                </span>
               ))}
             </Nav>
             <IconRow>
@@ -138,12 +171,18 @@ export function Header({
         </MobileDrawerHeader>
         <DrawerNav>
           {navLinks.map((item) => (
-            <Link
-              key={`m-${item.href}`}
-              href={item.href}
+            <span
+              key={`m-${item.label}`}
+              onClick={() => {
+                handleNavClick(item.label);
+                if (item.label === "News") {
+                  closeDrawer();
+                }
+              }}
+              style={{ cursor: "pointer" }}
             >
-              <DrawerLink onClick={closeDrawer}>{item.label}</DrawerLink>
-            </Link>
+              <DrawerLink>{item.label}</DrawerLink>
+            </span>
           ))}
         </DrawerNav>
         <DrawerIconSection>

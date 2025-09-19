@@ -69,7 +69,7 @@ export const Sidebar: FC<SidebarProps> = ({
   userName,
   userRole,
   userInitials,
-  logoSrc = "/whitelogo.png",
+  logoSrc = "/Logo.png",
   appName = "",
   collapsible = true,
 }) => {
@@ -132,7 +132,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <SidebarHeader>
           <SidebarHeaderContent>
             <Logo isOpen={isOpen}>
-              <Image src={logoSrc} alt="Logo" width={160} height={90} />
+              <Image src={logoSrc} alt="Logo" width={170} height={60} />
               {isOpen && appName && <span>{appName}</span>}
             </Logo>
             
