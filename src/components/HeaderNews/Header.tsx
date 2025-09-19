@@ -72,7 +72,8 @@ export function Header({
   const closeDrawer = () => setDrawerOpen(false);
 
   const handleNavClick = (label: string) => {
-    if (pathname?.startsWith("/news-dashboard") && label !== "News") {
+  if (pathname?.startsWith("/news-preview")) {
+    if (label !== "News") {
       Swal.fire({
         title: "Preview Mode",
         text: `This is a preview for the News section in the News Dashboard only. To view the ${label} page, visit the full KMARIS website.`,
@@ -82,14 +83,19 @@ export function Header({
         cancelButtonText: "Stay on Dashboard",
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = "https://accesskmaris.vercel.app";
+          window.location.href = "https://kmarisimmigration.vercel.app";
         }
       });
-    } else if (label === "News") {
-      // Trigger News-specific action (e.g., navigate to /News or custom logic)
+    } else {
+      // Handle News click when in news-dashboard
       console.log("News link clicked"); // Replace with actual News action
     }
-  };
+  } else {
+    // Handle normal navigation when NOT in news-dashboard
+    console.log(`${label} link clicked - normal navigation`); 
+    // Add your normal navigation logic here
+  }
+};
 
   const userIcons = (
     <>

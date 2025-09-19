@@ -97,14 +97,14 @@ export const LinkItem = styled("div")(({ theme }) => ({
     right: 8,
     bottom: 2,
     height: 2,
-    background: theme.palette.primary.main,
+    background: palette.primary.main,
     opacity: 0,
     transform: "scaleX(0)",
     transition: "all 220ms ease",
   },
   "&:hover": { 
     backgroundColor: "rgba(221,28,35,0.05)",
-    color: theme.palette.primary.main,
+    color: palette.primary.main,
   },
   "&:hover::after": { 
     opacity: 1,
