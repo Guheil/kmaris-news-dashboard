@@ -76,7 +76,7 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
 
   if (variant === "featured") {
     return (
-      <FeaturedArticleRoot href={`/News/${article.id}`}>
+      <FeaturedArticleRoot href={`/news-preview/${article.id}`}>
         <div>
           <FeaturedTitle>{article.title}</FeaturedTitle>
           <FeaturedMeta>
@@ -143,7 +143,7 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
       : article.summary;
 
     return (
-      <ListItemRoot href={`/News/${article.id}`}>
+      <ListItemRoot href={`/news-preview/${article.id}`}>
         <ListItemTextContent>
           <ListItemTitle>{article.title}</ListItemTitle>
           {truncatedSummary && <ListItemSummary>{truncatedSummary}</ListItemSummary>}
@@ -205,7 +205,7 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
 
   if (variant === "grid") {
     return (
-      <GridCardRoot href={`/News/${article.id}`}>
+      <GridCardRoot href={`/noews-preview/${article.id}`}>
         {hasVideoUrl && videoEmbedDetails ? (
           <>
             {videoEmbedDetails.type === "video" ? (

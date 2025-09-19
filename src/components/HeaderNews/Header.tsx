@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HeaderProps, NavLink } from "./interface";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,7 +55,7 @@ const defaultLinks: NavLink[] = [
   },
   {
     label: "News",
-    href: ""
+    href: "/news-preview"
   },
 ];
 
@@ -64,6 +64,7 @@ export function Header({
   onSearchClick,
 }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -72,30 +73,27 @@ export function Header({
   const closeDrawer = () => setDrawerOpen(false);
 
   const handleNavClick = (label: string) => {
-  if (pathname?.startsWith("/news-preview")) {
-    if (label !== "News") {
-      Swal.fire({
-        title: "Preview Mode",
-        text: `This is a preview for the News section in the News Dashboard only. To view the ${label} page, visit the full KMARIS website.`,
-        icon: "info",
-        confirmButtonText: "Go to KMARIS",
-        showCancelButton: true,
-        cancelButtonText: "Stay on Dashboard",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "https://kmarisimmigration.vercel.app";
-        }
-      });
+    if (pathname?.startsWith("/news-preview")) {
+      if (label !== "News") {
+        Swal.fire({
+          title: "Preview Mode",
+          text: `This is a preview for the News section in the News Dashboard only. To view the ${label} page, visit the full KMARIS website.`,
+          icon: "info",
+          confirmButtonText: "Go to KMARIS",
+          showCancelButton: true,
+          cancelButtonText: "Stay on Dashboard",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "https://kmarisimmigration.vercel.app";
+          }
+        });
+      } else {
+        router.push("/news-preview");
+      }
     } else {
-      // Handle News click when in news-dashboard
-      console.log("News link clicked"); // Replace with actual News action
+      console.log(`${label} link clicked - normal navigation`);
     }
-  } else {
-    // Handle normal navigation when NOT in news-dashboard
-    console.log(`${label} link clicked - normal navigation`); 
-    // Add your normal navigation logic here
-  }
-};
+  };
 
   const userIcons = (
     <>

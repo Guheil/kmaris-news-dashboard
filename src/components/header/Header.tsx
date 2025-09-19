@@ -89,7 +89,6 @@ export const Header: FC<HeaderProps> = ({
   userRole = 'Admin',
   userInitials = 'U',
   onSearch,
-  notifications = 0,
   notificationsList = [],
   onNotificationClick,
   onMarkAllAsRead,
