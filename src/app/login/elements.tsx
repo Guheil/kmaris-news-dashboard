@@ -92,7 +92,7 @@ export const Input = styled("input")(({ theme }) => ({
   borderRadius: "8px",
   "&:focus": {
     outline: "none",
-    borderColor: theme.palette.primary.main, // Use theme instead of contrastText
+    borderColor: palette.primary.main, // Use theme instead of contrastText
     boxShadow: `0 0 0 3px rgba(0,37,66,0.1)`,
   },
 }));
@@ -143,7 +143,7 @@ export const SubmitButton = styled("button")(({ theme }) => ({
   cursor: "pointer",
   borderRadius: "8px",
   transition: "background-color 0.3s ease",
-  "&:hover": { backgroundColor: theme.palette.primary.dark },
+  "&:hover": { backgroundColor: palette.primary.dark },
   "&:disabled": {
     backgroundColor: theme.palette.primary.light,
     cursor: "not-allowed",
