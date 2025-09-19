@@ -2,6 +2,19 @@
 
 import { ReactNode } from 'react';
 
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  timestamp: Date;
+  read: boolean;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+}
+
 export interface HeaderProps {
   title: string;
   breadcrumb?: string[];
@@ -12,6 +25,9 @@ export interface HeaderProps {
   searchValue?: string;
   onSearch?: (query: string) => void;
   notifications?: number;
+  notificationsList?: Notification[];
+  onNotificationClick?: (notification: Notification) => void;
+  onMarkAllAsRead?: () => void;
   isSidebarOpen?: boolean;
   isMobile?: boolean;
   quickActions?: QuickAction[];
