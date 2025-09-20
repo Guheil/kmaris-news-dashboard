@@ -108,13 +108,12 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [categoryError, setCategoryError] = useState<string | null>(null);
+  // const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  // const [categoryError, setCategoryError] = useState<string | null>(null);
   
     useEffect(() => {
       const fetchCategories = async () => {
         try {
-          setIsLoadingCategories(true);
           const response = await fetch("/api/categories");
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${await response.text()}`);
@@ -123,9 +122,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
           setCategories(data);
         } catch (error) {
           console.error("Error fetching categories:", error);
-          setCategoryError("Failed to load categories. Please try again.");
         } finally {
-          setIsLoadingCategories(false);
         }
       };
   
