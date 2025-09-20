@@ -41,25 +41,13 @@ import {
   TextArea,
   Input,
 } from "./elements";
+import {
+   EditArticlePageProps, 
+   EditArticleFormData, 
+   Category 
+  } from "./interface";
 
-// Update interface to include videoUrl
-export interface EditArticleFormData {
-  title: string;
-  author: string;
-  category: string;
-  description: string;
-  status: "draft" | "published" | "archived";
-  newsImage: string | null;
-  newsVideo: string | null;
-  videoUrl: string;
-}
 
-export interface EditArticlePageProps {
-  sidebarOpen: boolean;
-  onSidebarToggle: () => void;
-  isMobile: boolean;
-  articleId: string;
-}
 
 // Utility function for universal video embedding
 const getVideoEmbedDetails = (url: string) => {
@@ -119,6 +107,31 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+  
+    useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          setIsLoadingCategories(true);
+          const response = await fetch("/api/categories");
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+          }
+          const data = await response.json();
+          setCategories(data);
+        } catch (error) {
+          console.error("Error fetching categories:", error);
+          setCategoryError("Failed to load categories. Please try again.");
+        } finally {
+          setIsLoadingCategories(false);
+        }
+      };
+  
+      fetchCategories();
+    }, []);
+  
 
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: "",
@@ -130,15 +143,6 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     newsVideo: null,
     videoUrl: "",
   });
-
-  const categories = [
-    "Technology",
-    "Environment",
-    "Finance",
-    "Science",
-    "Sports",
-    "Health",
-  ];
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -532,8 +536,8 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
                 >
                   <option value="">Select category...</option>
                   {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
+                    <option key={category._id} value={category._id}>
+                      {category.categoryName}
                     </option>
                   ))}
                 </Select>

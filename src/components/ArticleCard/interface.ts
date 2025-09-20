@@ -36,3 +36,8 @@ export interface ArticleCardProps {
   variant: "featured" | "list" | "grid";
   truncate?: boolean;
 }
+
+export interface Category {
+  _id: string;
+  categoryName: string;
+}

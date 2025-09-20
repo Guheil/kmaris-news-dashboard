@@ -31,6 +31,7 @@ import {
   ViewMode,
   ArticleCardProps,
   PaginationOptions,
+  Category, 
 } from "./interface";
 import {
   ArticlesRoot,
@@ -118,9 +119,10 @@ const getVideoEmbedDetails = (url: string) => {
 };
 
 // Article Card Component
-const ArticleCardComponent: FC<ArticleCardProps> = ({
+const ArticleCardComponent: FC<ArticleCardProps & { categories: Category[] }> = ({
   article,
   viewMode,
+  categories,
   onEdit,
   onArchive,
   onView,
@@ -131,7 +133,9 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
   const descriptionLimit = viewMode === "grid" ? 120 : 150;
   const isArchived = article.status === "archived";
 
-  // Get video embed details if videoUrl exists
+  const categoryObj = categories.find(cat => cat._id === article.category);
+  const categoryName = categoryObj?.categoryName || article.category;
+
   const videoEmbedDetails = article.videoUrl
     ? getVideoEmbedDetails(article.videoUrl)
     : null;
@@ -238,8 +242,8 @@ const ArticleCardComponent: FC<ArticleCardProps> = ({
         </ArticleHeader>
 
         <ArticleMeta>
-          <CategoryBadge category={article.category}>
-            {article.category}
+          <CategoryBadge category={categoryName}>
+            {categoryName}
           </CategoryBadge>
           <MetaItem>
             <Calendar size={14} />
@@ -293,8 +297,11 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     totalItems: 0,
   });
   const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
   // Fetch articles from API
   useEffect(() => {
@@ -318,10 +325,38 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     fetchArticles();
   }, []);
 
-  // Get unique categories for filters
-  const uniqueCategories = useMemo(
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data);
+        setCategoriesError(null);
+      } catch (err) {
+        setCategoriesError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Get unique category IDs from articles for filters
+  const availableCategoryIds = useMemo(
     () => [...new Set(articles.map((article) => article.category))].sort(),
     [articles]
+  );
+
+  // Filter available categories based on what's actually used in articles
+  const availableCategories = useMemo(
+    () => categories.filter(cat => availableCategoryIds.includes(cat._id)),
+    [categories, availableCategoryIds]
   );
 
   // Filter and sort articles
@@ -332,10 +367,16 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(
-        (article) =>
-          article.title.toLowerCase().includes(query) ||
-          article.category.toLowerCase().includes(query) ||
-          article.description.toLowerCase().includes(query)
+        (article) => {
+          const categoryObj = categories.find(cat => cat._id === article.category);
+          const categoryName = categoryObj?.categoryName || article.category;
+          
+          return (
+            article.title.toLowerCase().includes(query) ||
+            categoryName.toLowerCase().includes(query) ||
+            article.description.toLowerCase().includes(query)
+          );
+        }
       );
     }
 
@@ -392,7 +433,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     });
 
     return filtered;
-  }, [searchQuery, filters, sortOptions, articles]);
+  }, [searchQuery, filters, sortOptions, articles, categories]);
 
   // Paginate articles
   const paginatedArticles = useMemo(() => {
@@ -656,7 +697,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       />
 
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-        {loading && (
+        {(loading || categoriesLoading) && (
           <NoResults>
             <NoResultsIcon>
               <FileText size={48} />
@@ -665,17 +706,17 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </NoResults>
         )}
 
-        {error && !loading && (
+        {(error || categoriesError) && !loading && !categoriesLoading && (
           <NoResults>
             <NoResultsIcon>
               <FileText size={48} />
             </NoResultsIcon>
-            <NoResultsTitle>Error loading articles</NoResultsTitle>
-            <NoResultsText>{error}</NoResultsText>
+            <NoResultsTitle>Error loading data</NoResultsTitle>
+            <NoResultsText>{error || categoriesError}</NoResultsText>
           </NoResults>
         )}
 
-        {!loading && !error && searchQuery && (
+        {!loading && !categoriesLoading && !error && !categoriesError && searchQuery && (
           <SearchResultsHeader>
             <SearchResultsCount>
               {filteredAndSortedArticles.length} result
@@ -688,7 +729,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </SearchResultsHeader>
         )}
 
-        {!loading && !error && (
+        {!loading && !categoriesLoading && !error && !categoriesError && (
           <ControlsContainer>
             <FiltersContainer>
               <FilterSelect
@@ -698,9 +739,9 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
                 }
               >
                 <option value="all">All Categories</option>
-                {uniqueCategories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                {availableCategories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.categoryName}
                   </option>
                 ))}
               </FilterSelect>
@@ -757,13 +798,14 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </ControlsContainer>
         )}
 
-        {!loading && !error && paginatedArticles.length > 0 ? (
+        {!loading && !categoriesLoading && !error && !categoriesError && paginatedArticles.length > 0 ? (
           <>
             <ArticlesGrid viewMode={viewMode}>
               {paginatedArticles.map((article) => (
                 <ArticleCardComponent
                   key={article._id}
                   article={article}
+                  categories={categories}
                   viewMode={viewMode}
                   onEdit={handleEdit}
                   onArchive={handleArchive}
@@ -828,7 +870,9 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           </>
         ) : (
           !loading &&
-          !error && (
+          !categoriesLoading &&
+          !error &&
+          !categoriesError && (
             <NoResults>
               <NoResultsIcon>
                 <Search size={48} />

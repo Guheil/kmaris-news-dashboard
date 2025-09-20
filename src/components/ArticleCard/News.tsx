@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
-import { Article, ApiArticle } from "./interface";
+import { Article, ApiArticle, Category } from "./interface"; // Import Category
 import { ArticleCard } from "./ArticleCard";
 import { FloatingDashboardButton } from './FloatingDashboardButton';
 import NewsLoadingScreen from "./NewsLoadingScreen";
@@ -25,14 +25,13 @@ import {
   LatestCategory,
 } from "./elements";
 
-// Helper function to safely extract media URL or embed details
+// Helper function to safely extract media URL or embed details (unchanged)
 const getMediaDetails = (
   newsImage?: string | { url: string; alt?: string; width?: number; height?: number },
   newsVideo?: string | { url: string; title?: string; duration?: number },
   videoUrl?: string
 ) => {
   if (videoUrl) {
-    // For videoUrl, return embed details instead of URL
     const embedDetails = getVideoEmbedDetails(videoUrl);
     return { type: embedDetails.type, src: embedDetails.src, isEmbed: true };
   }
@@ -56,7 +55,7 @@ const getMediaDetails = (
   return { type: "placeholder" as const, src: '/placeholder-image.jpg', isEmbed: false };
 };
 
-// Utility function for universal video embedding (for videoUrl)
+// Utility function for universal video embedding (unchanged)
 const getVideoEmbedDetails = (url: string) => {
   const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
 
@@ -99,6 +98,7 @@ const getVideoEmbedDetails = (url: string) => {
   return { type: "iframe" as const, src: normalizedUrl };
 };
 
+// LatestArticlesSection component (unchanged, but now uses resolved category names)
 const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
   articles,
 }) => (
@@ -202,6 +202,7 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
   </div>
 );
 
+// VideoNewsSection component (similarly unchanged)
 const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
   <div>
     <SectionTitle>News in Video</SectionTitle>
@@ -296,21 +297,38 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
 
 export default function News() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]); // New state for categories
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/articles');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch articles: ${response.statusText}`);
-        }
-        const data = await response.json();
+        // Fetch articles and categories in parallel
+        const [articlesResponse, categoriesResponse] = await Promise.all([
+          fetch('/api/articles'),
+          fetch('/api/categories')
+        ]);
 
-        // Format articles to match the expected Article interface
-        const formattedArticles: Article[] = data.map((article: ApiArticle) => ({
+        if (!articlesResponse.ok) {
+          throw new Error(`Failed to fetch articles: ${articlesResponse.statusText}`);
+        }
+        if (!categoriesResponse.ok) {
+          throw new Error(`Failed to fetch categories: ${categoriesResponse.statusText}`);
+        }
+
+        const articlesData = await articlesResponse.json();
+        const categoriesData: Category[] = await categoriesResponse.json();
+
+        // Create category map: _id -> categoryName
+        const categoryMap: Record<string, string> = {};
+        categoriesData.forEach(cat => {
+          categoryMap[cat._id] = cat.categoryName;
+        });
+
+        // Format articles, resolving category _id to name
+        const formattedArticles: Article[] = articlesData.map((article: ApiArticle) => ({
           _id: article._id || "",
           id: article._id || "",
           title: article.title || "",
@@ -322,7 +340,7 @@ export default function News() {
           newsVideo: article.newsVideo || '',
           videoUrl: article.videoUrl || '',
           readTime: article.readTime || "3 mins",
-          category: article.category || "Uncategorized",
+          category: categoryMap[article.category || ''] || article.category || "Uncategorized", // Resolve here
           description: article.description || "",
           summary: article.description || "",
           views: article.views || 0,
@@ -338,16 +356,19 @@ export default function News() {
         });
 
         setArticles(sortedArticles);
+        setCategories(categoriesData); // Store for potential future use (e.g., filters)
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching data';
         setError(errorMessage);
+        // If categories fail, articles can still load with raw category strings
+        // (You could add separate error state for categories if needed)
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArticles();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -385,13 +406,12 @@ export default function News() {
     );
   }
 
-  // Filter and organize articles
+  // Filter and organize articles (unchanged)
   const publishedArticles = articles.filter(article => article.status === 'published');
-  // Select the latest article for the featured section
-  const featuredArticle = publishedArticles[0]; // Latest article (sorted by date)
+  const featuredArticle = publishedArticles[0];
   const mainArticles = publishedArticles.filter(article => !article.videoUrl && !article.newsVideo);
-  const listArticles = mainArticles.slice(0, 3); // Adjusted to take first 3 non-video articles
-  const gridArticles = mainArticles.slice(6); // Remaining non-video articles for grid
+  const listArticles = mainArticles.slice(0, 3);
+  const gridArticles = mainArticles.slice(6);
   const latestArticles = publishedArticles.slice(0, 6);
   const videoNews = publishedArticles.filter(article => article.videoUrl || article.newsVideo);
 

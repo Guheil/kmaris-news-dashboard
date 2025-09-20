@@ -15,6 +15,7 @@ import {
   Play,
   Search,
   EyeIcon,
+  Tag,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -23,6 +24,7 @@ import {
   CardProps,
   NewsArticle,
   ApiArticle,
+  Category,
 } from "./interface";
 import {
   DashboardRoot,
@@ -71,7 +73,7 @@ import {
 import { palette } from "@/theme/pallete";
 import Link from "next/link";
 
-// Updated MediaPreview component with consistent sizing
+// MediaPreview component
 const MediaPreview: FC<{ article: NewsArticle }> = ({ article }) => {
   return (
     <MediaPreviewContainer>
@@ -112,8 +114,11 @@ export const NewsDashboard: FC<DashboardProps> = ({
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-  // Fetch articles from /api/articles
+  // Fetch articles
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -123,9 +128,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
           throw new Error(`Failed to fetch articles: ${response.statusText}`);
         }
         const data = await response.json();
-        // Ensure data conforms to NewsArticle interface
         const formattedArticles = data.map((article: ApiArticle) => ({
-          // Updated type here
           _id: article._id || "",
           title: article.title || "",
           author: article.author || "",
@@ -133,14 +136,13 @@ export const NewsDashboard: FC<DashboardProps> = ({
           newsImage: article.newsImage || "",
           newsVideo: article.newsVideo || "",
           readTime: article.readTime || "N/A",
-          category: article.category || "Uncategorized",
+          category: article.category || "", // Category ID
           description: article.description || "",
           views: article.views || 0,
           status: article.status || "published",
         }));
         const sortedArticles = formattedArticles.sort(
           (a: NewsArticle, b: NewsArticle) => {
-            // Updated types here
             const dateA = new Date(a.date).getTime();
             const dateB = new Date(b.date).getTime();
             return dateB - dateA;
@@ -158,30 +160,57 @@ export const NewsDashboard: FC<DashboardProps> = ({
     fetchArticles();
   }, []);
 
-  // Enhanced search functionality with sorting
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch categories: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setCategories(data);
+        setCategoriesError(null);
+      } catch (err) {
+        setCategoriesError(err instanceof Error ? err.message : "Failed to load categories");
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Helper to get category name by ID
+  const getCategoryName = (categoryId: string): string => {
+    const category = categories.find((cat) => cat._id === categoryId);
+    return category ? category.categoryName : "Uncategorized";
+  };
+
+  // Search functionality
   const filteredNews = useMemo(() => {
     if (!searchQuery.trim()) {
-      // Return sorted articles (already sorted from fetch)
       return articles;
     }
 
     const query = searchQuery.toLowerCase().trim();
-    // Filter first
-    let filtered = articles.filter(
-      (article) =>
+    let filtered = articles.filter((article) => {
+      const categoryName = getCategoryName(article.category).toLowerCase();
+      return (
         article.title.toLowerCase().includes(query) ||
         article.author.toLowerCase().includes(query) ||
-        article.category.toLowerCase().includes(query) ||
+        categoryName.includes(query) ||
         article.description.toLowerCase().includes(query)
-    );
-    // Then sort by date descending (latest first)
+      );
+    });
     filtered = filtered.sort((a, b) => {
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
       return dateB - dateA;
     });
     return filtered;
-  }, [searchQuery, articles]);
+  }, [searchQuery, articles, categories]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -197,11 +226,10 @@ export const NewsDashboard: FC<DashboardProps> = ({
     }
   };
 
-  // Calculate statistics based on ALL filtered results (not limited to 5)
+  // Stats
   const totalArticles = filteredNews.length;
-  const uniqueCategories = new Set(
-    filteredNews.map((article) => article.category)
-  ).size;
+  const totalCategoriesFromDB = categoriesError || categoriesLoading ? 0 : categories.length;
+  const uniqueCategories = new Set(filteredNews.map((article) => article.category)).size;
   const totalViews = filteredNews.reduce(
     (sum, article) => sum + (article.views || 0),
     0
@@ -209,7 +237,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
   const averageViews = totalArticles > 0 ? totalViews / totalArticles : 0;
 
   const categoryCounts = filteredNews.reduce((acc, article) => {
-    acc[article.category] = (acc[article.category] || 0) + 1;
+    const categoryName = getCategoryName(article.category);
+    acc[categoryName] = (acc[categoryName] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -220,24 +249,22 @@ export const NewsDashboard: FC<DashboardProps> = ({
         )
       : "N/A";
 
-  // Limit displayed news to 5 for the table
   const displayedNews = filteredNews.slice(0, 5);
-
-  // Sort articles for activity feed (latest first)
   const sortedArticlesForActivity = articles.sort((a, b) => {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
     return dateB - dateA;
   });
 
+  const isLoading = loading || categoriesLoading;
+  const hasError = !isLoading && (error || categoriesError);
+
   return (
     <DashboardRoot>
-      {/* Mobile overlay */}
       <SidebarOverlay
         show={isMobile && sidebarOpen}
         onClick={handleOverlayClick}
       />
-
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
@@ -292,7 +319,6 @@ export const NewsDashboard: FC<DashboardProps> = ({
         collapsible={!isMobile}
         navItems={[]}
       />
-
       <Header
         title="News Dashboard"
         onMenuToggle={onSidebarToggle}
@@ -305,10 +331,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}
       />
-
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-        {/* Loading State */}
-        {loading && (
+        {isLoading && (
           <NoResults>
             <NoResultsIcon>
               <FileText size={28} />
@@ -316,36 +340,34 @@ export const NewsDashboard: FC<DashboardProps> = ({
             <NoResultsTitle>Loading dashboard...</NoResultsTitle>
           </NoResults>
         )}
-
-        {/* Error State */}
-        {error && !loading && (
+        {hasError && (
           <NoResults>
             <NoResultsIcon>
               <FileText size={28} />
             </NoResultsIcon>
             <NoResultsTitle>Error loading dashboard</NoResultsTitle>
-            <NoResultsText>{error}</NoResultsText>
+            <NoResultsText>
+              {error || categoriesError || "An unexpected error occurred."}
+            </NoResultsText>
           </NoResults>
         )}
-
-        {!loading && !error && (
+        {!isLoading && !hasError && (
           <>
-            {/* Updated Statistics Cards - reflect ALL filtered results */}
             <StatsGrid>
               <StatCard>
-                <StatIcon color={palette.primary.main}>
+                <StatIcon color="#3b82f6">
                   <FileText size={20} />
                 </StatIcon>
                 <StatNumber>{totalArticles}</StatNumber>
                 <StatLabel>
-                  {searchQuery ? "Found Articles" : "Total Published Articles"}
+                  {searchQuery ? "Articles Found" : "Total Articles"}
                 </StatLabel>
               </StatCard>
               <StatCard>
-                <StatIcon color="#10b981">
-                  <Settings size={20} />
+                <StatIcon color="#8b5cf6">
+                  <Tag size={20} />
                 </StatIcon>
-                <StatNumber>{uniqueCategories}</StatNumber>
+                <StatNumber>{searchQuery ? uniqueCategories : totalCategoriesFromDB}</StatNumber>
                 <StatLabel>
                   {searchQuery ? "Categories Found" : "Total Categories"}
                 </StatLabel>
@@ -375,14 +397,12 @@ export const NewsDashboard: FC<DashboardProps> = ({
                 <StatLabel>Top Category</StatLabel>
               </StatCard>
             </StatsGrid>
-
             <DashboardGrid>
               <DashboardCard
                 title={searchQuery ? "Search Results" : "Recent Articles"}
                 gridColumn="span 8"
               >
                 <NewsTable>
-                  {/* Search results header */}
                   {searchQuery && (
                     <SearchResultsHeader>
                       <SearchResultsCount>
@@ -394,7 +414,6 @@ export const NewsDashboard: FC<DashboardProps> = ({
                       </ClearSearchButton>
                     </SearchResultsHeader>
                   )}
-
                   {totalArticles > 0 ? (
                     <>
                       <NewsTableHeader>
@@ -410,8 +429,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
                             <MediaPreview article={article} />
                             <div>
                               <NewsTitleText>{article.title}</NewsTitleText>
-                              <CategoryBadge category={article.category}>
-                                {article.category}
+                              <CategoryBadge category={getCategoryName(article.category)}>
+                                {getCategoryName(article.category)}
                               </CategoryBadge>
                             </div>
                           </NewsTitle>
@@ -441,7 +460,6 @@ export const NewsDashboard: FC<DashboardProps> = ({
                       ))}
                     </>
                   ) : (
-                    // No results state
                     <NoResults>
                       <NoResultsIcon>
                         <Search size={28} />
@@ -457,7 +475,6 @@ export const NewsDashboard: FC<DashboardProps> = ({
                   )}
                 </NewsTable>
               </DashboardCard>
-
               <DashboardCard title="Quick Actions" gridColumn="span 4">
                 <QuickActionGrid>
                   <Link href="/news-dashboard/create-article" passHref>
@@ -467,10 +484,9 @@ export const NewsDashboard: FC<DashboardProps> = ({
                     </QuickActionButton>
                   </Link>
                   <QuickActionButton>
-                    <FileText size={16} />
+                    <Tag size={16} />
                     Manage Categories
                   </QuickActionButton>
-                  
                   <Link href="/news-dashboard/analytics" passHref>
                     <QuickActionButton>
                       <BarChart3 size={16} />
@@ -483,11 +499,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
                   </QuickActionButton>
                 </QuickActionGrid>
               </DashboardCard>
-
               <DashboardCard
-                title={
-                  searchQuery ? "Recent Activity (All)" : "Recent Activity"
-                }
+                title={searchQuery ? "Recent Activity (All)" : "Recent Activity"}
                 gridColumn="span 12"
               >
                 <div>

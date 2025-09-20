@@ -1,3 +1,4 @@
+import { Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 
 export const ArticleSection = styled("section")(({ theme }) => ({
@@ -72,3 +73,21 @@ export const RelatedArticlesContainer = styled("div")({
   flexDirection: "column",
   gap: "24px",
 });
+export const ErrorContainer = styled("div")(({ theme }: { theme: Theme }) => ({
+  padding: theme.spacing(2),
+  textAlign: "center",
+  color: theme.palette.primary.main,
+  backgroundColor: "#fef2f2",
+  border: `1px solid #fecaca`,
+  borderRadius: "8px",
+  margin: theme.spacing(2, 0),
+  "& h3": {
+    margin: `0 0 ${theme.spacing(1)} 0`,
+    fontSize: "18px",
+    fontWeight: 600,
+  },
+  "& p": {
+    margin: 0,
+    fontSize: "14px",
+  },
+}));

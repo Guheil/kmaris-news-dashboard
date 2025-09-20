@@ -18,13 +18,13 @@ export interface NewsArticle {
 export interface EditArticleFormData {
   title: string;
   author: string;
-  category: string;
+  category: string; 
   description: string;
   status: "draft" | "published" | "archived";
-  newsImage: string | null; 
-  newsVideo: string | null; 
+  newsImage: string | null;
+  newsVideo: string | null;
+  videoUrl: string;
 }
-
 export interface ArticlesPageProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
@@ -36,7 +36,7 @@ export interface EditArticlePageProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
   isMobile: boolean;
-  articleId: string; 
+  articleId: string;
 }
 
 export interface FilterOptions {
@@ -64,4 +64,9 @@ export interface PaginationOptions {
   currentPage: number;
   itemsPerPage: number;
   totalItems: number;
+}
+
+export interface Category {
+  _id: string;
+  categoryName: string;
 }

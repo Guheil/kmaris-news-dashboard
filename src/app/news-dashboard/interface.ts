@@ -25,6 +25,7 @@ export interface NewsArticle {
   description: string; 
   views?: number;
 }
+
 export interface ApiArticle {
   _id?: string;
   title?: string;
@@ -37,4 +38,12 @@ export interface ApiArticle {
   description?: string;
   views?: number;
   status?: string;
+}
+
+// Added: Category interface (copied from articles for consistency)
+export interface Category {
+  _id: string;
+  categoryName: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

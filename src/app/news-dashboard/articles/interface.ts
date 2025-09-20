@@ -2,6 +2,13 @@
 
 import { ReactNode } from "react";
 
+export interface Category {
+  _id: string;
+  categoryName: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface ArticlesPageProps {
   sidebarOpen: boolean;
   onSidebarToggle: () => void;
@@ -19,7 +26,7 @@ export interface NewsArticle {
   date: string;
   newsImage?: string; 
   newsVideo?: string;
-  category: string;
+  category: string; // This will now store the category ID
   description: string; 
   views?: number;
   status?: 'published' | 'archived';

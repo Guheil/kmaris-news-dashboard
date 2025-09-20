@@ -3,6 +3,38 @@
 import { styled } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
 
+// Added: Utility function for dynamic category colors (from your provided code)
+const getCategoryColor = (categoryName: string) => {
+  const colors = [
+    { bg: '#dbeafe', text: '#1d4ed8' }, // Blue
+    { bg: '#dcfce7', text: '#166534' }, // Green
+    { bg: '#fef3c7', text: '#92400e' }, // Yellow
+    { bg: '#ede9fe', text: '#7c3aed' }, // Purple
+    { bg: '#fef2f2', text: '#dc2626' }, // Red
+    { bg: '#ecfdf5', text: '#059669' }, // Emerald
+    { bg: '#fff7ed', text: '#c2410c' }, // Orange
+    { bg: '#f0f9ff', text: '#0284c7' }, // Sky
+    { bg: '#fdf2f8', text: '#be185d' }, // Pink
+    { bg: '#f5f3ff', text: '#6d28d9' }, // Violet
+    { bg: '#ecfccb', text: '#365314' }, // Lime
+    { bg: '#fefce8', text: '#a16207' }, // Amber
+    { bg: '#f0fdfa', text: '#047857' }, // Teal
+    { bg: '#fdf4ff', text: '#a21caf' }, // Fuchsia
+    { bg: '#f8fafc', text: '#475569' }, // Slate (default/fallback)
+  ];
+
+  // Generate a hash from category name to consistently assign colors
+  let hash = 0;
+  for (let i = 0; i < categoryName.length; i++) {
+    const char = categoryName.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
+
 export const DashboardRoot = styled("div")({
   display: "flex",
   minHeight: "100vh",
@@ -255,43 +287,20 @@ export const NewsViews = styled('div')({
   gap: '4px',
 });
 
-export const CategoryBadge = styled('span')<{ category: string }>(({ category }) => ({
-  padding: '2px 8px',
-  borderRadius: '4px',
-  fontSize: '11px',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  ...(category.toLowerCase() === 'technology' && {
-    backgroundColor: '#dbeafe',
-    color: '#1d4ed8',
-  }),
-  ...(category.toLowerCase() === 'environment' && {
-    backgroundColor: '#dcfce7',
-    color: '#166534',
-  }),
-  ...(category.toLowerCase() === 'finance' && {
-    backgroundColor: '#fef3c7',
-    color: '#92400e',
-  }),
-  ...(category.toLowerCase() === 'science' && {
-    backgroundColor: '#ede9fe',
-    color: '#7c3aed',
-  }),
-  ...(category.toLowerCase() === 'sports' && {
-    backgroundColor: '#fef2f2',
-    color: '#dc2626',
-  }),
-  ...(category.toLowerCase() === 'health' && {
-    backgroundColor: '#ecfdf5',
-    color: '#059669',
-  }),
-  // Default style for other categories
-  ...(!['technology', 'environment', 'finance', 'science', 'sports', 'health'].includes(category.toLowerCase()) && {
-    backgroundColor: '#f3f4f6',
-    color: '#6b7280',
-  }),
-}));
+// Updated: CategoryBadge now uses dynamic getCategoryColor
+export const CategoryBadge = styled('span')<{ category: string }>(({ category }) => {
+  const colors = getCategoryColor(category || 'Uncategorized'); // Fallback for empty category
+  return {
+    padding: '2px 8px',
+    borderRadius: '4px',
+    fontSize: '11px',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    backgroundColor: colors.bg,
+    color: colors.text,
+  };
+});
 
 export const ActionButtons = styled('div')({
   display: 'flex',

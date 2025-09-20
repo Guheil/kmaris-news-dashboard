@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useRef } from "react";
+import { FC, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Home,
@@ -22,6 +22,7 @@ import {
   CreateArticlePageProps,
   ArticleFormData,
   FormErrors,
+  Category,
 } from "./interface";
 import {
   CreateArticleRoot,
@@ -53,6 +54,7 @@ import {
   Button,
 } from "./elements";
 
+
 export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   sidebarOpen,
   onSidebarToggle,
@@ -76,15 +78,30 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
 
-  const categories = [
-    "Technology",
-    "Environment",
-    "Finance",
-    "Science",
-    "Sports",
-    "Health",
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsLoadingCategories(true);
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategoryError("Failed to load categories. Please try again.");
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleInputChange = (field: keyof ArticleFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -123,7 +140,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   };
 
   const handleVideoUrlChange = (value: string) => {
-    // General URL validation
     const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.\/]*)*$/;
     if (value && !urlRegex.test(value)) {
       setErrors((prev) => ({
@@ -270,30 +286,25 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
     router.push("/news-dashboard/articles");
   };
 
-  // Convert video URL to embed URL for preview
   const getVideoEmbedUrl = (url: string): string => {
-    // YouTube
     const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const youtubeMatch = url.match(youtubeRegex);
     if (youtubeMatch) {
       return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
     }
 
-    // Vimeo
     const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
     const vimeoMatch = url.match(vimeoRegex);
     if (vimeoMatch) {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
     }
 
-    // Dailymotion
     const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
     const dailymotionMatch = url.match(dailymotionRegex);
     if (dailymotionMatch) {
       return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`;
     }
 
-    // Fallback: Return the original URL if no specific embed format is found
     return url;
   };
 
@@ -414,16 +425,26 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                     handleInputChange("category", e.target.value)
                   }
                   error={!!errors.category}
+                  disabled={isLoadingCategories || !!categoryError}
                 >
-                  <option value="">Select category...</option>
+                  <option value="">
+                    {isLoadingCategories
+                      ? "Loading categories..."
+                      : categoryError
+                      ? "Error loading categories"
+                      : "Select category..."}
+                  </option>
                   {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
+                    <option key={category._id} value={category._id}>
+                      {category.categoryName}
                     </option>
                   ))}
                 </Select>
                 {errors.category && (
                   <ErrorMessage>{errors.category}</ErrorMessage>
+                )}
+                {categoryError && (
+                  <ErrorMessage>{categoryError}</ErrorMessage>
                 )}
               </FormField>
               <FormField fullWidth>
@@ -458,7 +479,9 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 <MediaUploadBox
                   hasMedia={!!formData.newsImage}
                   onClick={() =>
-                    !formData.newsVideo && !formData.videoUrl && imageInputRef.current?.click()
+                    !formData.newsVideo &&
+                    !formData.videoUrl &&
+                    imageInputRef.current?.click()
                   }
                 >
                   {formData.newsImage ? (
@@ -500,7 +523,9 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
                 <MediaUploadBox
                   hasMedia={!!formData.newsVideo}
                   onClick={() =>
-                    !formData.newsImage && !formData.videoUrl && videoInputRef.current?.click()
+                    !formData.newsImage &&
+                    !formData.videoUrl &&
+                    videoInputRef.current?.click()
                   }
                 >
                   {formData.newsVideo ? (

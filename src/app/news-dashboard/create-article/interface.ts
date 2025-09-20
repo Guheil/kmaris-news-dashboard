@@ -1,20 +1,12 @@
-"use client";
-
-export interface CreateArticlePageProps {
-  sidebarOpen: boolean;
-  onSidebarToggle: () => void;
-  isMobile?: boolean;
-}
-
 export interface ArticleFormData {
   title: string;
   author: string;
-  category: string;
+  category: string; // Stores the category _id as a string
   description: string;
-  newsImage?: string;
-  newsVideo?: string;
-  videoUrl?: string; // Made optional to align with newsImage and newsVideo
-  status: 'published' | 'draft' | 'archived';
+  newsImage: string;
+  newsVideo: string;
+  videoUrl: string;
+  status: "draft" | "published";
 }
 
 export interface FormErrors {
@@ -22,5 +14,16 @@ export interface FormErrors {
   author?: string;
   category?: string;
   description?: string;
-  videoUrl?: string; 
+  videoUrl?: string;
+}
+
+export interface CreateArticlePageProps {
+  sidebarOpen: boolean;
+  onSidebarToggle: () => void;
+  isMobile?: boolean;
+}
+
+export interface Category {
+  _id: string;
+  categoryName: string;
 }
