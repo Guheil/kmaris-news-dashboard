@@ -1,9 +1,10 @@
 'use client';
 
 import { FC, useState, useRef, useEffect } from 'react';
-import { Menu, Search, Bell, Settings, User, LogOut, ChevronDown, Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Menu, Search, Bell, Settings, User, LogOut, ChevronDown } from 'lucide-react';
 import Swal from "sweetalert2";
-import { HeaderProps, IconButtonProps, Notification } from './interface';
+import { HeaderProps, IconButtonProps } from './interface';
+import { NotificationDropdown } from '@/components/NotificationDropdown/NotificationDropdown';
 import {
   HeaderRoot,
   LeftSection,
@@ -29,22 +30,6 @@ import {
   DropdownUserName,
   DropdownUserRole,
   DropdownItem,
-  // Add notification elements
-  NotificationsContainer,
-  NotificationsDropdown,
-  NotificationsHeader,
-  NotificationsTitle,
-  MarkAllReadButton,
-  NotificationsList,
-  NotificationItem,
-  NotificationContent,
-  NotificationIcon,
-  NotificationText,
-  NotificationTitle,
-  NotificationMessage,
-  NotificationTime,
-  NotificationAction,
-  EmptyNotifications,
 } from './elements';
 
 const HeaderIconButton: FC<IconButtonProps> = ({ 
@@ -67,21 +52,6 @@ const HeaderIconButton: FC<IconButtonProps> = ({
   </IconButton>
 );
 
-const NotificationIconComponent: FC<{ type: Notification['type'] }> = ({ type }) => {
-  const iconProps = { size: 16 };
-  
-  switch (type) {
-    case 'success':
-      return <CheckCircle {...iconProps} />;
-    case 'warning':
-      return <AlertTriangle {...iconProps} />;
-    case 'error':
-      return <AlertCircle {...iconProps} />;
-    default:
-      return <Info {...iconProps} />;
-  }
-};
-
 export const Header: FC<HeaderProps> = ({
   title,
   onMenuToggle,
@@ -100,46 +70,15 @@ export const Header: FC<HeaderProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
 
-  // Sample notifications if none provided
-  const sampleNotifications: Notification[] = notificationsList.length > 0 ? notificationsList : [
-    {
-      id: '1',
-      title: 'New Article Published',
-      message: 'Breaking: Major tech announcement rocks the industry',
-      type: 'info',
-      timestamp: new Date(Date.now() - 5 * 60 * 1000),
-      read: false,
-    },
-    {
-      id: '2',
-      title: 'System Update',
-      message: 'Dashboard has been updated with new features',
-      type: 'success',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      read: false,
-    },
-    {
-      id: '3',
-      title: 'Warning',
-      message: 'Your session will expire in 10 minutes',
-      type: 'warning',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      read: true,
-    },
-  ];
+  // Calculate unread notifications count
+  const unreadCount = notificationsList.filter(n => !n.read).length;
 
-  const unreadCount = sampleNotifications.filter(n => !n.read).length;
-
-  // Close dropdowns when clicking outside
+  // Close user dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
-      }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setIsNotificationsOpen(false);
       }
     };
 
@@ -194,40 +133,6 @@ export const Header: FC<HeaderProps> = ({
     }
   };
 
-  const handleNotificationClick = (notification: Notification) => {
-    if (onNotificationClick) {
-      onNotificationClick(notification);
-    }
-    setIsNotificationsOpen(false);
-  };
-
-  const handleMarkAllAsRead = () => {
-    if (onMarkAllAsRead) {
-      onMarkAllAsRead();
-    }
-    // For demo purposes, you can update the local state or show a success message
-    Swal.fire({
-      title: "Success!",
-      text: "All notifications marked as read",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-  };
-
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
-  };
-
   const handleProfileClick = () => {
     setIsDropdownOpen(false);
     console.log('Profile clicked');
@@ -267,7 +172,7 @@ export const Header: FC<HeaderProps> = ({
 
       <RightSection>
         <ActionButtons>
-          <NotificationsContainer ref={notificationsRef}>
+          <div style={{ position: 'relative' }}>
             <HeaderIconButton
               icon={<Bell size={20} />}
               hasNotification={unreadCount > 0}
@@ -275,50 +180,14 @@ export const Header: FC<HeaderProps> = ({
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
             />
             
-            <NotificationsDropdown isOpen={isNotificationsOpen}>
-              <NotificationsHeader>
-                <NotificationsTitle>Notifications</NotificationsTitle>
-                {unreadCount > 0 && (
-                  <MarkAllReadButton onClick={handleMarkAllAsRead}>
-                    Mark all as read
-                  </MarkAllReadButton>
-                )}
-              </NotificationsHeader>
-              
-              <NotificationsList>
-                {sampleNotifications.length > 0 ? (
-                  sampleNotifications.map((notification) => (
-                    <NotificationItem 
-                      key={notification.id} 
-                      read={notification.read}
-                      onClick={() => handleNotificationClick(notification)}
-                    >
-                      <NotificationContent>
-                        <NotificationIcon type={notification.type}>
-                          <NotificationIconComponent type={notification.type} />
-                        </NotificationIcon>
-                        <NotificationText>
-                          <NotificationTitle>{notification.title}</NotificationTitle>
-                          <NotificationMessage>{notification.message}</NotificationMessage>
-                          <NotificationTime>{formatTimeAgo(notification.timestamp)}</NotificationTime>
-                          {notification.action && (
-                            <NotificationAction onClick={notification.action.onClick}>
-                              {notification.action.label}
-                            </NotificationAction>
-                          )}
-                        </NotificationText>
-                      </NotificationContent>
-                    </NotificationItem>
-                  ))
-                ) : (
-                  <EmptyNotifications>
-                    <Bell size={32} style={{ color: '#cbd5e1', marginBottom: '8px' }} />
-                    <div>No notifications</div>
-                  </EmptyNotifications>
-                )}
-              </NotificationsList>
-            </NotificationsDropdown>
-          </NotificationsContainer>
+            <NotificationDropdown
+              isOpen={isNotificationsOpen}
+              onClose={() => setIsNotificationsOpen(false)}
+              notifications={notificationsList}
+              onNotificationClick={onNotificationClick}
+              onMarkAllAsRead={onMarkAllAsRead}
+            />
+          </div>
         </ActionButtons>
 
         <UserDropdownContainer ref={dropdownRef}>

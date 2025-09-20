@@ -1,6 +1,7 @@
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   FileText,
@@ -16,6 +17,7 @@ import {
   Search,
   EyeIcon,
   Tag,
+  LogOut,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -72,6 +74,7 @@ import {
 } from "./elements";
 import { palette } from "@/theme/pallete";
 import Link from "next/link";
+import { getSession, clearSession } from "@/app/login/sessionUtils";
 
 // MediaPreview component
 const MediaPreview: FC<{ article: NewsArticle }> = ({ article }) => {
@@ -110,6 +113,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
   onSidebarToggle,
   isMobile = false,
 }) => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +122,13 @@ export const NewsDashboard: FC<DashboardProps> = ({
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-  // Fetch articles
+  useEffect(() => {
+    const session = getSession();
+    if (!session) {
+      router.push("/");
+    }
+  }, [router]);
+
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -160,7 +170,6 @@ export const NewsDashboard: FC<DashboardProps> = ({
     fetchArticles();
   }, []);
 
-  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -224,6 +233,12 @@ export const NewsDashboard: FC<DashboardProps> = ({
     if (isMobile) {
       onSidebarToggle();
     }
+  };
+
+  // Logout functionality
+  const handleLogout = () => {
+    clearSession();
+    router.push("/login");
   };
 
   // Stats
@@ -312,6 +327,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
               },
             ],
           },
+         
         ]}
         userName="John Doe"
         userRole="Editor"
@@ -483,10 +499,12 @@ export const NewsDashboard: FC<DashboardProps> = ({
                       Create New Article
                     </QuickActionButton>
                   </Link>
-                  <QuickActionButton>
-                    <Tag size={16} />
-                    Manage Categories
-                  </QuickActionButton>
+                  <Link href="/news-dashboard/categories" passHref>
+                    <QuickActionButton>
+                      <Tag size={16} />
+                      Manage Categories
+                    </QuickActionButton>
+                  </Link>
                   <Link href="/news-dashboard/analytics" passHref>
                     <QuickActionButton>
                       <BarChart3 size={16} />
@@ -497,6 +515,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
                     <Settings size={16} />
                     Dashboard Settings
                   </QuickActionButton>
+
                 </QuickActionGrid>
               </DashboardCard>
               <DashboardCard

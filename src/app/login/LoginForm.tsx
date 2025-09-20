@@ -19,6 +19,7 @@ import {
 } from "./elements";
 import { styled } from "@mui/material/styles";
 import { LoginProps } from "./interface";
+import { createSession } from "./sessionUtils";
 
 const ErrorMessage = styled("div")(({ theme }) => ({
   color: theme.palette.error.main,
@@ -41,12 +42,11 @@ export function LoginForm({ onForgotPassword, isLoading }: LoginProps) {
     const hardcodedEmail = "admin@kmaris.com";
     const hardcodedPassword = "admin123";
     const user = { email: hardcodedEmail, role: "admin" };
-    const sessionId = "mock-session-12345";
 
     try {
       if (email === hardcodedEmail && password === hardcodedPassword) {
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("sessionId", sessionId);
+        // Create a session with 1-hour expiration
+        createSession(user, 60 * 60 * 1000); // 1 hour in milliseconds
 
         await Swal.fire({
           icon: "success",
@@ -65,7 +65,7 @@ export function LoginForm({ onForgotPassword, isLoading }: LoginProps) {
         });
       }
     } catch (error) {
-      console.error("Login error:", error); // Fixed: Changed 'err' to 'error'
+      console.error("Login error:", error);
       setLoginError("Something went wrong! Please try again later.");
       await Swal.fire({
         icon: "error",
@@ -74,6 +74,7 @@ export function LoginForm({ onForgotPassword, isLoading }: LoginProps) {
       });
     }
   };
+
   return (
     <FormRoot>
       <Title>News Manager Login</Title>
