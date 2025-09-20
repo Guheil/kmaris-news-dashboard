@@ -385,6 +385,10 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     analyticsData.performanceMetrics.viewsTrend.thisMonth,
     analyticsData.performanceMetrics.viewsTrend.lastMonth
   );
+const COLORS = [
+  '#10b981', 
+  '#f59e0b', 
+];
 
   return (
     <AnalyticsRoot>
@@ -571,39 +575,36 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
             </ResponsiveContainer>
           </ChartCard>
 
-          <ChartCard>
-            <ChartTitle>Status Distribution</ChartTitle>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={analyticsData.statusDistribution}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  dataKey="value"
-                  label={({
-                    name,
-                    percent,
-                  }: {
-                    name?: string;
-                    percent?: number;
-                  }) => {
-                    if (name && percent !== undefined) {
-                      return `${name} ${(percent * 100).toFixed(0)}%`;
-                    }
-                    return "";
-                  }}
-                >
-                  {analyticsData.statusDistribution.map(
-                    (entry, index: number) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    )
-                  )}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartCard>
+<ChartCard>
+  <ChartTitle>Status Distribution</ChartTitle>
+  <ResponsiveContainer width="100%" height={300}>
+    <PieChart>
+      <Pie
+        data={analyticsData.statusDistribution.map((item, index) => ({
+          ...item,
+          fill: [palette.success.main, palette.error.main][index]
+        }))}
+        cx="50%"
+        cy="50%"
+        outerRadius={100}
+        dataKey="value"
+        label={({
+          name,
+          percent,
+        }: {
+          name?: string;
+          percent?: number;
+        }) => {
+          if (name && percent !== undefined) {
+            return `${name} ${(percent * 100).toFixed(0)}%`;
+          }
+          return "";
+        }}
+      />
+      <Tooltip />
+    </PieChart>
+  </ResponsiveContainer>
+</ChartCard>
         </ChartsGrid>
 
         {/* Views Over Time */}
