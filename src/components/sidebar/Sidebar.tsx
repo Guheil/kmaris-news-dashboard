@@ -132,7 +132,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <SidebarHeader>
           <SidebarHeaderContent>
             <Logo isOpen={isOpen}>
-            <div style={{ position: "relative", width: "160px", height: "50px" }}>
+            <div style={{ position: "relative", width: "190px", height: "50px" }}>
             <Image
               src={logoSrc}
               alt="Logo"
