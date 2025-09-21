@@ -132,9 +132,17 @@ export const Sidebar: FC<SidebarProps> = ({
         <SidebarHeader>
           <SidebarHeaderContent>
             <Logo isOpen={isOpen}>
-              <Image src={logoSrc} alt="Logo" width={170} height={60} />
-              {isOpen && appName && <span>{appName}</span>}
-            </Logo>
+            <div style={{ position: "relative", width: "160px", height: "50px" }}>
+            <Image
+              src={logoSrc}
+              alt="Logo"
+              fill
+              style={{ objectFit: "cover" }}
+            />
+          </div>
+          {isOpen && appName && <span>{appName}</span>}
+        </Logo>
+
             
             {collapsible && (
               <CollapseButton onClick={onToggle} aria-label="Toggle sidebar">
