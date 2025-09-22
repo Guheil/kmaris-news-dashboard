@@ -411,7 +411,7 @@ export default function News() {
   const featuredArticle = publishedArticles[0];
   const mainArticles = publishedArticles.filter(article => !article.videoUrl && !article.newsVideo);
   const listArticles = mainArticles.slice(0, 3);
-  const gridArticles = mainArticles.slice(6);
+  const gridArticles = mainArticles.slice(3, 5);
   const latestArticles = publishedArticles.slice(0, 6);
   const videoNews = publishedArticles.filter(article => article.videoUrl || article.newsVideo);
 

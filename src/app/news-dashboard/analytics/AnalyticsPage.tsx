@@ -254,9 +254,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
               ],
             },
           ]}
-          userName="John Doe"
+          userName="Kmaris Admin"
           userRole="Editor"
-          userInitials="JD"
+          userInitials="KA"
           collapsible={!isMobile}
           navItems={[]}
         />
@@ -264,9 +264,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           title="Analytics"
           onMenuToggle={onSidebarToggle}
           onSearch={() => {}}
-          userName="John Doe"
+          userName="Kmaris Admin"
           userRole="Editor"
-          userInitials="JD"
+          userInitials="KA"
           notifications={3}
           isSidebarOpen={sidebarOpen}
           isMobile={isMobile}
@@ -336,9 +336,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
               ],
             },
           ]}
-          userName="John Doe"
+          userName="Kmaris Admin"
           userRole="Editor"
-          userInitials="JD"
+          userInitials="KA"
           collapsible={!isMobile}
           navItems={[]}
         />
@@ -346,9 +346,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           title="Analytics"
           onMenuToggle={onSidebarToggle}
           onSearch={() => {}}
-          userName="John Doe"
+          userName="Kmaris Admin"
           userRole="Editor"
-          userInitials="JD"
+          userInitials="KA"
           notifications={3}
           isSidebarOpen={sidebarOpen}
           isMobile={isMobile}
@@ -385,10 +385,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     analyticsData.performanceMetrics.viewsTrend.thisMonth,
     analyticsData.performanceMetrics.viewsTrend.lastMonth
   );
-const COLORS = [
-  '#10b981', 
-  '#f59e0b', 
-];
 
   return (
     <AnalyticsRoot>
@@ -443,9 +439,9 @@ const COLORS = [
             ],
           },
         ]}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
-        userInitials="JD"
+        userInitials="KA"
         collapsible={!isMobile}
         navItems={[]}
       />
@@ -453,9 +449,9 @@ const COLORS = [
         title="Analytics"
         onMenuToggle={onSidebarToggle}
         onSearch={() => {}}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
-        userInitials="JD"
+        userInitials="KA"
         notifications={3}
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}

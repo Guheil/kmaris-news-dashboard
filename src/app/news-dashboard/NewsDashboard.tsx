@@ -334,7 +334,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
           },
          
         ]}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
         userInitials="JD"
         collapsible={!isMobile}
@@ -345,7 +345,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
         onMenuToggle={onSidebarToggle}
         onSearch={handleSearch}
         searchValue={searchQuery}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
         userInitials="JD"
         notifications={3}

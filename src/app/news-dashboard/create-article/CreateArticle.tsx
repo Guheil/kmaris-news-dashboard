@@ -362,18 +362,18 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
             ],
           },
         ]}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
-        userInitials="JD"
+        userInitials="KA"
         collapsible={!isMobile}
         navItems={[]}
       />
       <Header
         title="Create Article"
         onMenuToggle={onSidebarToggle}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
-        userInitials="JD"
+        userInitials="KA"
         notifications={3}
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}

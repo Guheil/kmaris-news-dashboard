@@ -677,7 +677,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
             ],
           },
         ]}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
         userInitials="JD"
         collapsible={!isMobile}
@@ -688,7 +688,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         title="All Articles"
         onMenuToggle={onSidebarToggle}
         onSearch={handleSearch}
-        userName="John Doe"
+        userName="Kmaris Admin"
         userRole="Editor"
         userInitials="JD"
         notifications={3}
