@@ -339,7 +339,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               {
                 icon: <Plus size={20} />,
                 text: "Create Article",
-                href: "/create-article",
+                href: "/news-dashboard/create-article",
                 active: true,
               },
               {
