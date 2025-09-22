@@ -1,11 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    console.log("Increment views API hit"); // Debug log
+
     const client = await clientPromise;
     if (!client) {
       return NextResponse.json(
@@ -15,7 +17,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     const db = client.db("kmaris");
-    const { id } = params;
+    const { id } = await context.params; // Await the Promise to get { id: string }
 
     if (!id || !ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -23,6 +25,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
         { status: 400 }
       );
     }
+
+    console.log("Incrementing views for ID:", id); // Debug log
 
     // Increment views by 1
     const result = await db
@@ -48,6 +52,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       status: result.value.status || 'published'
     };
 
+    console.log("Views incremented, new count:", updatedArticle.views); // Debug log
     return NextResponse.json(updatedArticle, { status: 200 });
   } catch (error) {
     console.error("API /api/articles/[id]/increment-views POST error:", error);
