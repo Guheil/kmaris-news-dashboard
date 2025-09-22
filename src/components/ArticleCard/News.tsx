@@ -7,6 +7,7 @@ import { Article, ApiArticle, Category } from "./interface"; // Import Category
 import { ArticleCard } from "./ArticleCard";
 import { FloatingDashboardButton } from './FloatingDashboardButton';
 import NewsLoadingScreen from "./NewsLoadingScreen";
+import { incrementArticleViews } from "./trackViews"; 
 import {
   NewsSection,
   Container,
@@ -98,7 +99,7 @@ const getVideoEmbedDetails = (url: string) => {
   return { type: "iframe" as const, src: normalizedUrl };
 };
 
-// LatestArticlesSection component (unchanged, but now uses resolved category names)
+// LatestArticlesSection component
 const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
   articles,
 }) => (
@@ -110,7 +111,11 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
         const hasMedia = mediaDetails.type !== "placeholder";
 
         return (
-          <LatestArticleCardLink key={article.id || article._id} href={`/News/${article.id || article._id}`}>
+          <LatestArticleCardLink
+            key={article.id || article._id}
+            href={`/news-preview/${article.id || article._id}`}
+            onClick={() => incrementArticleViews(article.id || article._id, article)} // Add onClick
+          >
             <LatestImageWrapper>
               {hasMedia ? (
                 mediaDetails.isEmbed && mediaDetails.type === "iframe" ? (
@@ -202,7 +207,7 @@ const LatestArticlesSection: React.FC<{ articles: Article[] }> = ({
   </div>
 );
 
-// VideoNewsSection component (similarly unchanged)
+// VideoNewsSection component
 const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
   <div>
     <SectionTitle>News in Video</SectionTitle>
@@ -212,7 +217,11 @@ const VideoNewsSection: React.FC<{ videos: Article[] }> = ({ videos }) => (
         const hasMedia = mediaDetails.type !== "placeholder";
 
         return (
-          <LatestArticleCardLink key={video.id || video._id} href={`/News/${video.id || video._id}`}>
+          <LatestArticleCardLink
+            key={video.id || video._id}
+            href={`/news-preview/${video.id || video._id}`}
+            onClick={() => incrementArticleViews(video.id || video._id, video)} // Add onClick
+          >
             <LatestImageWrapper>
               {hasMedia ? (
                 mediaDetails.isEmbed && mediaDetails.type === "iframe" ? (
