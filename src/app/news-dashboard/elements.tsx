@@ -57,6 +57,7 @@ export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: bool
   })
 );
 
+// Updated: More responsive dashboard grid
 export const DashboardGrid = styled("div")(({ theme }) => ({
   display: "grid",
   gap: "20px",
@@ -67,7 +68,7 @@ export const DashboardGrid = styled("div")(({ theme }) => ({
   },
   
   [theme.breakpoints.down('md')]: {
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "1fr",
     gap: "16px",
   },
 }));
@@ -83,6 +84,10 @@ export const Card = styled("div")(({ theme }) => ({
   "&:hover": {
     boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
     transform: "translateY(-2px)",
+  },
+  
+  [theme.breakpoints.down('md')]: {
+    padding: "20px",
   },
 }));
 
@@ -132,6 +137,10 @@ export const StatsGrid = styled('div')(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     gridTemplateColumns: 'repeat(2, 1fr)',
   },
+  
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: '1fr',
+  },
 }));
 
 export const StatCard = styled('div')(({ theme }) => ({
@@ -169,9 +178,37 @@ export const StatIcon = styled('div')<{ color: string }>(({ color }) => ({
   marginBottom: '8px',
 }));
 
-export const NewsTable = styled('div')({
+// Updated: Responsive news table with horizontal scroll
+export const NewsTable = styled('div')(({ theme }) => ({
   width: '100%',
-});
+  overflowX: 'auto',
+  
+  // Custom scrollbar styling
+  '&::-webkit-scrollbar': {
+    height: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: '#f8fafc',
+    borderRadius: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#cbd5e1',
+    borderRadius: '4px',
+    '&:hover': {
+      backgroundColor: '#94a3b8',
+    },
+  },
+}));
+
+// Updated: News table content with minimum width
+export const NewsTableContent = styled('div')(({ theme }) => ({
+  minWidth: '800px', // Ensures table doesn't collapse below this width
+  width: '100%',
+  
+  [theme.breakpoints.down('sm')]: {
+    minWidth: '600px', // Smaller minimum on mobile
+  },
+}));
 
 export const NewsTableHeader = styled('div')({
   display: 'grid',
@@ -204,6 +241,7 @@ export const NewsTitle = styled('div')({
   display: 'flex',
   alignItems: 'center',
   gap: '12px',
+  minWidth: 0, // Allows text to truncate
 });
 
 // Updated: Consistent media preview container
@@ -267,16 +305,21 @@ export const NewsTitleText = styled('div')({
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   marginBottom: '4px',
+  minWidth: 0, // Allows proper truncation
 });
 
 export const NewsAuthor = styled('div')({
   fontSize: '14px',
   color: '#64748b',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
 export const NewsDate = styled('div')({
   fontSize: '14px',
   color: '#64748b',
+  whiteSpace: 'nowrap',
 });
 
 export const NewsViews = styled('div')({
@@ -285,6 +328,7 @@ export const NewsViews = styled('div')({
   display: 'flex',
   alignItems: 'center',
   gap: '4px',
+  whiteSpace: 'nowrap',
 });
 
 // Updated: CategoryBadge now uses dynamic getCategoryColor
@@ -299,12 +343,18 @@ export const CategoryBadge = styled('span')<{ category: string }>(({ category })
     letterSpacing: '0.5px',
     backgroundColor: colors.bg,
     color: colors.text,
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    maxWidth: '120px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   };
 });
 
 export const ActionButtons = styled('div')({
   display: 'flex',
   gap: '4px',
+  flexShrink: 0,
 });
 
 export const ActionButton = styled('button')<{ variant?: 'view' | 'edit' | 'delete' }>(({ variant = 'view' }) => ({
@@ -317,6 +367,7 @@ export const ActionButton = styled('button')<{ variant?: 'view' | 'edit' | 'dele
   alignItems: 'center',
   justifyContent: 'center',
   transition: 'all 0.2s ease',
+  flexShrink: 0,
   ...(variant === 'view' && {
     backgroundColor: '#f1f5f9',
     color: '#64748b',
@@ -389,10 +440,12 @@ export const ActivityIcon = styled('div')<{ color: string }>(({ color }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   color: color,
+  flexShrink: 0,
 }));
 
 export const ActivityContent = styled('div')({
   flex: 1,
+  minWidth: 0, // Allows text to truncate
 });
 
 export const ActivityText = styled('div')({
@@ -400,6 +453,9 @@ export const ActivityText = styled('div')({
   color: '#0f172a',
   fontWeight: 500,
   marginBottom: '2px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
 export const ActivityTime = styled('div')({
@@ -415,6 +471,8 @@ export const SearchResultsHeader = styled('div')({
   marginBottom: '16px',
   padding: '12px 0',
   borderBottom: '1px solid #f1f5f9',
+  flexWrap: 'wrap',
+  gap: '8px',
 });
 
 export const SearchResultsCount = styled('div')({
@@ -438,6 +496,7 @@ export const ClearSearchButton = styled('button')({
   cursor: 'pointer',
   fontWeight: 500,
   transition: 'all 0.2s ease',
+  whiteSpace: 'nowrap',
 
   '&:hover': {
     backgroundColor: '#f8fafc',

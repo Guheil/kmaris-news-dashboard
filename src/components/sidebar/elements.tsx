@@ -8,28 +8,27 @@ export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }
   width: isOpen ? "280px" : "80px",
   height: "100vh",
   backgroundColor: palette.common.white,
-  borderRight: `1px solid ${palette.grey[200]}`, // Light gray border
+  borderRight: `1px solid ${palette.grey[200]}`,
   display: "flex",
   flexDirection: "column",
   transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   position: "fixed",
   left: 0,
   top: 0,
-  zIndex: 1000,
-  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Softer shadow for white background
+  zIndex: 1200,
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
 
-  [theme.breakpoints.down('md')]: {
-    width: isOpen ? "280px" : "0px",
-    transform: isOpen ? "translateX(0)" : "translateX(-100%)",
-    zIndex: 1300,
-    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  [theme.breakpoints.down("md")]: {
+    width: isOpen ? "280px" : "0",
+    transform: isOpen ? "translateX(0)" : "translateX(-280px)",
+    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    overflow: "hidden",
   },
 }));
 
 export const MobileOverlay = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }) => ({
   display: "none",
-  
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     display: isOpen ? "block" : "none",
     position: "fixed",
     top: 0,
@@ -37,7 +36,7 @@ export const MobileOverlay = styled("div")<{ isOpen: boolean }>(({ theme, isOpen
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1299,
+    zIndex: 1199,
     opacity: isOpen ? 1 : 0,
     transition: "opacity 0.3s ease",
   },
@@ -45,52 +44,51 @@ export const MobileOverlay = styled("div")<{ isOpen: boolean }>(({ theme, isOpen
 
 export const MobileBurgerButton = styled("button")(({ theme }) => ({
   display: "none",
-  
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     display: "flex",
     position: "fixed",
-    top: "20px",
-    left: "20px",
-    zIndex: 1301,
-    width: "44px",
-    height: "44px",
-    borderRadius: "12px",
+    top: "16px",
+    left: "16px",
+    zIndex: 1300,
+    width: "48px",
+    height: "48px",
+    borderRadius: "10px",
     backgroundColor: palette.common.white,
-    border: `1px solid ${palette.grey[200]}`, // Light border for contrast
+    border: `1px solid ${palette.grey[200]}`,
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
     transition: "all 0.2s ease",
-    color: palette.navy.main, // Dark text for visibility
-    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
-
+    color: palette.navy.main,
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
     "&:hover": {
-      backgroundColor: palette.grey[100], // Light gray hover
+      backgroundColor: palette.grey[100],
       transform: "scale(1.05)",
+    },
+    "&:focus": {
+      outline: `2px solid ${palette.primary.main}`,
+      outlineOffset: "2px",
     },
   },
 }));
 
 export const SidebarHeader = styled("div")(({ theme }) => ({
-  padding: "24px 20px",
+  padding: "20px",
   borderBottom: `1px solid ${palette.grey[200]}`,
   display: "flex",
   alignItems: "center",
-  justifyContent: "space-between",
   backgroundColor: palette.common.white,
-  minHeight: "80px",
-  position: "relative",
-
-  [theme.breakpoints.down('md')]: {
-    padding: "20px 16px",
-    minHeight: "70px",
+  minHeight: "72px",
+  [theme.breakpoints.down("md")]: {
+    padding: "16px",
+    minHeight: "64px",
   },
 }));
 
 export const SidebarHeaderContent = styled("div")({
   display: "flex",
   alignItems: "center",
-  justifyContent: "space-between",
+  gap: "12px", 
   width: "100%",
 });
 
@@ -98,42 +96,44 @@ export const Logo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
   display: "flex",
   alignItems: "center",
   gap: "12px",
-  fontSize: "22px",
+  fontSize: "20px",
   fontWeight: 800,
-  color: palette.navy.main, 
+  color: palette.navy.main,
   letterSpacing: "-0.5px",
   opacity: isOpen ? 1 : 0,
-  transform: isOpen ? "scale(1)" : "scale(0.8)",
+  transform: isOpen ? "translateX(0)" : "translateX(-20px)",
   transition: "all 0.3s ease",
-  transformOrigin: "left center",
   overflow: "hidden",
-  
   "& img": {
+    width: "160px",
+    height: "80px",
+    objectFit: "contain",
     transition: "all 0.3s ease",
     opacity: isOpen ? 1 : 0,
-    transform: isOpen ? "scale(1)" : "scale(0)",
   },
 }));
 
 export const CollapseButton = styled("button")(({ theme }) => ({
-  width: "32px",
-  height: "32px",
+  width: "36px",
+  height: "36px",
   borderRadius: "8px",
-  backgroundColor: palette.grey[100], // Light gray background
+  backgroundColor: palette.grey[100],
   border: "none",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
   transition: "all 0.2s ease",
-  color: palette.navy.main, // Dark icon for contrast
-
+  color: palette.navy.main,
   "&:hover": {
     backgroundColor: palette.grey[200],
     transform: "scale(1.05)",
   },
-
-  [theme.breakpoints.down('md')]: {
+  "&:focus": {
+    outline: `2px solid ${palette.primary.main}`,
+    outlineOffset: "2px",
+  },
+  [theme.breakpoints.down("md")]: {
     display: "none",
   },
 }));
@@ -144,24 +144,25 @@ export const NavigationList = styled("nav")({
   padding: "16px 12px",
   display: "flex",
   flexDirection: "column",
-  gap: "4px",
+  gap: "8px",
 });
 
 export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
   display: "flex",
   alignItems: "center",
-  padding: "14px 16px",
-  gap: "14px",
+  padding: "12px 16px",
+  gap: "12px",
   textDecoration: "none",
-  color: active ? palette.primary.main : palette.navy.main, // Dark text for white background
-  backgroundColor: active ? palette.grey[100] : "transparent", // Light gray for active
-  borderRadius: "12px",
+  color: active ? palette.primary.main : palette.navy.main,
+  backgroundColor: active ? palette.grey[100] : "transparent",
+  borderRadius: "10px",
   transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
   cursor: "pointer",
-  position: "relative",
   fontWeight: active ? 700 : 600,
-  margin: "2px 0",
-
+  "&:hover": {
+    backgroundColor: active ? palette.grey[100] : palette.grey[50],
+    transform: "translateX(2px)",
+  },
   "&::before": {
     content: '""',
     position: "absolute",
@@ -169,25 +170,17 @@ export const NavItem = styled("div")<NavItemProps>(({ theme, active }) => ({
     top: "50%",
     transform: "translateY(-50%)",
     width: active ? "4px" : "0",
-    height: "24px",
+    height: "20px",
     backgroundColor: palette.primary.main,
     borderRadius: "0 4px 4px 0",
     transition: "width 0.2s ease",
   },
-
-  "&:hover": {
-    backgroundColor: active ? palette.grey[100] : palette.grey[50], // Subtle hover effect
-    color: active ? palette.primary.main : palette.navy.main,
-    transform: "translateX(2px)",
-    
-    "&::before": {
-      width: "4px",
-    },
+  "&:hover::before": {
+    width: "4px",
   },
-
-  [theme.breakpoints.down('md')]: {
-    padding: "16px 16px",
-    gap: "16px",
+  [theme.breakpoints.down("md")]: {
+    padding: "12px 16px",
+    gap: "12px",
   },
 }));
 
@@ -195,12 +188,10 @@ export const NavIcon = styled("div")(({ active }: { active?: boolean }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "22px",
-  height: "22px",
-  opacity: 1,
-  transition: "opacity 0.2s ease",
+  width: "24px",
+  height: "24px",
   color: "inherit",
-  minWidth: "22px",
+  minWidth: "24px",
 }));
 
 export const NavText = styled("span")<{ isOpen?: boolean }>(({ isOpen = true }) => ({
@@ -216,33 +207,38 @@ export const NavText = styled("span")<{ isOpen?: boolean }>(({ isOpen = true }) 
 }));
 
 export const SidebarFooter = styled("div")(({ theme }) => ({
-  padding: "20px",
-  borderTop: `1px solid ${palette.grey[200]}`, // Light gray border
+  padding: "16px",
+  borderTop: `1px solid ${palette.grey[200]}`,
   backgroundColor: palette.common.white,
-
-  [theme.breakpoints.down('md')]: {
-    padding: "16px",
+  [theme.breakpoints.down("md")]: {
+    padding: "12px",
   },
 }));
 
-export const UserProfile = styled("div")({
+export const UserProfile = styled("div")<{ isOpen?: boolean }>(({ isOpen = true, theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: "12px",
-  padding: "12px",
-  borderRadius: "12px",
+  justifyContent: isOpen ? "flex-start" : "center",
+  gap: isOpen ? "12px" : "0",
+  padding: isOpen ? "12px" : "12px 0",
+  borderRadius: "10px",
   transition: "all 0.2s ease",
   cursor: "pointer",
-
+  width: "100%",
   "&:hover": {
-    backgroundColor: palette.grey[50], // Subtle hover effect
+    backgroundColor: palette.grey[50],
   },
-});
+  [theme.breakpoints.down("md")]: {
+    justifyContent: "flex-start",
+    gap: "12px",
+    padding: "12px",
+  },
+}));
 
-export const UserAvatar = styled("div")({
+export const UserAvatar = styled("div")(({ theme }) => ({
   width: "40px",
   height: "40px",
-  borderRadius: "12px",
+  borderRadius: "10px",
   background: `linear-gradient(135deg, ${palette.primary.main}, ${palette.primary.light})`,
   display: "flex",
   alignItems: "center",
@@ -252,9 +248,12 @@ export const UserAvatar = styled("div")({
   fontWeight: 700,
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
   minWidth: "40px",
-});
+  [theme.breakpoints.down("md")]: {
+    display: "flex",
+  },
+}));
 
-export const UserInfo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
+export const UserInfo = styled("div")<{ isOpen: boolean }>(({ isOpen, theme }) => ({
   display: "flex",
   flexDirection: "column",
   flex: 1,
@@ -262,30 +261,34 @@ export const UserInfo = styled("div")<{ isOpen: boolean }>(({ isOpen }) => ({
   width: isOpen ? "auto" : 0,
   overflow: "hidden",
   transition: "all 0.3s ease",
+  [theme.breakpoints.down("md")]: {
+    opacity: 1,
+    width: "auto",
+  },
 }));
 
 export const UserName = styled("span")({
   fontSize: "15px",
   fontWeight: 700,
-  color: palette.navy.main, // Dark text for white background
+  color: palette.navy.main,
   lineHeight: 1.4,
 });
 
 export const UserRole = styled("span")({
   fontSize: "13px",
-  color: palette.grey[600], // Medium gray for secondary text
+  color: palette.grey[600],
   fontWeight: 600,
   lineHeight: 1.3,
 });
 
 export const NavSection = styled("div")({
-  marginBottom: "24px",
+  marginBottom: "20px",
 });
 
 export const NavSectionTitle = styled("div")<{ isOpen?: boolean }>(({ isOpen = true }) => ({
-  fontSize: "11px",
+  fontSize: "12px",
   fontWeight: 700,
-  color: palette.grey[500], 
+  color: palette.grey[500],
   textTransform: "uppercase",
   letterSpacing: "1px",
   padding: "0 16px 8px 16px",

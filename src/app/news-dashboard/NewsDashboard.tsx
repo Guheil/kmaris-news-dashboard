@@ -43,6 +43,7 @@ import {
   StatNumber,
   StatLabel,
   NewsTable,
+  NewsTableContent,
   NewsTableHeader,
   NewsTableRow,
   NewsTitle,
@@ -75,6 +76,8 @@ import {
 import { palette } from "@/theme/pallete";
 import Link from "next/link";
 import { getSession, clearSession } from "@/app/login/sessionUtils";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // MediaPreview component
 const MediaPreview: FC<{ article: NewsArticle }> = ({ article }) => {
@@ -114,6 +117,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
   isMobile = false,
 }) => {
   const router = useRouter();
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down('md'));
   const [searchQuery, setSearchQuery] = useState("");
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -414,84 +419,92 @@ export const NewsDashboard: FC<DashboardProps> = ({
               </StatCard>
             </StatsGrid>
             <DashboardGrid>
+              {/* Recent Articles Card - Full width on mobile, span 8 on desktop */}
               <DashboardCard
                 title={searchQuery ? "Search Results" : "Recent Articles"}
-                gridColumn="span 8"
+                gridColumn={isMobileView ? "1fr" : "span 8"}
               >
                 <NewsTable>
-                  {searchQuery && (
-                    <SearchResultsHeader>
-                      <SearchResultsCount>
-                        {totalArticles} result{totalArticles !== 1 ? "s" : ""}{" "}
-                        for <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
-                      </SearchResultsCount>
-                      <ClearSearchButton onClick={clearSearch}>
-                        Clear Search
-                      </ClearSearchButton>
-                    </SearchResultsHeader>
-                  )}
-                  {totalArticles > 0 ? (
-                    <>
-                      <NewsTableHeader>
-                        <div>Article</div>
-                        <div>Author</div>
-                        <div>Date</div>
-                        <div>Views</div>
-                        <div>Actions</div>
-                      </NewsTableHeader>
-                      {displayedNews.map((article) => (
-                        <NewsTableRow key={article._id}>
-                          <NewsTitle>
-                            <MediaPreview article={article} />
-                            <div>
-                              <NewsTitleText>{article.title}</NewsTitleText>
-                              <CategoryBadge category={getCategoryName(article.category)}>
-                                {getCategoryName(article.category)}
-                              </CategoryBadge>
-                            </div>
-                          </NewsTitle>
-                          <NewsAuthor>{article.author}</NewsAuthor>
-                          <NewsDate>
-                            {new Date(article.date).toLocaleDateString()}
-                          </NewsDate>
-                          <NewsViews>
-                            <Eye size={14} />
-                            {(article.views || 0).toLocaleString()}
-                          </NewsViews>
-                          <ActionButtons>
-                            <ActionButton variant="view" title="View Article">
+                  <NewsTableContent>
+                    {searchQuery && (
+                      <SearchResultsHeader>
+                        <SearchResultsCount>
+                          {totalArticles} result{totalArticles !== 1 ? "s" : ""}{" "}
+                          for <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
+                        </SearchResultsCount>
+                        <ClearSearchButton onClick={clearSearch}>
+                          Clear Search
+                        </ClearSearchButton>
+                      </SearchResultsHeader>
+                    )}
+                    {totalArticles > 0 ? (
+                      <>
+                        <NewsTableHeader>
+                          <div>Article</div>
+                          <div>Author</div>
+                          <div>Date</div>
+                          <div>Views</div>
+                          <div>Actions</div>
+                        </NewsTableHeader>
+                        {displayedNews.map((article) => (
+                          <NewsTableRow key={article._id}>
+                            <NewsTitle>
+                              <MediaPreview article={article} />
+                              <div>
+                                <NewsTitleText>{article.title}</NewsTitleText>
+                                <CategoryBadge category={getCategoryName(article.category)}>
+                                  {getCategoryName(article.category)}
+                                </CategoryBadge>
+                              </div>
+                            </NewsTitle>
+                            <NewsAuthor>{article.author}</NewsAuthor>
+                            <NewsDate>
+                              {new Date(article.date).toLocaleDateString()}
+                            </NewsDate>
+                            <NewsViews>
                               <Eye size={14} />
-                            </ActionButton>
-                            <ActionButton variant="edit" title="Edit Article">
-                              <Edit size={14} />
-                            </ActionButton>
-                            <ActionButton
-                              variant="delete"
-                              title="Delete Article"
-                            >
-                              <Trash2 size={14} />
-                            </ActionButton>
-                          </ActionButtons>
-                        </NewsTableRow>
-                      ))}
-                    </>
-                  ) : (
-                    <NoResults>
-                      <NoResultsIcon>
-                        <Search size={28} />
-                      </NoResultsIcon>
-                      <NoResultsTitle>No articles found</NoResultsTitle>
-                      <NoResultsText>
-                        We couldn&apos;t find any articles matching &quot;
-                        {searchQuery}&quot;.
-                        <br />
-                        Try adjusting your search terms or browse all articles.
-                      </NoResultsText>
-                    </NoResults>
-                  )}
+                              {(article.views || 0).toLocaleString()}
+                            </NewsViews>
+                            <ActionButtons>
+                              <ActionButton variant="view" title="View Article">
+                                <Eye size={14} />
+                              </ActionButton>
+                              <ActionButton variant="edit" title="Edit Article">
+                                <Edit size={14} />
+                              </ActionButton>
+                              <ActionButton
+                                variant="delete"
+                                title="Delete Article"
+                              >
+                                <Trash2 size={14} />
+                              </ActionButton>
+                            </ActionButtons>
+                          </NewsTableRow>
+                        ))}
+                      </>
+                    ) : (
+                      <NoResults>
+                        <NoResultsIcon>
+                          <Search size={28} />
+                        </NoResultsIcon>
+                        <NoResultsTitle>No articles found</NoResultsTitle>
+                        <NoResultsText>
+                          We couldn&apos;t find any articles matching &quot;
+                          {searchQuery}&quot;.
+                          <br />
+                          Try adjusting your search terms or browse all articles.
+                        </NoResultsText>
+                      </NoResults>
+                    )}
+                  </NewsTableContent>
                 </NewsTable>
               </DashboardCard>
-              <DashboardCard title="Quick Actions" gridColumn="span 4">
+
+              {/* Quick Actions Card - Full width on mobile, span 4 on desktop */}
+              <DashboardCard 
+                title="Quick Actions" 
+                gridColumn={isMobileView ? "1fr" : "span 4"}
+              >
                 <QuickActionGrid>
                   <Link href="/news-dashboard/create-article" passHref>
                     <QuickActionButton>
@@ -515,12 +528,13 @@ export const NewsDashboard: FC<DashboardProps> = ({
                     <Settings size={16} />
                     Dashboard Settings
                   </QuickActionButton>
-
                 </QuickActionGrid>
               </DashboardCard>
+
+              {/* Recent Activity Card - Always full width */}
               <DashboardCard
                 title={searchQuery ? "Recent Activity (All)" : "Recent Activity"}
-                gridColumn="span 12"
+                gridColumn={isMobileView ? "1fr" : "span 12"}
               >
                 <div>
                   {sortedArticlesForActivity.length > 0 ? (
