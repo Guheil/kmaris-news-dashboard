@@ -188,17 +188,6 @@ export const SettingsDashboard: FC<SettingsDashboardProps> = ({
               },
             ],
           },
-          {
-            title: "System",
-            items: [
-              {
-                icon: <Settings size={20} />,
-                text: "Settings",
-                href: "/news-dashboard/settings",
-                active: true,
-              },
-            ],
-          },
         ]}
         userName="Kmaris Admin"
         userRole="Administrator"
