@@ -476,18 +476,22 @@ export const NewsDashboard: FC<DashboardProps> = ({
                               {(article.views || 0).toLocaleString()}
                             </NewsViews>
                             <ActionButtons>
-                              <ActionButton variant="view" title="View Article">
-                                <Eye size={14} />
-                              </ActionButton>
-                              <ActionButton variant="edit" title="Edit Article">
-                                <Edit size={14} />
-                              </ActionButton>
-                              <ActionButton
-                                variant="delete"
-                                title="Delete Article"
-                              >
-                                <Trash2 size={14} />
-                              </ActionButton>
+                              <Link href={`/news-dashboard/articles/view/${article._id}`}>
+                                <ActionButton
+                                  variant="view"
+                                  title="View Article"
+                                >
+                                  <Eye size={14} />
+                                </ActionButton>
+                              </Link>
+                              <Link href={`/news-dashboard/articles/edit/${article._id}`}>
+                                <ActionButton
+                                  variant="edit"
+                                  title="Edit Article"
+                                >
+                                  <Edit size={14} />
+                                </ActionButton>
+                              </Link>
                             </ActionButtons>
                           </NewsTableRow>
                         ))}
