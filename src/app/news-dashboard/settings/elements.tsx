@@ -1,6 +1,6 @@
 "use client";
 
-import { styled, } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 export const DashboardRoot = styled("div")(({ theme }) => ({
   
