@@ -1,6 +1,7 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
+import type { Palette, Theme } from "@mui/material/styles";
 
 const getMetricIconColor = (variant: string = "default") => {
   const colors = [
@@ -145,18 +146,18 @@ export const MetricIcon = styled("div")<{ variant?: string }>(
   ({ theme, variant = "default" }) => {
     const colors = getMetricIconColor(variant);
 
-    const [bgKey, bgShade] = colors.bg.split(".") as [keyof typeof theme.palette, string];
-    const [textKey, textShade] = colors.text.split(".") as [keyof typeof theme.palette, string];
+    // Split bg and text into palette key + shade
+    const [bgKey, bgShade] = colors.bg.split(".") as [keyof Palette, string];
+    const [textKey, textShade] = colors.text.split(".") as [keyof Palette, string];
 
-    const bgColor =
-      theme.palette[bgKey] && (theme.palette[bgKey] as any)[bgShade]
-        ? (theme.palette[bgKey] as any)[bgShade]
-        : colors.bg;
+    // Safe lookup helper
+    const resolveColor = (key: keyof Palette, shade: string, fallback: string): string => {
+      const paletteEntry = theme.palette[key] as Record<string, string> | undefined;
+      return paletteEntry && paletteEntry[shade] ? paletteEntry[shade] : fallback;
+    };
 
-    const textColor =
-      theme.palette[textKey] && (theme.palette[textKey] as any)[textShade]
-        ? (theme.palette[textKey] as any)[textShade]
-        : colors.text;
+    const bgColor = resolveColor(bgKey, bgShade, colors.bg);
+    const textColor = resolveColor(textKey, textShade, colors.text);
 
     return {
       width: "48px",
