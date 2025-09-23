@@ -205,7 +205,7 @@ export function ArticleCard({ article, variant, truncate = true }: ArticleCardPr
 
   if (variant === "grid") {
     return (
-      <GridCardRoot href={`/noews-preview/${article.id}`}>
+      <GridCardRoot href={`/news-preview/${article.id}`}>
         {hasVideoUrl && videoEmbedDetails ? (
           <>
             {videoEmbedDetails.type === "video" ? (

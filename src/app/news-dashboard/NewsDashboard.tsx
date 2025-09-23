@@ -118,7 +118,7 @@ export const NewsDashboard: FC<DashboardProps> = ({
 }) => {
   const router = useRouter();
   const theme = useTheme();
-  const isMobileView = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileView = useMediaQuery(theme.breakpoints.down("md"));
   const [searchQuery, setSearchQuery] = useState("");
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -187,7 +187,9 @@ export const NewsDashboard: FC<DashboardProps> = ({
         setCategories(data);
         setCategoriesError(null);
       } catch (err) {
-        setCategoriesError(err instanceof Error ? err.message : "Failed to load categories");
+        setCategoriesError(
+          err instanceof Error ? err.message : "Failed to load categories"
+        );
       } finally {
         setCategoriesLoading(false);
       }
@@ -248,8 +250,11 @@ export const NewsDashboard: FC<DashboardProps> = ({
 
   // Stats
   const totalArticles = filteredNews.length;
-  const totalCategoriesFromDB = categoriesError || categoriesLoading ? 0 : categories.length;
-  const uniqueCategories = new Set(filteredNews.map((article) => article.category)).size;
+  const totalCategoriesFromDB =
+    categoriesError || categoriesLoading ? 0 : categories.length;
+  const uniqueCategories = new Set(
+    filteredNews.map((article) => article.category)
+  ).size;
   const totalViews = filteredNews.reduce(
     (sum, article) => sum + (article.views || 0),
     0
@@ -332,7 +337,6 @@ export const NewsDashboard: FC<DashboardProps> = ({
               },
             ],
           },
-         
         ]}
         userName="Kmaris Admin"
         userRole="Editor"
@@ -388,7 +392,9 @@ export const NewsDashboard: FC<DashboardProps> = ({
                 <StatIcon color="#8b5cf6">
                   <Tag size={20} />
                 </StatIcon>
-                <StatNumber>{searchQuery ? uniqueCategories : totalCategoriesFromDB}</StatNumber>
+                <StatNumber>
+                  {searchQuery ? uniqueCategories : totalCategoriesFromDB}
+                </StatNumber>
                 <StatLabel>
                   {searchQuery ? "Categories Found" : "Total Categories"}
                 </StatLabel>
@@ -430,7 +436,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
                       <SearchResultsHeader>
                         <SearchResultsCount>
                           {totalArticles} result{totalArticles !== 1 ? "s" : ""}{" "}
-                          for <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
+                          for{" "}
+                          <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
                         </SearchResultsCount>
                         <ClearSearchButton onClick={clearSearch}>
                           Clear Search
@@ -452,7 +459,9 @@ export const NewsDashboard: FC<DashboardProps> = ({
                               <MediaPreview article={article} />
                               <div>
                                 <NewsTitleText>{article.title}</NewsTitleText>
-                                <CategoryBadge category={getCategoryName(article.category)}>
+                                <CategoryBadge
+                                  category={getCategoryName(article.category)}
+                                >
                                   {getCategoryName(article.category)}
                                 </CategoryBadge>
                               </div>
@@ -492,7 +501,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
                           We couldn&apos;t find any articles matching &quot;
                           {searchQuery}&quot;.
                           <br />
-                          Try adjusting your search terms or browse all articles.
+                          Try adjusting your search terms or browse all
+                          articles.
                         </NoResultsText>
                       </NoResults>
                     )}
@@ -501,8 +511,8 @@ export const NewsDashboard: FC<DashboardProps> = ({
               </DashboardCard>
 
               {/* Quick Actions Card - Full width on mobile, span 4 on desktop */}
-              <DashboardCard 
-                title="Quick Actions" 
+              <DashboardCard
+                title="Quick Actions"
                 gridColumn={isMobileView ? "1fr" : "span 4"}
               >
                 <QuickActionGrid>
@@ -524,16 +534,20 @@ export const NewsDashboard: FC<DashboardProps> = ({
                       View Analytics
                     </QuickActionButton>
                   </Link>
-                  <QuickActionButton>
-                    <Settings size={16} />
-                    Dashboard Settings
-                  </QuickActionButton>
+                  <Link href="/news-dashboard/settings" passHref>
+                    <QuickActionButton>
+                      <Settings size={16} />
+                      Dashboard Settings
+                    </QuickActionButton>
+                  </Link>
                 </QuickActionGrid>
               </DashboardCard>
 
               {/* Recent Activity Card - Always full width */}
               <DashboardCard
-                title={searchQuery ? "Recent Activity (All)" : "Recent Activity"}
+                title={
+                  searchQuery ? "Recent Activity (All)" : "Recent Activity"
+                }
                 gridColumn={isMobileView ? "1fr" : "span 12"}
               >
                 <div>
