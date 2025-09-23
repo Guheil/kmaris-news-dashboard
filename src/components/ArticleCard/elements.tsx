@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { styled } from "@mui/material/styles";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 
 export const NewsSection = styled("section")(({ theme }) => ({
   width: '100%',

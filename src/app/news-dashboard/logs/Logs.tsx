@@ -47,41 +47,14 @@ import {
   SearchResultsCount,
   SearchQuery,
   ClearSearchButton,
+  PaginationContainer,
+  PaginationButton,
+  PaginationInfo,
 } from "./elements";
 import Link from "next/link";
 import { getSession } from "@/app/login/sessionUtils";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { styled } from "@mui/material/styles";
-
-// Pagination button component
-const PaginationContainer = styled("div")({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "12px",
-  marginTop: "24px",
-  flexWrap: "wrap",
-});
-
-const PaginationButton = styled("button")<{ disabled?: boolean; active?: boolean }>(
-  ({ disabled = false, active = false }) => ({
-    padding: "8px 16px",
-    borderRadius: "8px",
-    border: "1px solid #e2e8f0",
-    backgroundColor: active ? "#e2e8f0" : disabled ? "#f8fafc" : "#fff",
-    color: disabled ? "#94a3b8" : "#64748b",
-    fontSize: "14px",
-    fontWeight: active ? 600 : 500,
-    cursor: disabled ? "not-allowed" : "pointer",
-    transition: "all 0.2s ease",
-
-    "&:hover": {
-      backgroundColor: disabled ? "#f8fafc" : active ? "#e2e8f0" : "#f1f5f9",
-      borderColor: disabled ? "#e2e8f0" : "#cbd5e1",
-    },
-  })
-);
 
 // Mock data generator for logs - replace with API call
 const generateMockLogs = (): LogEntry[] => {
@@ -159,6 +132,76 @@ const getRelativeTime = (timestamp: string): string => {
     const days = Math.floor(diffInSeconds / 86400);
     return `${days} day${days > 1 ? 's' : ''} ago`;
   }
+};
+
+// Function to generate smart pagination range
+const getPaginationRange = (currentPage: number, totalPages: number) => {
+  const delta = 1; // Number of pages to show on each side of current page
+  const maxButtons = 5; // Maximum number of page buttons to show (excluding prev/next)
+  
+  let pages: (number | string)[] = [];
+  const left = Math.max(2, currentPage - delta);
+  const right = Math.min(totalPages - 1, currentPage + delta);
+
+  // Always show first page
+  pages.push(1);
+
+  // Add ellipsis if needed before the range
+  if (left > 2) {
+    pages.push("...");
+  }
+
+  // Add pages in the range, avoiding duplicates
+  for (let i = left; i <= right; i++) {
+    if (!pages.includes(i)) {
+      pages.push(i);
+    }
+  }
+
+  // Add ellipsis if needed after the range
+  if (right < totalPages - 1) {
+    pages.push("...");
+  }
+
+  // Always show last page if more than one page, avoiding duplicates
+  if (totalPages > 1 && !pages.includes(totalPages)) {
+    pages.push(totalPages);
+  }
+
+  // Trim to maxButtons if necessary
+  if (pages.length > maxButtons) {
+    if (currentPage <= Math.floor(maxButtons / 2)) {
+      // Keep beginning, trim end
+      pages = pages.slice(0, maxButtons - 1);
+      if (totalPages > maxButtons - 1 && !pages.includes(totalPages)) {
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    } else if (currentPage > totalPages - Math.floor(maxButtons / 2)) {
+      // Keep end, trim start
+      pages = pages.slice(-maxButtons + 1);
+      if (pages[0] !== 1) {
+        pages.unshift("...");
+        if (!pages.includes(1)) {
+          pages.unshift(1);
+        }
+      }
+    } else {
+      // Keep middle, trim both ends
+      const startIndex = pages.indexOf(currentPage) - Math.floor((maxButtons - 2) / 2);
+      pages = pages.slice(startIndex, startIndex + maxButtons - 2);
+      if (!pages.includes(1)) {
+        pages.unshift("...");
+        pages.unshift(1);
+      }
+      if (!pages.includes(totalPages)) {
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+  }
+
+  return pages;
 };
 
 export const Logs: FC<LogsProps> = ({
@@ -283,22 +326,6 @@ export const Logs: FC<LogsProps> = ({
     }
   };
 
-  const getActionIcon = (actionType: string) => {
-    switch (actionType.toLowerCase()) {
-      case "published":
-        return "✓";
-      case "updated":
-        return "✏️";
-      case "archived":
-        return "📦";
-      case "restored":
-        return "↩️";
-      case "permanently deleted":
-        return "🗑️";
-      default:
-        return "•";
-    }
-  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -472,19 +499,14 @@ export const Logs: FC<LogsProps> = ({
                   {paginatedLogs.length > 0 ? (
                     <>
                       <LogsTableHeader>
-                        {/* <div>Article & Action</div> */}
-                        <div>User</div>
+                        <div>Action</div>
                         <div>Date</div>
                         <div>Time</div>
-                        <div>View</div>
                       </LogsTableHeader>
 
                       {paginatedLogs.map((log) => (
                         <LogsTableRow key={log.id}>
                           <LogTitle>
-                            {/* <LogIcon actionType={log.actionType}>
-                              {getActionIcon(log.actionType)}
-                            </LogIcon> */}
                             <div>
                               <LogTitleText>{log.articleTitle}</LogTitleText>
                               <ActionBadge actionType={log.actionType}>
@@ -492,22 +514,11 @@ export const Logs: FC<LogsProps> = ({
                               </ActionBadge>
                             </div>
                           </LogTitle>
-                          <LogUser>{log.user}</LogUser>
                           <LogDate>
                             <div>{formatDate(log.timestamp)}</div>
                             <LogTime>{getRelativeTime(log.timestamp)}</LogTime>
                           </LogDate>
                           <LogTime>{formatTime(log.timestamp)}</LogTime>
-                          <div>
-                            <ViewButton 
-                              title="View Details"
-                              onClick={() => {
-                                console.log('View log details:', log);
-                              }}
-                            >
-                              <Eye size={16} />
-                            </ViewButton>
-                          </div>
                         </LogsTableRow>
                       ))}
                     </>
@@ -530,30 +541,46 @@ export const Logs: FC<LogsProps> = ({
                 </LogsTableContent>
               </LogsTable>
 
-              {/* Pagination Controls */}
+              {/* Smart Pagination Controls */}
               {totalPages > 1 && (
                 <PaginationContainer>
                   <PaginationButton
                     disabled={currentPage === 1}
                     onClick={() => handlePageChange(currentPage - 1)}
+                    variant="nav"
+                    key="prev"
                   >
                     Previous
                   </PaginationButton>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationButton
-                      key={page}
-                      active={page === currentPage}
-                      onClick={() => handlePageChange(page)}
-                    >
-                      {page}
-                    </PaginationButton>
+                  {getPaginationRange(currentPage, totalPages).map((page, index) => (
+                    typeof page === 'number' ? (
+                      <PaginationButton
+                        key={`page-${page}`}
+                        active={page === currentPage}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </PaginationButton>
+                    ) : (
+                      <PaginationButton
+                        key={`ellipsis-${index}`}
+                        variant="ellipsis"
+                      >
+                        ...
+                      </PaginationButton>
+                    )
                   ))}
                   <PaginationButton
                     disabled={currentPage === totalPages}
                     onClick={() => handlePageChange(currentPage + 1)}
+                    variant="nav"
+                    key="next"
                   >
                     Next
                   </PaginationButton>
+                  <PaginationInfo>
+                    Page {currentPage} of {totalPages}
+                  </PaginationInfo>
                 </PaginationContainer>
               )}
             </Card>

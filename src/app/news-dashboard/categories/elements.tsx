@@ -1,14 +1,13 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
-import { palette } from "@/theme/pallete";
 
-export const ManageCategoriesRoot = styled("div")({
+export const ManageCategoriesRoot = styled("div")(({ theme }) => ({
   display: "flex",
   minHeight: "100vh",
-  backgroundColor: "#F8F9FA",
+  backgroundColor: theme.palette.grey[50],
   position: "relative",
-});
+}));
 
 export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: boolean }>(
   ({ theme, sidebarOpen, isMobile }) => ({
@@ -18,22 +17,21 @@ export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: bool
     transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     minWidth: 0,
     
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down("md")]: {
       marginLeft: 0,
       padding: "74px 16px 16px",
     },
   })
 );
 
-// Overlay for mobile sidebar
 export const SidebarOverlay = styled("div")<{ show: boolean }>(
-  ({ show }) => ({
+  ({ theme, show }) => ({
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: `${theme.palette.common.black}80`,
     zIndex: 999,
     opacity: show ? 1 : 0,
     visibility: show ? "visible" : "hidden",
@@ -42,113 +40,108 @@ export const SidebarOverlay = styled("div")<{ show: boolean }>(
   })
 );
 
-// Page Container
 export const PageContainer = styled("div")(({ theme }) => ({
   maxWidth: "1200px",
   margin: "0 auto",
 
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     margin: "0 8px",
   },
 }));
 
-export const PageHeader = styled("div")({
+export const PageHeader = styled("div")(({ theme }) => ({
   marginBottom: "32px",
-});
+}));
 
-export const PageTitle = styled("h1")({
+export const PageTitle = styled("h1")(({ theme }) => ({
   fontSize: "32px",
   fontWeight: 600,
-  color: "#0f172a",
+  color: theme.palette.navy.main,
   margin: "0 0 8px 0",
-});
+}));
 
-export const PageSubtitle = styled("p")({
+export const PageSubtitle = styled("p")(({ theme }) => ({
   fontSize: "16px",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   margin: 0,
-});
+}));
 
-// Content Section
-export const ContentSection = styled("div")({
+export const ContentSection = styled("div")(({ theme }) => ({
   display: "grid",
   paddingTop: "1rem",
   gap: "32px",
-});
+}));
 
-// Create Section
-export const CreateSection = styled("div")({
-  backgroundColor: "#ffffff",
+export const CreateSection = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.common.white,
   borderRadius: "16px",
   padding: "32px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-  border: "1px solid rgba(0,0,0,0.05)",
-});
+  boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
+  border: `1px solid ${theme.palette.border.light}`,
+}));
 
-export const CreateSectionTitle = styled("h2")({
+export const CreateSectionTitle = styled("h2")(({ theme }) => ({
   fontSize: "20px",
   fontWeight: 600,
-  color: "#0f172a",
+  color: theme.palette.navy.main,
   margin: "0 0 24px 0",
-});
+}));
 
-// Form Fields
-export const FormGrid = styled("div")({
+export const FormGrid = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "1fr",
   gap: "20px",
   marginBottom: "24px",
-});
+}));
 
-export const FormField = styled("div")<{ fullWidth?: boolean }>(({ fullWidth }) => ({
+export const FormField = styled("div")<{ fullWidth?: boolean }>(({ theme, fullWidth }) => ({
   display: "flex",
   flexDirection: "column",
   gap: "8px",
   gridColumn: fullWidth ? "1 / -1" : "auto",
 }));
 
-export const Label = styled("label")({
+export const Label = styled("label")(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 500,
-  color: "#374151",
+  color: theme.palette.grey[700],
   display: "flex",
   alignItems: "center",
   gap: "4px",
-});
+}));
 
-export const RequiredIndicator = styled("span")({
-  color: "#ef4444",
+export const RequiredIndicator = styled("span")(({ theme }) => ({
+  color: theme.palette.error.main,
   fontSize: "14px",
-});
+}));
 
-export const Input = styled("input")<{ error?: boolean }>(({ error }) => ({
+export const Input = styled("input")<{ error?: boolean }>(({ theme, error }) => ({
   padding: "12px 16px",
   borderRadius: "8px",
-  border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
-  backgroundColor: "#ffffff",
+  border: `1px solid ${error ? theme.palette.error.main : theme.palette.border.main}`,
+  backgroundColor: theme.palette.common.white,
   fontSize: "14px",
-  color: "#334155",
+  color: theme.palette.navy.main,
   transition: "all 0.2s ease",
 
   "&:focus": {
     outline: "none",
-    borderColor: error ? "#ef4444" : palette.primary.main,
-    boxShadow: `0 0 0 3px ${error ? "#ef444420" : palette.primary.main + "20"}`,
+    borderColor: error ? theme.palette.error.main : theme.palette.primary.main,
+    boxShadow: `0 0 0 3px ${error ? theme.palette.error.main + "20" : theme.palette.primary.main + "20"}`,
   },
 
   "&::placeholder": {
-    color: "#94a3b8",
+    color: theme.palette.grey[400],
   },
 }));
 
-export const ErrorMessage = styled("span")({
+export const ErrorMessage = styled("span")(({ theme }) => ({
   fontSize: "12px",
-  color: "#ef4444",
+  color: theme.palette.error.main,
   marginTop: "4px",
-});
+}));
 
-// Action Buttons
-export const ActionButtons = styled("div")({
+export const ActionButtons = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "flex-end",
   gap: "12px",
@@ -156,12 +149,12 @@ export const ActionButtons = styled("div")({
   "@media (max-width: 640px)": {
     flexDirection: "column-reverse",
   },
-});
+}));
 
-export const Button = styled("button")<{ 
-  variant?: 'primary' | 'secondary' | 'outline';
+export const Button = styled("button")<{
+  variant?: "primary" | "secondary" | "outline";
   fullWidth?: boolean;
-}>(({ variant = 'primary', fullWidth }) => ({
+}>(({ theme, variant = "primary", fullWidth }) => ({
   padding: "12px 24px",
   borderRadius: "8px",
   fontSize: "14px",
@@ -175,30 +168,30 @@ export const Button = styled("button")<{
   minWidth: fullWidth ? "100%" : "120px",
   border: "1px solid transparent",
 
-  ...(variant === 'primary' && {
-    backgroundColor: palette.primary.main,
-    color: "#ffffff",
+  ...(variant === "primary" && {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
     "&:hover": {
-      backgroundColor: palette.primary.dark || "#3b82f6",
+      backgroundColor: theme.palette.primary.main,
       transform: "translateY(-1px)",
     },
   }),
 
-  ...(variant === 'secondary' && {
-    backgroundColor: "#f8fafc",
-    color: "#64748b",
+  ...(variant === "secondary" && {
+    backgroundColor: theme.palette.grey[50],
+    color: theme.palette.grey[600],
     "&:hover": {
-      backgroundColor: "#f1f5f9",
+      backgroundColor: theme.palette.grey[100],
     },
   }),
 
-  ...(variant === 'outline' && {
+  ...(variant === "outline" && {
     backgroundColor: "transparent",
-    color: "#64748b",
-    border: "1px solid #e2e8f0",
+    color: theme.palette.grey[600],
+    border: `1px solid ${theme.palette.border.main}`,
     "&:hover": {
-      backgroundColor: "#f8fafc",
-      borderColor: "#cbd5e1",
+      backgroundColor: theme.palette.grey[50],
+      borderColor: theme.palette.border.dark,
     },
   }),
 
@@ -209,23 +202,22 @@ export const Button = styled("button")<{
   },
 }));
 
-// Categories Section
-export const CategoriesSection = styled("div")({
-  backgroundColor: "#ffffff",
+export const CategoriesSection = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.common.white,
   borderRadius: "16px",
   padding: "32px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-  border: "1px solid rgba(0,0,0,0.05)",
-});
+  boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
+  border: `1px solid ${theme.palette.border.light}`,
+}));
 
-export const CategoriesSectionTitle = styled("h2")({
+export const CategoriesSectionTitle = styled("h2")(({ theme }) => ({
   fontSize: "20px",
   fontWeight: 600,
-  color: "#0f172a",
+  color: theme.palette.navy.main,
   margin: "0 0 24px 0",
-});
+}));
 
-export const CategoriesGrid = styled("div")({
+export const CategoriesGrid = styled("div")(({ theme }) => ({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
   gap: "16px",
@@ -233,11 +225,11 @@ export const CategoriesGrid = styled("div")({
   "@media (max-width: 640px)": {
     gridTemplateColumns: "1fr",
   },
-});
+}));
 
-export const CategoryCard = styled("div")({
-  backgroundColor: "#f8fafc",
-  border: "1px solid #e2e8f0",
+export const CategoryCard = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.grey[50],
+  border: `1px solid ${theme.palette.border.main}`,
   borderRadius: "12px",
   padding: "20px",
   display: "flex",
@@ -246,76 +238,75 @@ export const CategoryCard = styled("div")({
   transition: "all 0.2s ease",
 
   "&:hover": {
-    backgroundColor: "#f1f5f9",
-    borderColor: "#cbd5e1",
+    backgroundColor: theme.palette.grey[100],
+    borderColor: theme.palette.border.dark,
     transform: "translateY(-2px)",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
   },
-});
+}));
 
-export const CategoryName = styled("div")({
+export const CategoryName = styled("div")(({ theme }) => ({
   fontSize: "16px",
   fontWeight: 500,
-  color: "#0f172a",
+  color: theme.palette.navy.main,
   flex: 1,
-});
+}));
 
-export const CategoryActions = styled("div")({
+export const CategoryActions = styled("div")(({ theme }) => ({
   display: "flex",
   gap: "8px",
-});
+}));
 
-export const IconButton = styled("button")<{ variant?: 'default' | 'danger' }>(({ variant = 'default' }) => ({
+export const IconButton = styled("button")<{ variant?: "default" | "danger" }>(({ theme, variant = "default" }) => ({
   width: "36px",
   height: "36px",
   borderRadius: "8px",
-  border: "1px solid #e2e8f0",
-  backgroundColor: "#ffffff",
+  border: `1px solid ${theme.palette.border.main}`,
+  backgroundColor: theme.palette.common.white,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   transition: "all 0.2s ease",
-  color: variant === 'danger' ? "#ef4444" : "#64748b",
+  color: variant === "danger" ? theme.palette.error.main : theme.palette.grey[600],
 
   "&:hover": {
-    backgroundColor: variant === 'danger' ? "#fef2f2" : "#f8fafc",
-    borderColor: variant === 'danger' ? "#ef4444" : "#cbd5e1",
-    color: variant === 'danger' ? "#dc2626" : "#475569",
+    backgroundColor: variant === "danger" ? theme.palette.error.light : theme.palette.grey[50],
+    borderColor: variant === "danger" ? theme.palette.error.main : theme.palette.border.dark,
+    color: variant === "danger" ? theme.palette.error.main : theme.palette.grey[700],
   },
 }));
 
-// Empty State
-export const EmptyState = styled("div")({
+export const EmptyState = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   padding: "64px 32px",
   textAlign: "center",
-});
+}));
 
-export const EmptyStateIcon = styled("div")({
+export const EmptyStateIcon = styled("div")(({ theme }) => ({
   width: "80px",
   height: "80px",
   borderRadius: "50%",
-  backgroundColor: "#f1f5f9",
+  backgroundColor: theme.palette.grey[100],
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   margin: "0 0 24px 0",
-  color: "#64748b",
-});
+  color: theme.palette.grey[600],
+}));
 
-export const EmptyStateText = styled("div")({
+export const EmptyStateText = styled("div")(({ theme }) => ({
   fontSize: "18px",
   fontWeight: 500,
-  color: "#0f172a",
+  color: theme.palette.navy.main,
   marginBottom: "8px",
-});
+}));
 
-export const EmptyStateSubtext = styled("div")({
+export const EmptyStateSubtext = styled("div")(({ theme }) => ({
   fontSize: "14px",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   maxWidth: "400px",
-});
+}));

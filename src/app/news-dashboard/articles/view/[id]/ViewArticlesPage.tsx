@@ -341,15 +341,9 @@ export const ViewArticlePage: FC<ViewArticlePageProps> = ({
                     {article.readTime}
                   </MetaItem>
                 )}
-
-                <CategoryBadge category={article.category}>
-                  <Tag size={14} />
-                  {article.category}
-                </CategoryBadge>
-
                 {article.status && (
                   <CategoryBadge category={`status-${article.status}`}>
-                    {article.status === "archived" ? <Archive size={14} /> : <Eye size={14} />}
+                    {/* {article.status === "archived" ?  : } */}
                     {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
                   </CategoryBadge>
                 )}

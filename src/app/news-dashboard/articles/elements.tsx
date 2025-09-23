@@ -1,46 +1,43 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
-import { palette } from "@/theme/pallete";
 
-// Utility function to generate category colors
 const getCategoryColor = (categoryName: string) => {
   const colors = [
-    { bg: '#dbeafe', text: '#1d4ed8' }, // Blue
-    { bg: '#dcfce7', text: '#166534' }, // Green
-    { bg: '#fef3c7', text: '#92400e' }, // Yellow
-    { bg: '#ede9fe', text: '#7c3aed' }, // Purple
-    { bg: '#fef2f2', text: '#dc2626' }, // Red
-    { bg: '#ecfdf5', text: '#059669' }, // Emerald
-    { bg: '#fff7ed', text: '#c2410c' }, // Orange
-    { bg: '#f0f9ff', text: '#0284c7' }, // Sky
-    { bg: '#fdf2f8', text: '#be185d' }, // Pink
-    { bg: '#f5f3ff', text: '#6d28d9' }, // Violet
-    { bg: '#ecfccb', text: '#365314' }, // Lime
-    { bg: '#fefce8', text: '#a16207' }, // Amber
-    { bg: '#f0fdfa', text: '#047857' }, // Teal
-    { bg: '#fdf4ff', text: '#a21caf' }, // Fuchsia
-    { bg: '#f8fafc', text: '#475569' }, // Slate
+    { bg: "info.light", text: "info.dark" },
+    { bg: "success.light", text: "success.dark" },
+    { bg: "warning.light", text: "warning.dark" },
+    { bg: "secondary.light", text: "secondary.dark" },
+    { bg: "error.light", text: "error.main" },
+    { bg: "success.main", text: "success.dark" },
+    { bg: "warning.main", text: "warning.dark" },
+    { bg: "info.main", text: "info.dark" },
+    { bg: "error.main", text: "error.main" },
+    { bg: "secondary.main", text: "secondary.light" },
+    { bg: "success.light", text: "success.dark" },
+    { bg: "warning.light", text: "warning.dark" },
+    { bg: "info.light", text: "info.dark" },
+    { bg: "error.light", text: "error.main" },
+    { bg: "grey.50", text: "grey.600" },
   ];
 
-  // Generate a hash from category name to consistently assign colors
   let hash = 0;
   for (let i = 0; i < categoryName.length; i++) {
     const char = categoryName.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   
   const index = Math.abs(hash) % colors.length;
   return colors[index];
 };
 
-export const ArticlesRoot = styled("div")({
+export const ArticlesRoot = styled("div")(({ theme }) => ({
   display: "flex",
   minHeight: "100vh",
-  backgroundColor: "#F8F9FA",
+  backgroundColor: theme.palette.grey[50],
   position: "relative",
-});
+}));
 
 export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: boolean }>(
   ({ theme, sidebarOpen, isMobile }) => ({
@@ -50,22 +47,21 @@ export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: bool
     transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     minWidth: 0,
     
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down("md")]: {
       marginLeft: 0,
       padding: "74px 16px 16px",
     },
   })
 );
 
-// Overlay for mobile sidebar
 export const SidebarOverlay = styled("div")<{ show: boolean }>(
-  ({ show }) => ({
+  ({ theme, show }) => ({
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: `${theme.palette.common.black}80`,
     zIndex: 999,
     opacity: show ? 1 : 0,
     visibility: show ? "visible" : "hidden",
@@ -74,7 +70,6 @@ export const SidebarOverlay = styled("div")<{ show: boolean }>(
   })
 );
 
-// Filter and Sort Controls
 export const ControlsContainer = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
@@ -83,55 +78,55 @@ export const ControlsContainer = styled("div")(({ theme }) => ({
   gap: "16px",
   flexWrap: "wrap",
 
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     flexDirection: "column",
     alignItems: "stretch",
   },
 }));
 
-export const FiltersContainer = styled("div")({
+export const FiltersContainer = styled("div")(({ theme }) => ({
   display: "flex",
   gap: "12px",
   alignItems: "center",
   flexWrap: "wrap",
-});
+}));
 
-export const FilterSelect = styled("select")({
+export const FilterSelect = styled("select")(({ theme }) => ({
   padding: "8px 12px",
   borderRadius: "8px",
-  border: "1px solid #e2e8f0",
-  backgroundColor: "#ffffff",
+  border: `1px solid ${theme.palette.border.main}`,
+  backgroundColor: theme.palette.common.white,
   fontSize: "14px",
-  color: "#334155",
+  color: theme.palette.navy.main,
   cursor: "pointer",
   minWidth: "120px",
   
   "&:focus": {
     outline: "none",
-    borderColor: palette.primary.main,
-    boxShadow: `0 0 0 3px ${palette.primary.main}20`,
+    borderColor: theme.palette.primary.main,
+    boxShadow: `0 0 0 3px ${theme.palette.primary.main}20`,
   },
-});
+}));
 
-export const SortContainer = styled("div")({
+export const SortContainer = styled("div")(({ theme }) => ({
   display: "flex",
   gap: "8px",
   alignItems: "center",
-});
+}));
 
-export const ViewToggle = styled("div")({
+export const ViewToggle = styled("div")(({ theme }) => ({
   display: "flex",
-  backgroundColor: "#f1f5f9",
+  backgroundColor: theme.palette.grey[100],
   borderRadius: "8px",
   padding: "4px",
-});
+}));
 
-export const ViewToggleButton = styled("button")<{ active: boolean }>(({ active }) => ({
+export const ViewToggleButton = styled("button")<{ active: boolean }>(({ theme, active }) => ({
   padding: "8px 12px",
   borderRadius: "6px",
   border: "none",
-  backgroundColor: active ? "#ffffff" : "transparent",
-  color: active ? palette.primary.main : "#64748b",
+  backgroundColor: active ? theme.palette.common.white : "transparent",
+  color: active ? theme.palette.primary.main : theme.palette.grey[600],
   cursor: "pointer",
   fontSize: "14px",
   fontWeight: 500,
@@ -141,143 +136,138 @@ export const ViewToggleButton = styled("button")<{ active: boolean }>(({ active 
   gap: "6px",
 
   "&:hover": {
-    backgroundColor: active ? "#ffffff" : "#e2e8f0",
+    backgroundColor: active ? theme.palette.common.white : theme.palette.border.main,
   },
 }));
 
-// Articles Grid
-export const ArticlesGrid = styled("div")<{ viewMode: 'grid' | 'list' }>(({ theme, viewMode }) => ({
+export const ArticlesGrid = styled("div")<{ viewMode: "grid" | "list" }>(({ theme, viewMode }) => ({
   display: "grid",
   gap: "24px",
-  gridTemplateColumns: viewMode === 'grid' ? "repeat(auto-fill, minmax(380px, 1fr))" : "1fr",
+  gridTemplateColumns: viewMode === "grid" ? "repeat(auto-fill, minmax(380px, 1fr))" : "1fr",
 
-  [theme.breakpoints.down('lg')]: {
-    gridTemplateColumns: viewMode === 'grid' ? "repeat(auto-fill, minmax(320px, 1fr))" : "1fr",
+  [theme.breakpoints.down("lg")]: {
+    gridTemplateColumns: viewMode === "grid" ? "repeat(auto-fill, minmax(320px, 1fr))" : "1fr",
   },
 
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     gridTemplateColumns: "1fr",
     gap: "16px",
   },
 }));
 
-// Article Card Components
-export const ArticleCard = styled("div")<{ viewMode: 'grid' | 'list'; isArchived?: boolean }>(({ theme, viewMode, isArchived }) => ({
+export const ArticleCard = styled("div")<{ viewMode: "grid" | "list"; isArchived?: boolean }>(({ theme, viewMode, isArchived }) => ({
   backgroundColor: theme.palette.common.white,
   borderRadius: "16px",
   overflow: "hidden",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-  border: "1px solid rgba(0,0,0,0.05)",
+  boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
+  border: `1px solid ${theme.palette.border.light}`,
   transition: "all 0.3s ease",
-  display: viewMode === 'list' ? 'flex' : 'block',
-  position: 'relative',
+  display: viewMode === "list" ? "flex" : "block",
+  position: "relative",
   
-  // Archived styling
   ...(isArchived && {
     opacity: 0.7,
-    backgroundColor: '#f8fafc',
-    border: "1px solid #e2e8f0",
+    backgroundColor: theme.palette.grey[50],
+    border: `1px solid ${theme.palette.border.main}`,
     
-    '&::before': {
+    "&::before": {
       content: '"ARCHIVED"',
-      position: 'absolute',
-      top: '12px',
-      right: '12px',
-      backgroundColor: '#fbbf24',
-      color: '#92400e',
-      fontSize: '10px',
+      position: "absolute",
+      top: "12px",
+      right: "12px",
+      backgroundColor: theme.palette.warning.main,
+      color: theme.palette.warning.dark,
+      fontSize: "10px",
       fontWeight: 700,
-      padding: '4px 8px',
-      borderRadius: '4px',
+      padding: "4px 8px",
+      borderRadius: "4px",
       zIndex: 2,
-      letterSpacing: '0.5px',
+      letterSpacing: "0.5px",
     },
   }),
   
   "&:hover": {
-    boxShadow: isArchived ? "0 4px 12px rgba(0,0,0,0.08)" : "0 8px 24px rgba(0,0,0,0.12)",
+    boxShadow: isArchived ? `0 4px 12px ${theme.palette.common.black}14` : `0 8px 24px ${theme.palette.common.black}1F`,
     transform: isArchived ? "none" : "translateY(-4px)",
   },
 }));
 
-export const ArticleContent = styled("div")<{ viewMode: 'grid' | 'list' }>(({ viewMode }) => ({
+export const ArticleContent = styled("div")<{ viewMode: "grid" | "list" }>(({ theme, viewMode }) => ({
   padding: "20px",
   display: "flex",
   flexDirection: "column",
   gap: "12px",
-  flex: viewMode === 'list' ? 1 : 'none',
+  flex: viewMode === "list" ? 1 : "none",
 }));
 
-export const ArticleImage = styled("div")<{ 
-  backgroundImage?: string; 
-  viewMode: 'grid' | 'list';
+export const ArticleImage = styled("div")<{
+  backgroundImage?: string;
+  viewMode: "grid" | "list";
   hasVideo?: boolean;
   isArchived?: boolean;
-}>(({ backgroundImage, viewMode, hasVideo, isArchived }) => ({
-  width: viewMode === 'list' ? '200px' : '100%',
-  height: viewMode === 'list' ? '140px' : '200px',
-  backgroundColor: backgroundImage ? 'transparent' : '#f1f5f9',
-  backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#64748b',
-  position: 'relative',
+}>(({ theme, backgroundImage, viewMode, hasVideo, isArchived }) => ({
+  width: viewMode === "list" ? "200px" : "100%",
+  height: viewMode === "list" ? "140px" : "200px",
+  backgroundColor: backgroundImage ? "transparent" : theme.palette.grey[100],
+  backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: theme.palette.grey[600],
+  position: "relative",
   flexShrink: 0,
 
-  // Archived image styling
   ...(isArchived && {
-    filter: 'grayscale(50%)',
+    filter: "grayscale(50%)",
   }),
 
   ...(hasVideo && {
-    '&::after': {
+    "&::after": {
       content: '""',
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: '48px',
-      height: '48px',
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      borderRadius: '50%',
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "48px",
+      height: "48px",
+      backgroundColor: `${theme.palette.common.black}B3`,
+      borderRadius: "50%",
       backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>')}")`,
-      backgroundSize: '20px',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
+      backgroundSize: "20px",
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
     },
   }),
 }));
 
-
-export const ArticleHeader = styled("div")({
+export const ArticleHeader = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "flex-start",
   gap: "12px",
-});
+}));
 
-export const ArticleTitle = styled("h3")<{ isArchived?: boolean }>(({ isArchived }) => ({
+export const ArticleTitle = styled("h3")<{ isArchived?: boolean }>(({ theme, isArchived }) => ({
   fontSize: "18px",
   fontWeight: 600,
-  color: isArchived ? "#64748b" : "#0f172a",
+  color: isArchived ? theme.palette.grey[600] : theme.palette.navy.main,
   margin: 0,
   lineHeight: 1.4,
   flex: 1,
 }));
 
-export const ArticleActions = styled("div")({
+export const ArticleActions = styled("div")(({ theme }) => ({
   display: "flex",
   gap: "8px",
   alignItems: "center",
   flexWrap: "wrap",
-});
+}));
 
-export const ActionButton = styled("button")<{ 
-  variant?: 'edit' | 'archive' | 'view' | 'restore' | 'delete' 
-}>(({ variant = 'view' }) => ({
+export const ActionButton = styled("button")<{
+  variant?: "edit" | "archive" | "view" | "restore" | "delete";
+}>(({ theme, variant = "view" }) => ({
   width: "36px",
   height: "36px",
   borderRadius: "8px",
@@ -290,176 +280,197 @@ export const ActionButton = styled("button")<{
   fontSize: "14px",
   fontWeight: 500,
   
-  ...(variant === 'edit' && {
-    backgroundColor: `${palette.primary.main}15`,
-    color: palette.primary.main,
-    '&:hover': {
-      backgroundColor: `${palette.primary.main}25`,
+  ...(variant === "edit" && {
+    backgroundColor: `${theme.palette.primary.main}15`,
+    color: theme.palette.primary.main,
+    "&:hover": {
+      backgroundColor: `${theme.palette.primary.main}25`,
       transform: "scale(1.05)",
     },
   }),
-  ...(variant === 'archive' && {
-    backgroundColor: '#fef3c7',
-    color: '#f59e0b',
-    '&:hover': {
-      backgroundColor: '#fde68a',
+  ...(variant === "archive" && {
+    backgroundColor: theme.palette.warning.light,
+    color: theme.palette.warning.main,
+    "&:hover": {
+      backgroundColor: `${theme.palette.warning.main}CC`,
       transform: "scale(1.05)",
     },
   }),
-  ...(variant === 'view' && {
-    backgroundColor: '#f1f5f9',
-    color: '#64748b',
-    '&:hover': {
-      backgroundColor: '#e2e8f0',
-      color: '#475569',
+  ...(variant === "view" && {
+    backgroundColor: theme.palette.grey[100],
+    color: theme.palette.grey[600],
+    "&:hover": {
+      backgroundColor: theme.palette.border.main,
+      color: theme.palette.grey[700],
       transform: "scale(1.05)",
     },
   }),
-  ...(variant === 'restore' && {
-    backgroundColor: '#d1fae5',
-    color: '#059669',
-    '&:hover': {
-      backgroundColor: '#a7f3d0',
+  ...(variant === "restore" && {
+    backgroundColor: theme.palette.success.light,
+    color: theme.palette.success.main,
+    "&:hover": {
+      backgroundColor: `${theme.palette.success.main}CC`,
       transform: "scale(1.05)",
     },
   }),
-  ...(variant === 'delete' && {
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
-    '&:hover': {
-      backgroundColor: '#fecaca',
+  ...(variant === "delete" && {
+    backgroundColor: theme.palette.error.light,
+    color: theme.palette.error.main,
+    "&:hover": {
+      backgroundColor: `${theme.palette.error.main}CC`,
       transform: "scale(1.05)",
     },
   }),
 }));
 
-export const ArticleMeta = styled("div")({
+export const ArticleMeta = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: "16px",
   fontSize: "14px",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   flexWrap: "wrap",
-});
+}));
 
-export const MetaItem = styled("div")({
+export const MetaItem = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: "6px",
-});
+}));
 
-export const CategoryBadge = styled("span")<{ category: string }>(({ category }) => {
-  const colors = getCategoryColor(category);
-  return {
-    padding: "4px 10px",
-    borderRadius: "8px",
-    fontSize: "12px",
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-    backgroundColor: colors.bg,
-    color: colors.text,
-  };
-});
+export const CategoryBadge = styled("span")<{ category: string }>(
+  ({ theme, category }) => {
+    const colors = getCategoryColor(category || "Uncategorized");
 
-export const ArticleDescription = styled("div")<{ viewMode: 'grid' | 'list'; isArchived?: boolean }>(({ viewMode, isArchived }) => ({
+    // split "primary.main" → ["primary", "main"]
+    const [bgKey, bgShade] = colors.bg.split(".") as [keyof typeof theme.palette, string];
+    const [textKey, textShade] = colors.text.split(".") as [keyof typeof theme.palette, string];
+
+    // safely resolve colors
+    const bgColor =
+      theme.palette[bgKey] && (theme.palette[bgKey] as any)[bgShade]
+        ? (theme.palette[bgKey] as any)[bgShade]
+        : colors.bg; // fallback to raw string if not found
+
+    const textColor =
+      theme.palette[textKey] && (theme.palette[textKey] as any)[textShade]
+        ? (theme.palette[textKey] as any)[textShade]
+        : colors.text;
+
+    return {
+      padding: "2px 8px",
+      borderRadius: "4px",
+      fontSize: "11px",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.5px",
+      backgroundColor: bgColor,
+      color: textColor,
+      whiteSpace: "nowrap",
+      display: "inline-block",
+      maxWidth: "120px",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    };
+  }
+);
+
+
+export const ArticleDescription = styled("div")<{ viewMode: "grid" | "list"; isArchived?: boolean }>(({ theme, viewMode, isArchived }) => ({
   fontSize: "14px",
-  color: isArchived ? "#94a3b8" : "#64748b",
+  color: isArchived ? theme.palette.grey[400] : theme.palette.grey[600],
   lineHeight: 1.6,
   margin: 0,
   display: "-webkit-box",
-  WebkitLineClamp: viewMode === 'grid' ? 3 : 2,
+  WebkitLineClamp: viewMode === "grid" ? 3 : 2,
   WebkitBoxOrient: "vertical",
   overflow: "hidden",
 }));
 
-// Search Results Components
-export const SearchResultsHeader = styled("div")({
+export const SearchResultsHeader = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: "24px",
   padding: "16px 0",
-  borderBottom: "1px solid #f1f5f9",
-});
+  borderBottom: `1px solid ${theme.palette.grey[100]}`,
+}));
 
-export const SearchResultsCount = styled("div")({
+export const SearchResultsCount = styled("div")(({ theme }) => ({
   fontSize: "16px",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   fontWeight: 500,
-});
+}));
 
-export const SearchQuery = styled("span")({
+export const SearchQuery = styled("span")(({ theme }) => ({
   fontWeight: 600,
-  color: "#0f172a",
-});
+  color: theme.palette.navy.main,
+}));
 
-export const ClearSearchButton = styled("button")({
+export const ClearSearchButton = styled("button")(({ theme }) => ({
   padding: "8px 16px",
   borderRadius: "8px",
-  border: "1px solid #e2e8f0",
+  border: `1px solid ${theme.palette.border.main}`,
   backgroundColor: "transparent",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   fontSize: "14px",
   cursor: "pointer",
   fontWeight: 500,
   transition: "all 0.2s ease",
 
   "&:hover": {
-    backgroundColor: "#f8fafc",
-    borderColor: "#cbd5e1",
+    backgroundColor: theme.palette.grey[50],
+    borderColor: theme.palette.border.dark,
   },
-});
+}));
 
-// No Results State
-export const NoResults = styled("div")({
+export const NoResults = styled("div")(({ theme }) => ({
   textAlign: "center",
   padding: "80px 24px",
-  color: "#64748b",
-});
+  color: theme.palette.grey[600],
+}));
 
-export const NoResultsIcon = styled("div")({
+export const NoResultsIcon = styled("div")(({ theme }) => ({
   width: "80px",
   height: "80px",
   borderRadius: "50%",
-  backgroundColor: "#f1f5f9",
+  backgroundColor: theme.palette.grey[100],
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   margin: "0 auto 24px",
-  color: "#94a3b8",
-});
+  color: theme.palette.grey[400],
+}));
 
-export const NoResultsTitle = styled("h3")({
+export const NoResultsTitle = styled("h3")(({ theme }) => ({
   fontSize: "20px",
   fontWeight: 600,
-  color: "#0f172a",
+  color: theme.palette.navy.main,
   margin: "0 0 12px",
-});
+}));
 
-export const NoResultsText = styled("p")({
+export const NoResultsText = styled("p")(({ theme }) => ({
   fontSize: "16px",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   margin: 0,
   lineHeight: 1.6,
-});
+}));
 
-// Pagination
-export const PaginationContainer = styled("div")({
+export const PaginationContainer = styled("div")(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   marginTop: "48px",
   gap: "8px",
-});
+}));
 
-export const PaginationButton = styled("button")<{ active?: boolean; disabled?: boolean }>(({ active, disabled }) => ({
+export const PaginationButton = styled("button")<{ active?: boolean; disabled?: boolean }>(({ theme, active, disabled }) => ({
   width: "40px",
   height: "40px",
   borderRadius: "8px",
-  border: "1px solid #e2e8f0",
-  backgroundColor: active ? palette.primary.main : "#ffffff",
-  color: active ? "#ffffff" : disabled ? "#cbd5e1" : "#334155",
+  border: `1px solid ${theme.palette.border.main}`,
+  backgroundColor: active ? theme.palette.primary.main : theme.palette.common.white,
+  color: active ? theme.palette.common.white : disabled ? theme.palette.grey[400] : theme.palette.navy.main,
   cursor: disabled ? "not-allowed" : "pointer",
   fontSize: "14px",
   fontWeight: 500,
@@ -469,13 +480,13 @@ export const PaginationButton = styled("button")<{ active?: boolean; disabled?: 
   justifyContent: "center",
 
   "&:hover": {
-    backgroundColor: disabled ? "#ffffff" : active ? palette.primary.main : "#f8fafc",
-    borderColor: disabled ? "#e2e8f0" : active ? palette.primary.main : "#cbd5e1",
+    backgroundColor: disabled ? theme.palette.common.white : active ? theme.palette.primary.main : theme.palette.grey[50],
+    borderColor: disabled ? theme.palette.border.main : active ? theme.palette.primary.main : theme.palette.border.dark,
   },
 }));
 
-export const PaginationInfo = styled("div")({
+export const PaginationInfo = styled("div")(({ theme }) => ({
   fontSize: "14px",
-  color: "#64748b",
+  color: theme.palette.grey[600],
   margin: "0 16px",
-});
+}));

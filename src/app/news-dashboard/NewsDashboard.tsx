@@ -74,7 +74,7 @@ import {
   SearchQuery,
   ClearSearchButton,
 } from "./elements";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 import Link from "next/link";
 import { getSession, clearSession } from "@/app/login/sessionUtils";
 import { useTheme } from "@mui/material/styles";

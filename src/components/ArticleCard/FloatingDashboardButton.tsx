@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 
 const FloatingButtonWrapper = styled("div")(({ theme }) => ({
   position: "fixed",

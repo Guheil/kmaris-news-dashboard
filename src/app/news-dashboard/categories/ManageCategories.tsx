@@ -272,7 +272,7 @@ export const ManageCategoriesPage: FC<ManageCategoriesPageProps> = ({
               {
                 icon: <Plus size={20} />,
                 text: "Create Article",
-                href: "news-dashboard/create-article",
+                href: "/news-dashboard/create-article",
                 },
               {
                 icon: <BarChart3 size={20} />,

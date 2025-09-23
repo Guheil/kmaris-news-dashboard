@@ -1,7 +1,7 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 import { NavItemProps } from "./interface";
 
 export const SidebarRoot = styled("div")<{ isOpen: boolean }>(({ theme, isOpen }) => ({

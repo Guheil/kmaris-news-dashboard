@@ -1,7 +1,7 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 
 export const HeaderRoot = styled("header")(({ theme }) => ({
   width: "100%",

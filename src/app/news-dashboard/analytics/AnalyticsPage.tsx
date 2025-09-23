@@ -19,7 +19,7 @@ import {
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
 import { AnalyticsData, AnalyticsPageProps } from "./interface";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 import {
   AnalyticsRoot,
   SidebarOverlay,

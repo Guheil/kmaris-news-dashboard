@@ -1,41 +1,45 @@
+
 import { createTheme } from "@mui/material/styles";
 import { breakpoints } from "./breakpoints";
-import { palette } from "./pallete";
+import { palette } from "./palette"; // Update to "./palette" if renamed
 import { typography } from "./typography";
 
-/**
- * This is the TypeScript "module augmentation".
- * It's a professional pattern that tells TypeScript about the custom
- * values we've added to our theme. This gives us type safety and
- * autocompletion for our custom colors like `theme.palette.navy`.
- */
+// Module augmentation to extend MUI's types
 declare module '@mui/material/styles' {
-  // Allow us to use our custom 'navy' color in the palette
+  // Extend Palette to include custom properties
   interface Palette {
-    navy: Palette['primary'];
+    navy: Palette['primary']; // Matches structure of primary, secondary, etc.
+    border: {
+      main: string;
+      light: string;
+      dark: string;
+      contrast: string;
+    };
   }
+  // Extend PaletteOptions for theme creation
   interface PaletteOptions {
     navy?: PaletteOptions['primary'];
+    border?: {
+      main: string;
+      light: string;
+      dark: string;
+      contrast: string;
+    };
+  }
+  // Extend TypeText to include custom text properties
+  interface TypeText {
+    primary: string;
+    light: string;
+    dark: string;
+    contrast: string;
   }
 }
 
 /**
- * This is the master theme object.
- * It combines all our design tokens (colors, breakpoints, fonts) into a
- * single object that MUI's ThemeProvider can use. This becomes the
- * "single source of truth" for all styling in the app.
+ * Master theme object combining design tokens
  */
 export const theme = createTheme({
   breakpoints,
   palette,
   typography,
-  // You can also add component-level overrides here for global styles
-  // For example, to change the default props for all MUI Buttons:
-  // components: {
-  //   MuiButton: {
-  //     defaultProps: {
-  //       disableRipple: true,
-  //     },
-  //   },
-  // },
 });

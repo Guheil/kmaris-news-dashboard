@@ -1,7 +1,7 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
-import { palette } from "@/theme/pallete";
+import { palette } from "@/theme/palette";
 
 export const MobileDrawerOverlay = styled("div", {
   shouldForwardProp: (prop) => prop !== "open",

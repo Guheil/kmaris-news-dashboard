@@ -793,14 +793,14 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
               <ArrowLeft size={16} />
               Cancel
             </Button>
-            <Button variant="secondary" onClick={handlePreview} disabled={saving}>
+            {/* <Button variant="secondary" onClick={handlePreview} disabled={saving}>
               <Eye size={16} />
               Preview
-            </Button>
-            <Button variant="secondary" onClick={() => handleSave("draft")} disabled={saving}>
+            </Button> */}
+            {/* <Button variant="secondary" onClick={() => handleSave("draft")} disabled={saving}>
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               Save Draft
-            </Button>
+            </Button> */}
             <Button variant="primary" onClick={() => handleSave("published")} disabled={saving}>
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
               {saving ? "Saving..." : "Update Article"}
