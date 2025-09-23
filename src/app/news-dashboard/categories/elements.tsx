@@ -72,6 +72,7 @@ export const PageSubtitle = styled("p")({
 // Content Section
 export const ContentSection = styled("div")({
   display: "grid",
+  paddingTop: "1rem",
   gap: "32px",
 });
 

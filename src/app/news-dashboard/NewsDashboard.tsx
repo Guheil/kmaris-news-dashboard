@@ -18,6 +18,7 @@ import {
   EyeIcon,
   Tag,
   LogOut,
+  LogsIcon,
 } from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
@@ -538,6 +539,12 @@ export const NewsDashboard: FC<DashboardProps> = ({
                     <QuickActionButton>
                       <Settings size={16} />
                       Dashboard Settings
+                    </QuickActionButton>
+                  </Link>
+                  <Link href="/news-dashboard/logs" passHref>
+                    <QuickActionButton>
+                      <LogsIcon size={16} />
+                      Logs
                     </QuickActionButton>
                   </Link>
                 </QuickActionGrid>

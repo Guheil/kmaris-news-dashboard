@@ -132,6 +132,7 @@ export const StatsGrid = styled('div')(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(4, 1fr)',
   gap: '16px',
+  paddingTop: "1rem",
   marginBottom: '24px',
 
   [theme.breakpoints.down('md')]: {

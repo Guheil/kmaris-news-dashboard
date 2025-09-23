@@ -3,48 +3,50 @@
 import { styled } from "@mui/material/styles";
 import { palette } from "@/theme/pallete";
 
-export const CreateArticleRoot = styled("div") ({
+export const CreateArticleRoot = styled("div")({
   display: "flex",
   minHeight: "100vh",
+  paddingTop: "1rem",
   backgroundColor: "#F8F9FA",
   position: "relative",
 });
 
-export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: boolean }>(
-  ({ theme, sidebarOpen, isMobile }) => ({
-    flex: 1,
-    padding: "84px 20px 20px",
-    marginLeft: isMobile ? 0 : sidebarOpen ? "280px" : "80px",
-    transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    minWidth: 0,
-    
-    [theme.breakpoints.down('md')]: {
-      marginLeft: 0,
-      padding: "74px 16px 16px",
-    },
-  })
-);
+export const MainContent = styled("main")<{
+  sidebarOpen: boolean;
+  isMobile: boolean;
+}>(({ theme, sidebarOpen, isMobile }) => ({
+  flex: 1,
+
+  padding: "84px 20px 20px",
+  marginLeft: isMobile ? 0 : sidebarOpen ? "280px" : "80px",
+  transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  minWidth: 0,
+
+  [theme.breakpoints.down("md")]: {
+    marginLeft: 0,
+    padding: "74px 16px 16px",
+  },
+}));
 
 // Overlay for mobile sidebar
-export const SidebarOverlay = styled("div")<{ show: boolean }>(
-  ({ show }) => ({
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 999,
-    opacity: show ? 1 : 0,
-    visibility: show ? "visible" : "hidden",
-    transition: "all 0.3s ease",
-    backdropFilter: "blur(4px)",
-  })
-);
+export const SidebarOverlay = styled("div")<{ show: boolean }>(({ show }) => ({
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  zIndex: 999,
+  opacity: show ? 1 : 0,
+  visibility: show ? "visible" : "hidden",
+  transition: "all 0.3s ease",
+  backdropFilter: "blur(4px)",
+}));
 
 // Form Container
 export const FormContainer = styled("div")(({ theme }) => ({
   maxWidth: "800px",
+  paddingTop: "2rem",
   margin: "0 auto",
   backgroundColor: "#ffffff",
   borderRadius: "16px",
@@ -52,7 +54,7 @@ export const FormContainer = styled("div")(({ theme }) => ({
   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
   border: "1px solid rgba(0,0,0,0.05)",
 
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     padding: "24px",
     margin: "0 8px",
   },
@@ -98,12 +100,14 @@ export const FormGrid = styled("div")({
   },
 });
 
-export const FormField = styled("div")<{ fullWidth?: boolean }>(({ fullWidth }) => ({
-  display: "flex",
-  flexDirection: "column",
-  gap: "8px",
-  gridColumn: fullWidth ? "1 / -1" : "auto",
-}));
+export const FormField = styled("div")<{ fullWidth?: boolean }>(
+  ({ fullWidth }) => ({
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    gridColumn: fullWidth ? "1 / -1" : "auto",
+  })
+);
 
 export const Label = styled("label")({
   fontSize: "14px",
@@ -156,28 +160,32 @@ export const Select = styled("select")<{ error?: boolean }>(({ error }) => ({
   },
 }));
 
-export const Textarea = styled("textarea")<{ error?: boolean }>(({ error }) => ({
-  padding: "12px 16px",
-  borderRadius: "8px",
-  border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
-  backgroundColor: "#ffffff",
-  fontSize: "14px",
-  color: "#334155",
-  minHeight: "120px",
-  resize: "vertical",
-  fontFamily: "inherit",
-  transition: "all 0.2s ease",
+export const Textarea = styled("textarea")<{ error?: boolean }>(
+  ({ error }) => ({
+    padding: "12px 16px",
+    borderRadius: "8px",
+    border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
+    backgroundColor: "#ffffff",
+    fontSize: "14px",
+    color: "#334155",
+    minHeight: "120px",
+    resize: "vertical",
+    fontFamily: "inherit",
+    transition: "all 0.2s ease",
 
-  "&:focus": {
-    outline: "none",
-    borderColor: error ? "#ef4444" : palette.primary.main,
-    boxShadow: `0 0 0 3px ${error ? "#ef444420" : palette.primary.main + "20"}`,
-  },
+    "&:focus": {
+      outline: "none",
+      borderColor: error ? "#ef4444" : palette.primary.main,
+      boxShadow: `0 0 0 3px ${
+        error ? "#ef444420" : palette.primary.main + "20"
+      }`,
+    },
 
-  "&::placeholder": {
-    color: "#94a3b8",
-  },
-}));
+    "&::placeholder": {
+      color: "#94a3b8",
+    },
+  })
+);
 
 export const ErrorMessage = styled("span")({
   fontSize: "12px",
@@ -197,21 +205,23 @@ export const MediaUploadContainer = styled("div")({
   },
 });
 
-export const MediaUploadBox = styled("div")<{ hasMedia?: boolean }>(({ hasMedia }) => ({
-  border: "2px dashed #d1d5db",
-  borderRadius: "12px",
-  padding: "24px",
-  textAlign: "center",
-  backgroundColor: hasMedia ? "#f8fafc" : "#fafbfc",
-  transition: "all 0.2s ease",
-  cursor: "pointer",
-  position: "relative",
+export const MediaUploadBox = styled("div")<{ hasMedia?: boolean }>(
+  ({ hasMedia }) => ({
+    border: "2px dashed #d1d5db",
+    borderRadius: "12px",
+    padding: "24px",
+    textAlign: "center",
+    backgroundColor: hasMedia ? "#f8fafc" : "#fafbfc",
+    transition: "all 0.2s ease",
+    cursor: "pointer",
+    position: "relative",
 
-  "&:hover": {
-    borderColor: palette.primary.main,
-    backgroundColor: `${palette.primary.main}05`,
-  },
-}));
+    "&:hover": {
+      borderColor: palette.primary.main,
+      backgroundColor: `${palette.primary.main}05`,
+    },
+  })
+);
 
 export const MediaUploadIcon = styled("div")({
   width: "48px",
@@ -286,10 +296,10 @@ export const ActionButtons = styled("div")({
   },
 });
 
-export const Button = styled("button")<{ 
-  variant?: 'primary' | 'secondary' | 'outline';
+export const Button = styled("button")<{
+  variant?: "primary" | "secondary" | "outline";
   fullWidth?: boolean;
-}>(({ variant = 'primary', fullWidth }) => ({
+}>(({ variant = "primary", fullWidth }) => ({
   padding: "12px 24px",
   borderRadius: "8px",
   fontSize: "14px",
@@ -303,7 +313,7 @@ export const Button = styled("button")<{
   minWidth: fullWidth ? "100%" : "120px",
   border: "1px solid transparent",
 
-  ...(variant === 'primary' && {
+  ...(variant === "primary" && {
     backgroundColor: palette.primary.main,
     color: "#ffffff",
     "&:hover": {
@@ -312,7 +322,7 @@ export const Button = styled("button")<{
     },
   }),
 
-  ...(variant === 'secondary' && {
+  ...(variant === "secondary" && {
     backgroundColor: "#f8fafc",
     color: "#64748b",
     "&:hover": {
@@ -320,7 +330,7 @@ export const Button = styled("button")<{
     },
   }),
 
-  ...(variant === 'outline' && {
+  ...(variant === "outline" && {
     backgroundColor: "transparent",
     color: "#64748b",
     border: "1px solid #e2e8f0",

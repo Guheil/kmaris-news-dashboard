@@ -312,12 +312,7 @@ export const ManageCategoriesPage: FC<ManageCategoriesPageProps> = ({
       />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <PageContainer>
-          <PageHeader>
-            <PageTitle>Manage Categories</PageTitle>
-            <PageSubtitle>
-              Create and manage article categories for better content organization
-            </PageSubtitle>
-          </PageHeader>
+          
 
           <ContentSection>
             <CreateSection>
