@@ -1,10 +1,18 @@
-'use client';
+"use client";
 
-import { FC, useState, useRef, useEffect } from 'react';
-import { Menu, Search, Bell, Settings, User, LogOut, ChevronDown } from 'lucide-react';
+import { FC, useState, useRef, useEffect } from "react";
+import {
+  Menu,
+  Search,
+  Bell,
+  Settings,
+  User,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import Swal from "sweetalert2";
-import { HeaderProps, IconButtonProps } from './interface';
-import { NotificationDropdown } from '@/components/NotificationDropdown/NotificationDropdown';
+import { HeaderProps, IconButtonProps } from "./interface";
+import { NotificationDropdown } from "@/components/NotificationDropdown/NotificationDropdown";
 import {
   HeaderRoot,
   LeftSection,
@@ -30,34 +38,34 @@ import {
   DropdownUserName,
   DropdownUserRole,
   DropdownItem,
-} from './elements';
+} from "./elements";
+import Link from "next/link";
 
-const HeaderIconButton: FC<IconButtonProps> = ({ 
-  icon, 
-  onClick, 
-  hasNotification, 
-  notificationCount 
+const HeaderIconButton: FC<IconButtonProps> = ({
+  icon,
+  onClick,
+  hasNotification,
+  notificationCount,
 }) => (
   <IconButton onClick={onClick}>
     {icon}
-    {hasNotification && (
-      notificationCount && notificationCount > 0 ? (
+    {hasNotification &&
+      (notificationCount && notificationCount > 0 ? (
         <NotificationCount>
-          {notificationCount > 99 ? '99+' : notificationCount}
+          {notificationCount > 99 ? "99+" : notificationCount}
         </NotificationCount>
       ) : (
         <NotificationBadge />
-      )
-    )}
+      ))}
   </IconButton>
 );
 
 export const Header: FC<HeaderProps> = ({
   title,
   onMenuToggle,
-  userName = 'User',
-  userRole = 'Admin',
-  userInitials = 'U',
+  userName = "User",
+  userRole = "Admin",
+  userInitials = "U",
   onSearch,
   notificationsList = [],
   onNotificationClick,
@@ -66,24 +74,27 @@ export const Header: FC<HeaderProps> = ({
   isMobile = false,
   onLogout,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Calculate unread notifications count
-  const unreadCount = notificationsList.filter(n => !n.read).length;
+  const unreadCount = notificationsList.filter((n) => !n.read).length;
 
   // Close user dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -135,12 +146,12 @@ export const Header: FC<HeaderProps> = ({
 
   const handleProfileClick = () => {
     setIsDropdownOpen(false);
-    console.log('Profile clicked');
+    console.log("Profile clicked");
   };
 
   const handleSettingsClick = () => {
     setIsDropdownOpen(false);
-    console.log('Settings clicked from dropdown');
+    console.log("Settings clicked from dropdown");
   };
 
   return (
@@ -172,14 +183,14 @@ export const Header: FC<HeaderProps> = ({
 
       <RightSection>
         <ActionButtons>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: "relative" }}>
             <HeaderIconButton
               icon={<Bell size={20} />}
               hasNotification={unreadCount > 0}
               notificationCount={unreadCount}
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
             />
-            
+
             <NotificationDropdown
               isOpen={isNotificationsOpen}
               onClose={() => setIsNotificationsOpen(false)}
@@ -197,11 +208,14 @@ export const Header: FC<HeaderProps> = ({
               <UserName>{userName}</UserName>
               <UserRole>{userRole}</UserRole>
             </UserInfo>
-            <ChevronDown size={16} style={{ 
-              color: '#64748b',
-              transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.2s ease'
-            }} />
+            <ChevronDown
+              size={16}
+              style={{
+                color: "#64748b",
+                transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+              }}
+            />
           </UserButton>
 
           <DropdownMenu isOpen={isDropdownOpen}>
@@ -209,16 +223,12 @@ export const Header: FC<HeaderProps> = ({
               <DropdownUserName>{userName}</DropdownUserName>
               <DropdownUserRole>{userRole}</DropdownUserRole>
             </DropdownHeader>
-
-            <DropdownItem onClick={handleProfileClick}>
-              <User size={16} />
-              Profile
-            </DropdownItem>
-
-            <DropdownItem onClick={handleSettingsClick}>
-              <Settings size={16} />
-              Settings
-            </DropdownItem>
+            <Link href={"/news-dashboard/settings"} passHref>
+              <DropdownItem onClick={handleSettingsClick}>
+                <Settings size={16} />
+                Settings
+              </DropdownItem>
+            </Link>
 
             <DropdownItem variant="danger" onClick={handleLogout}>
               <LogOut size={16} />
