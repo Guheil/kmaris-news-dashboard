@@ -13,6 +13,7 @@ export const CreateArticleRoot = styled("div")({
 
 export const MainContent = styled("main")<{
   sidebarOpen: boolean;
+  
   isMobile: boolean;
 }>(({ theme, sidebarOpen, isMobile }) => ({
   flex: 1,

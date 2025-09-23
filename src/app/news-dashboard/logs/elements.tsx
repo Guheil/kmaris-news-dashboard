@@ -7,6 +7,7 @@ import { palette } from "@/theme/pallete";
 export const LogsRoot = styled("div")({
   display: "flex",
   minHeight: "100vh",
+  paddingTop: "1rem",
   backgroundColor: "#F8F9FA",
   position: "relative",
 });

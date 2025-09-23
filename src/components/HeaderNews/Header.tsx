@@ -115,10 +115,6 @@ export function Header({
 
   return (
     <HeaderRoot>
-      <AddressBar>
-        <LocationOnRoundedIcon />
-        <span>5900 Balcones Dr, Austin, Texas 78731, United States</span>
-      </AddressBar>
 
       <Bar>
         <LogoWrap>

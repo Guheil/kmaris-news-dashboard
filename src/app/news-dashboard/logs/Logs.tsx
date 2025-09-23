@@ -179,7 +179,7 @@ export const Logs: FC<LogsProps> = ({
     user: "all",
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const logsPerPage = 10;
+  const logsPerPage = 5;
 
   useEffect(() => {
     const session = getSession();
@@ -472,7 +472,7 @@ export const Logs: FC<LogsProps> = ({
                   {paginatedLogs.length > 0 ? (
                     <>
                       <LogsTableHeader>
-                        <div>Article & Action</div>
+                        {/* <div>Article & Action</div> */}
                         <div>User</div>
                         <div>Date</div>
                         <div>Time</div>
@@ -482,9 +482,9 @@ export const Logs: FC<LogsProps> = ({
                       {paginatedLogs.map((log) => (
                         <LogsTableRow key={log.id}>
                           <LogTitle>
-                            <LogIcon actionType={log.actionType}>
+                            {/* <LogIcon actionType={log.actionType}>
                               {getActionIcon(log.actionType)}
-                            </LogIcon>
+                            </LogIcon> */}
                             <div>
                               <LogTitleText>{log.articleTitle}</LogTitleText>
                               <ActionBadge actionType={log.actionType}>

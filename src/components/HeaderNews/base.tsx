@@ -6,7 +6,7 @@ import { palette } from "@/theme/pallete";
 export const HeaderRoot = styled("header")(({ theme }) => ({
   width: "100%",
   backgroundColor: palette.navy.main, 
-  padding: "12px 8px 22px 8px",
+  padding: "2rem",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
