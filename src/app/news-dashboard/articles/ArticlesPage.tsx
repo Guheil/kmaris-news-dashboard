@@ -1,279 +1,40 @@
+// Updated: ArticlesPage.tsx (main page)
 "use client";
 
 import { FC, useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Home,
-  FileText,
-  BarChart3,
-  Plus,
-  Eye,
-  Edit,
-  Archive,
-  Grid3X3,
-  List,
-  Calendar,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw,
-  Trash2,
-  EyeIcon,
-} from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
 import {
   ArticlesPageProps,
-  NewsArticle,
-  FilterOptions,
-  SortOptions,
-  ViewMode,
-  ArticleCardProps,
-  PaginationOptions,
-  Category, 
+  // Removed most; now imported from subs
 } from "./interface";
 import {
   ArticlesRoot,
   MainContent,
   SidebarOverlay,
-  ControlsContainer,
-  FiltersContainer,
-  FilterSelect,
-  SortContainer,
-  ViewToggle,
-  ViewToggleButton,
   ArticlesGrid,
-  ArticleCard,
-  ArticleImage,
-  ArticleContent,
-  ArticleHeader,
-  ArticleTitle,
-  ArticleActions,
-  ActionButton,
-  ArticleMeta,
-  MetaItem,
-  CategoryBadge,
-  ArticleDescription,
-  SearchResultsHeader,
-  SearchResultsCount,
-  SearchQuery,
-  ClearSearchButton,
-  NoResults,
-  NoResultsIcon,
-  NoResultsTitle,
-  NoResultsText,
-  PaginationContainer,
-  PaginationButton,
-  PaginationInfo,
 } from "./elements";
+import ArticleCard from "@/components/ArticleComponent/ArticleComponent";
+import ArticleControls from "@/components/ArticleControl/ArticleControl";
+import ArticlePagination from "@/components/ArticlePagination/ArticlePagination";
+import SearchResultsHeaderComponent from "@/components/SearchResultHeader/SearchResultHeader";
+import NoResultsComponent from "@/components/NoResults/NoResults";
+import { Category } from "@/components/ArticleComponent/interface"; // Import shared
+import { FilterOptions, SortOptions, ViewMode } from "@/components/ArticleControl/interface"; // Import shared
+import { NewsArticle } from "@/components/ArticleComponent/interface"; // Import shared
+import { PaginationOptions } from "@/components/ArticlePagination/interface"; // Import shared
 
-// Utility function to truncate text
-const truncateText = (text: string, limit: number): string => {
-  if (!text) return "";
-  return text.length > limit ? `${text.slice(0, limit)}...` : text;
-};
-
-// Utility function to get video embed details
-const getVideoEmbedDetails = (url: string) => {
-  // Helper to normalize URL (add https:// if missing)
-  const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
-
-  // Direct video file check (e.g., .mp4, .webm)
-  const directVideoRegex = /\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv)$/i;
-  if (directVideoRegex.test(normalizedUrl)) {
-    return { type: "video" as const, src: normalizedUrl };
-  }
-
-  // YouTube
-  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const youtubeMatch = normalizedUrl.match(youtubeRegex);
-  if (youtubeMatch) {
-    return { type: "iframe" as const, src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
-  }
-
-  // Vimeo
-  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
-  const vimeoMatch = normalizedUrl.match(vimeoRegex);
-  if (vimeoMatch) {
-    return { type: "iframe" as const, src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
-  }
-
-  // Dailymotion
-  const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
-  const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
-  if (dailymotionMatch) {
-    return { type: "iframe" as const, src: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}` };
-  }
-
-  // Google Drive
-  const driveRegex = /\/file\/d\/([a-zA-Z0-9-_]+)(?:\/[^\/\s]*)?|open\?id=([a-zA-Z0-9-_]+)/;
-  const driveMatch = normalizedUrl.match(driveRegex);
-  if (driveMatch) {
-    const fileId = driveMatch[1] || driveMatch[2];
-    return { type: "iframe" as const, src: `https://drive.google.com/file/d/${fileId}/preview` };
-  }
-
-  // Fallback: Generic iframe for other URLs
-  return { type: "iframe" as const, src: normalizedUrl };
-};
-
-// Article Card Component
-const ArticleCardComponent: FC<ArticleCardProps & { categories: Category[] }> = ({
-  article,
-  viewMode,
-  categories,
-  onEdit,
-  onArchive,
-  onView,
-  onRestore,
-  onDelete,
-}) => {
-  const titleLimit = viewMode === "grid" ? 60 : 80;
-  const descriptionLimit = viewMode === "grid" ? 120 : 150;
-  const isArchived = article.status === "archived";
-
-  const categoryObj = categories.find(cat => cat._id === article.category);
-  const categoryName = categoryObj?.categoryName || article.category;
-
-  const videoEmbedDetails = article.videoUrl
-    ? getVideoEmbedDetails(article.videoUrl)
-    : null;
-
-  return (
-    <ArticleCard viewMode={viewMode} isArchived={isArchived}>
-      <ArticleImage
-        backgroundImage={article.newsImage}
-        viewMode={viewMode}
-        hasVideo={!!article.newsVideo || !!article.videoUrl}
-        isArchived={isArchived}
-      >
-        {videoEmbedDetails ? (
-          videoEmbedDetails.type === "video" ? (
-            <video
-              width="100%"
-              height="100%"
-              src={videoEmbedDetails.src}
-              controls
-              style={{ borderRadius: "8px", objectFit: "cover" }}
-            >
-              Your browser does not support the video tag.
-            </video>
-          ) : (
-            <>
-              <iframe
-                width="100%"
-                height="100%"
-                src={videoEmbedDetails.src}
-                title="Video Preview"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{ borderRadius: "8px" }}
-              />
-              {/drive\.google\.com/.test(article.videoUrl) && (
-                <div
-                  style={{
-                    fontSize: "10px",
-                    color: "#64748b",
-                    textAlign: "center",
-                    marginTop: "4px",
-                  }}
-                >
-                  Drive: Must be publicly shared
-                </div>
-              )}
-            </>
-          )
-        ) : !article.newsImage && !article.newsVideo ? (
-          <FileText size={32} />
-        ) : null}
-      </ArticleImage>
-
-      <ArticleContent viewMode={viewMode}>
-        <ArticleHeader>
-          <ArticleTitle title={article.title} isArchived={isArchived}>
-            {truncateText(article.title, titleLimit)}
-          </ArticleTitle>
-          <ArticleActions>
-            <ActionButton
-              variant="view"
-              onClick={() => onView(article._id)}
-              title="View Article"
-            >
-              <Eye size={16} />
-            </ActionButton>
-            {isArchived ? (
-              <>
-                <ActionButton
-                  variant="restore"
-                  onClick={() => onRestore?.(article._id)}
-                  title="Restore Article"
-                >
-                  <RotateCcw size={16} />
-                </ActionButton>
-                <ActionButton
-                  variant="delete"
-                  onClick={() => onDelete?.(article._id)}
-                  title="Delete Permanently"
-                >
-                  <Trash2 size={16} />
-                </ActionButton>
-              </>
-            ) : (
-              <>
-                <ActionButton
-                  variant="edit"
-                  onClick={() => onEdit(article._id)}
-                  title="Edit Article"
-                >
-                  <Edit size={16} />
-                </ActionButton>
-                <ActionButton
-                  variant="archive"
-                  onClick={() => onArchive(article._id)}
-                  title="Archive Article"
-                >
-                  <Archive size={16} />
-                </ActionButton>
-              </>
-            )}
-          </ArticleActions>
-        </ArticleHeader>
-
-        <ArticleMeta>
-          <CategoryBadge category={categoryName}>
-            {categoryName}
-          </CategoryBadge>
-          <MetaItem>
-            <Calendar size={14} />
-            {new Date(article.date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </MetaItem>
-          {article.views !== undefined && (
-            <MetaItem>
-              <Eye size={14} />
-              {article.views.toLocaleString()}
-            </MetaItem>
-          )}
-          {article.readTime && (
-            <MetaItem>
-              <Calendar size={14} />
-              {article.readTime}
-            </MetaItem>
-          )}
-        </ArticleMeta>
-
-        <ArticleDescription viewMode={viewMode} isArchived={isArchived}>
-          {truncateText(article.description, descriptionLimit)}
-        </ArticleDescription>
-      </ArticleContent>
-    </ArticleCard>
-  );
-};
+// Icons
+import { 
+  Home,
+  FileText,
+  BarChart3,
+  Plus,
+  EyeIcon,
+  Search,
+} from "lucide-react";
 
 export const ArticlesPage: FC<ArticlesPageProps> = ({
   sidebarOpen,
@@ -387,16 +148,13 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       );
     }
 
-    // Apply status filter
+    // Apply status filter (fixed: when "all", show all statuses)
     if (filters.status !== "all") {
       filtered = filtered.filter(
         (article) => (article.status || "published") === filters.status
       );
-    } else {
-      filtered = filtered.filter(
-        (article) => (article.status || "published") === "published"
-      );
     }
+    // Removed the else clause to show all when "all"
 
     // Apply sorting
     filtered.sort((a, b) => {
@@ -451,8 +209,6 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     }));
   }, [filteredAndSortedArticles.length]);
 
-  const totalPages = Math.ceil(pagination.totalItems / pagination.itemsPerPage);
-
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -465,6 +221,25 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     if (isMobile) {
       onSidebarToggle();
     }
+  };
+
+  const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSortChange = (options: SortOptions) => {
+    setSortOptions(options);
+  };
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+  };
+
+  const handlePageChange = (page: number) => {
+    setPagination((prev) => ({
+      ...prev,
+      currentPage: page,
+    }));
   };
 
   const handleEdit = (articleId: string) => {
@@ -615,12 +390,7 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
     router.push(`/news-dashboard/articles/view/${articleId}`);
   };
 
-  const handlePageChange = (page: number) => {
-    setPagination((prev) => ({
-      ...prev,
-      currentPage: page,
-    }));
-  };
+  const totalPages = Math.ceil(pagination.totalItems / pagination.itemsPerPage);
 
   return (
     <ArticlesRoot>
@@ -698,111 +468,45 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
 
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         {(loading || categoriesLoading) && (
-          <NoResults>
-            <NoResultsIcon>
-              <FileText size={48} />
-            </NoResultsIcon>
-            <NoResultsTitle>Loading articles...</NoResultsTitle>
-          </NoResults>
+          <NoResultsComponent
+            icon={<FileText size={48} />}
+            title="Loading articles..."
+          />
         )}
 
         {(error || categoriesError) && !loading && !categoriesLoading && (
-          <NoResults>
-            <NoResultsIcon>
-              <FileText size={48} />
-            </NoResultsIcon>
-            <NoResultsTitle>Error loading data</NoResultsTitle>
-            <NoResultsText>{error || categoriesError}</NoResultsText>
-          </NoResults>
+          <NoResultsComponent
+            icon={<FileText size={48} />}
+            title="Error loading data"
+            text={error || categoriesError}
+          />
         )}
 
         {!loading && !categoriesLoading && !error && !categoriesError && searchQuery && (
-          <SearchResultsHeader>
-            <SearchResultsCount>
-              {filteredAndSortedArticles.length} result
-              {filteredAndSortedArticles.length !== 1 ? "s" : ""} for{" "}
-              <SearchQuery>&quot;{searchQuery}&quot;</SearchQuery>
-            </SearchResultsCount>
-            <ClearSearchButton onClick={clearSearch}>
-              Clear Search
-            </ClearSearchButton>
-          </SearchResultsHeader>
+          <SearchResultsHeaderComponent
+            count={filteredAndSortedArticles.length}
+            query={searchQuery}
+            onClear={clearSearch}
+          />
         )}
 
         {!loading && !categoriesLoading && !error && !categoriesError && (
-          <ControlsContainer>
-            <FiltersContainer>
-              <FilterSelect
-                value={filters.category}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, category: e.target.value }))
-                }
-              >
-                <option value="all">All Categories</option>
-                {availableCategories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.categoryName}
-                  </option>
-                ))}
-              </FilterSelect>
-
-              <FilterSelect
-                value={filters.status}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, status: e.target.value }))
-                }
-              >
-                <option value="all">All Status</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </FilterSelect>
-            </FiltersContainer>
-
-            <SortContainer>
-              <FilterSelect
-                value={`${sortOptions.field}-${sortOptions.direction}`}
-                onChange={(e) => {
-                  const [field, direction] = e.target.value.split("-");
-                  setSortOptions({
-                    field: field as SortOptions["field"],
-                    direction: direction as SortOptions["direction"],
-                  });
-                }}
-              >
-                <option value="date-desc">Newest First</option>
-                <option value="date-asc">Oldest First</option>
-                <option value="title-asc">Title A-Z</option>
-                <option value="title-desc">Title Z-A</option>
-                <option value="views-desc">Most Views</option>
-                <option value="views-asc">Least Views</option>
-                <option value="category-asc">Category A-Z</option>
-              </FilterSelect>
-
-              <ViewToggle>
-                <ViewToggleButton
-                  active={viewMode === "grid"}
-                  onClick={() => setViewMode("grid")}
-                >
-                  <Grid3X3 size={16} />
-                  Grid
-                </ViewToggleButton>
-                <ViewToggleButton
-                  active={viewMode === "list"}
-                  onClick={() => setViewMode("list")}
-                >
-                  <List size={16} />
-                  List
-                </ViewToggleButton>
-              </ViewToggle>
-            </SortContainer>
-          </ControlsContainer>
+          <ArticleControls
+            availableCategories={availableCategories}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            sortOptions={sortOptions}
+            onSortChange={handleSortChange}
+            viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
+          />
         )}
 
         {!loading && !categoriesLoading && !error && !categoriesError && paginatedArticles.length > 0 ? (
           <>
             <ArticlesGrid viewMode={viewMode}>
               {paginatedArticles.map((article) => (
-                <ArticleCardComponent
+                <ArticleCard
                   key={article._id}
                   article={article}
                   categories={categories}
@@ -817,55 +521,10 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
             </ArticlesGrid>
 
             {totalPages > 1 && (
-              <PaginationContainer>
-                <PaginationButton
-                  disabled={pagination.currentPage === 1}
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                >
-                  <ChevronLeft size={16} />
-                </PaginationButton>
-
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNumber;
-                  if (totalPages <= 5) {
-                    pageNumber = i + 1;
-                  } else if (pagination.currentPage <= 3) {
-                    pageNumber = i + 1;
-                  } else if (pagination.currentPage >= totalPages - 2) {
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    pageNumber = pagination.currentPage - 2 + i;
-                  }
-
-                  return (
-                    <PaginationButton
-                      key={pageNumber}
-                      active={pagination.currentPage === pageNumber}
-                      onClick={() => handlePageChange(pageNumber)}
-                    >
-                      {pageNumber}
-                    </PaginationButton>
-                  );
-                })}
-
-                <PaginationButton
-                  disabled={pagination.currentPage === totalPages}
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                >
-                  <ChevronRight size={16} />
-                </PaginationButton>
-
-                <PaginationInfo>
-                  Showing{" "}
-                  {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}{" "}
-                  to{" "}
-                  {Math.min(
-                    pagination.currentPage * pagination.itemsPerPage,
-                    pagination.totalItems
-                  )}{" "}
-                  of {pagination.totalItems} articles
-                </PaginationInfo>
-              </PaginationContainer>
+              <ArticlePagination
+                pagination={pagination}
+                onPageChange={handlePageChange}
+              />
             )}
           </>
         ) : (
@@ -873,19 +532,17 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
           !categoriesLoading &&
           !error &&
           !categoriesError && (
-            <NoResults>
-              <NoResultsIcon>
-                <Search size={48} />
-              </NoResultsIcon>
-              <NoResultsTitle>
-                {searchQuery ? "No articles found" : "No articles available"}
-              </NoResultsTitle>
-              <NoResultsText>
-                {searchQuery
+            <NoResultsComponent
+              icon={<Search size={48} />}
+              title={
+                searchQuery ? "No articles found" : "No articles available"
+              }
+              text={
+                searchQuery
                   ? `We couldn't find any articles matching "${searchQuery}". Try adjusting your search terms or filters.`
-                  : "There are currently no articles to display. Create your first article to get started!"}
-              </NoResultsText>
-            </NoResults>
+                  : "There are currently no articles to display. Create your first article to get started!"
+              }
+            />
           )
         )}
       </MainContent>
