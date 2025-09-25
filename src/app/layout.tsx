@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ThemeRegistry from "@/components/ThemeRegistry"; // Import the client component
+import ThemeRegistry from "@/components/ThemeRegistry"; 
+import { Header } from "@/components/header/Header";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.variable}>
+
         <ThemeRegistry>{children}</ThemeRegistry>
       </body>
     </html>

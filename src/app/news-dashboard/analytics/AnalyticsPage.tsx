@@ -1,126 +1,36 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import Swal from "sweetalert2";
-import {
-  BarChart3,
-  Eye,
-  FileText,
-  Archive,
-  Activity,
-  Home,
-  Plus,
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  EyeIcon,
-} from "lucide-react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
-import { AnalyticsData, AnalyticsPageProps } from "./interface";
-import { palette } from "@/theme/palette";
+import Swal from "sweetalert2";
 import {
-  AnalyticsRoot,
-  SidebarOverlay,
-  MainContent,
-  LoadingState,
-  LoadingSpinner,
-  ErrorState,
-  ErrorTitle,
-  ErrorText,
-  FilterSelect,
-  FiltersContainer,
-  MetricCard,
-  MetricChange,
-  MetricContent,
-  MetricHeader,
-  MetricIcon,
-  MetricLabel,
-  MetricValue,
-  MetricsGrid,
-  ChartCard,
-  ChartTitle,
-  ChartsGrid,
-} from "./elements";
+  Home,
+  FileText,
+  Plus,
+  BarChart3,
+  EyeIcon,
+} from "lucide-react";
+import { AnalyticsRoot, SidebarOverlay, MainContent, LoadingState, LoadingSpinner, ErrorState, ErrorTitle, ErrorText, ChartsGrid } from "./elements";
+import { AnalyticsPageProps } from "./interface";
+import { Filters } from "@/components/Filters/Filters";
+import { MetricsGrid } from "@/components/MetricsGrid/MetricsGrid";
+import { MonthlyPublicationsChart } from "@/components/MonthlyPublicationChart/MonthlyPublicationsChart";
+import { StatusDistributionChart } from "@/components/StatusDistributionChart/StatusDistributionChart";
+import { ViewsOverTimeChart } from "@/components/ViewsOverTimeChart/ViewsOverTimeChart";
+import { AnalyticsData } from "./interface";
 
-// Dynamically import Recharts components to avoid SSR issues
-const LineChart = dynamic(
-  () => import("recharts").then((mod) => mod.LineChart),
-  { ssr: false }
-);
-const Line = dynamic(() => import("recharts").then((mod) => mod.Line), {
-  ssr: false,
-});
-const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), {
-  ssr: false,
-});
-const Bar = dynamic(() => import("recharts").then((mod) => mod.Bar), {
-  ssr: false,
-});
-const XAxis = dynamic(() => import("recharts").then((mod) => mod.XAxis), {
-  ssr: false,
-});
-const YAxis = dynamic(() => import("recharts").then((mod) => mod.YAxis), {
-  ssr: false,
-});
-const CartesianGrid = dynamic(
-  () => import("recharts").then((mod) => mod.CartesianGrid),
-  { ssr: false }
-);
-const Tooltip = dynamic(() => import("recharts").then((mod) => mod.Tooltip), {
-  ssr: false,
-});
-const ResponsiveContainer = dynamic(
-  () => import("recharts").then((mod) => mod.ResponsiveContainer),
-  { ssr: false }
-);
-const PieChart = dynamic(() => import("recharts").then((mod) => mod.PieChart), {
-  ssr: false,
-});
-const Pie = dynamic(() => import("recharts").then((mod) => mod.Pie), {
-  ssr: false,
-});
-const Cell = dynamic(() => import("recharts").then((mod) => mod.Cell), {
-  ssr: false,
-});
-
-const getChangeType = (
-  current: number,
-  previous: number
-): "positive" | "negative" | "neutral" => {
-  if (current > previous) return "positive";
-  if (current < previous) return "negative";
-  return "neutral";
-};
-
-const getChangePercentage = (current: number, previous: number): string => {
-  if (previous === 0) return current > 0 ? "+100%" : "0%";
-  const change = ((current - previous) / previous) * 100;
-  return `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`;
-};
-
-const getChangeIcon = (type: "positive" | "negative" | "neutral") => {
-  if (type === "positive") return <ArrowUp size={14} />;
-  if (type === "negative") return <ArrowDown size={14} />;
-  return <Minus size={14} />;
-};
-
-// Main Analytics Component
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   sidebarOpen,
   onSidebarToggle,
   isMobile = false,
 }) => {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
-    null
-  );
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState("12m");
   const [isClient, setIsClient] = useState(false);
 
-  // Fix hydration by ensuring client-side rendering
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -195,7 +105,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     }
   };
 
-  // Don't render anything until client-side hydration is complete
   if (!isClient) {
     return null;
   }
@@ -366,26 +275,6 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
 
   if (!analyticsData) return null;
 
-  const publicationChange = getChangePercentage(
-    analyticsData.performanceMetrics.publicationTrend.thisMonth,
-    analyticsData.performanceMetrics.publicationTrend.lastMonth
-  );
-
-  const viewsChange = getChangePercentage(
-    analyticsData.performanceMetrics.viewsTrend.thisMonth,
-    analyticsData.performanceMetrics.viewsTrend.lastMonth
-  );
-
-  const publicationChangeType = getChangeType(
-    analyticsData.performanceMetrics.publicationTrend.thisMonth,
-    analyticsData.performanceMetrics.publicationTrend.lastMonth
-  );
-
-  const viewsChangeType = getChangeType(
-    analyticsData.performanceMetrics.viewsTrend.thisMonth,
-    analyticsData.performanceMetrics.viewsTrend.lastMonth
-  );
-
   return (
     <AnalyticsRoot>
       <SidebarOverlay
@@ -458,190 +347,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         onLogout={handleLogout}
       />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-        <FiltersContainer>
-          <div />
-          <FilterSelect
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-          >
-            <option value="1m">Last Month</option>
-            <option value="3m">Last 3 Months</option>
-            <option value="6m">Last 6 Months</option>
-            <option value="12m">Last 12 Months</option>
-          </FilterSelect>
-        </FiltersContainer>
-
-        {/* Metrics Grid */}
-        <MetricsGrid>
-          <MetricCard>
-            <MetricHeader>
-              <MetricContent>
-                <MetricValue>
-                  {analyticsData.overview.totalArticles.toLocaleString()}
-                </MetricValue>
-                <MetricLabel>Total Articles</MetricLabel>
-                <MetricChange type={publicationChangeType}>
-                  {getChangeIcon(publicationChangeType)}
-                  {publicationChange}
-                </MetricChange>
-              </MetricContent>
-              <MetricIcon variant="total">
-                <FileText size={24} />
-              </MetricIcon>
-            </MetricHeader>
-          </MetricCard>
-
-          <MetricCard>
-            <MetricHeader>
-              <MetricContent>
-                <MetricValue>
-                  {analyticsData.overview.publishedArticles.toLocaleString()}
-                </MetricValue>
-                <MetricLabel>Published Articles</MetricLabel>
-              </MetricContent>
-              <MetricIcon variant="published">
-                <Activity size={24} />
-              </MetricIcon>
-            </MetricHeader>
-          </MetricCard>
-
-          <MetricCard>
-            <MetricHeader>
-              <MetricContent>
-                <MetricValue>
-                  {analyticsData.overview.totalViews.toLocaleString()}
-                </MetricValue>
-                <MetricLabel>Total Views</MetricLabel>
-                <MetricChange type={viewsChangeType}>
-                  {getChangeIcon(viewsChangeType)}
-                  {viewsChange}
-                </MetricChange>
-              </MetricContent>
-              <MetricIcon variant="views">
-                <Eye size={24} />
-              </MetricIcon>
-            </MetricHeader>
-          </MetricCard>
-
-          <MetricCard>
-            <MetricHeader>
-              <MetricContent>
-                <MetricValue>
-                  {analyticsData.overview.archivedArticles.toLocaleString()}
-                </MetricValue>
-                <MetricLabel>Archived Articles</MetricLabel>
-              </MetricContent>
-              <MetricIcon variant="archived">
-                <Archive size={24} />
-              </MetricIcon>
-            </MetricHeader>
-          </MetricCard>
-        </MetricsGrid>
-
-        {/* Charts */}
+        <Filters timeRange={timeRange} onTimeRangeChange={setTimeRange} />
+        <MetricsGrid analyticsData={analyticsData} />
         <ChartsGrid>
-          <ChartCard>
-            <ChartTitle>Monthly Publications</ChartTitle>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analyticsData.monthlyStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12, fill: "#64748b" }}
-                  axisLine={{ stroke: "#e2e8f0" }}
-                />
-                <YAxis
-                  tick={{ fontSize: 12, fill: "#64748b" }}
-                  axisLine={{ stroke: "#e2e8f0" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  }}
-                />
-                <Bar
-                  dataKey="articles"
-                  fill={palette.primary.main}
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-<ChartCard>
-  <ChartTitle>Status Distribution</ChartTitle>
-  <ResponsiveContainer width="100%" height={300}>
-    <PieChart>
-      <Pie
-        data={analyticsData.statusDistribution.map((item, index) => ({
-          ...item,
-          fill: [palette.success.main, palette.error.main][index]
-        }))}
-        cx="50%"
-        cy="50%"
-        outerRadius={100}
-        dataKey="value"
-        label={({
-          name,
-          percent,
-        }: {
-          name?: string;
-          percent?: number;
-        }) => {
-          if (name && percent !== undefined) {
-            return `${name} ${(percent * 100).toFixed(0)}%`;
-          }
-          return "";
-        }}
-      />
-      <Tooltip />
-    </PieChart>
-  </ResponsiveContainer>
-</ChartCard>
+          <MonthlyPublicationsChart monthlyStats={analyticsData.monthlyStats} />
+          <StatusDistributionChart statusDistribution={analyticsData.statusDistribution} />
         </ChartsGrid>
-
-        {/* Views Over Time */}
-        <ChartCard style={{ marginBottom: "32px" }}>
-          <ChartTitle>Views Over Time (Last 30 Days)</ChartTitle>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={analyticsData.viewsOverTime}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 12, fill: "#64748b" }}
-                axisLine={{ stroke: "#e2e8f0" }}
-              />
-              <YAxis
-                tick={{ fontSize: 12, fill: "#64748b" }}
-                axisLine={{ stroke: "#e2e8f0" }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="views"
-                stroke={palette.primary.main}
-                strokeWidth={2}
-                dot={{ fill: palette.primary.main, strokeWidth: 2, r: 4 }}
-                activeDot={{
-                  r: 6,
-                  stroke: palette.primary.main,
-                  strokeWidth: 2,
-                  fill: "#ffffff",
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        <ViewsOverTimeChart viewsOverTime={analyticsData.viewsOverTime} />
       </MainContent>
     </AnalyticsRoot>
   );
