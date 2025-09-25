@@ -1,9 +1,21 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
+import { Theme as MUITheme } from "@mui/material/styles";
+
+// Helper function to safely get nested palette colors
+const getPaletteColor = (theme: MUITheme, colorPath: string): string => {
+  const [colorKey, shade] = colorPath.split('.') as [keyof MUITheme['palette'], string];
+  const colorGroup = theme.palette[colorKey];
+  
+  if (colorGroup && typeof colorGroup === 'object' && shade in colorGroup) {
+    return (colorGroup as Record<string, string>)[shade];
+  }
+  
+  return colorPath; // Fallback to the original string
+};
 
 export const DashboardRoot = styled("div")(({ theme }) => ({
-  
   display: "flex",
   minHeight: "100vh",
   backgroundColor: theme.palette.grey[50],
@@ -14,7 +26,6 @@ export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: bool
   ({ theme, sidebarOpen, isMobile }) => ({
     flex: 1,
     padding: "84px 20px 20px",
-    
     marginLeft: isMobile ? 0 : sidebarOpen ? "280px" : "80px",
     transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     minWidth: 0,
@@ -43,12 +54,11 @@ export const DashboardGrid = styled("div")(({ theme }) => ({
 }));
 
 export const Card = styled("div")(({ theme }) => ({
-  
   backgroundColor: theme.palette.common.white,
   borderRadius: "16px",
   padding: "24px",
   boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
-  border: `1px solid ${theme.palette.border.light}`,
+  border: `1px solid ${theme.palette.divider}`,
   transition: "all 0.2s ease",
   
   "&:hover": {
@@ -62,7 +72,6 @@ export const Card = styled("div")(({ theme }) => ({
 }));
 
 export const CardHeader = styled("div")(({ theme }) => ({
-
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -78,7 +87,6 @@ export const CardTitle = styled("h2")(({ theme }) => ({
 }));
 
 export const CardContent = styled("div")(({ theme }) => ({
-  
   width: "100%",
 }));
 
@@ -99,13 +107,11 @@ export const SidebarOverlay = styled("div")<{ show: boolean }>(
 );
 
 export const UnderDevelopmentContainer = styled("div")(({ theme }) => ({
-  
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  
-  padding: "80px 40px ",
+  padding: "80px 40px",
   textAlign: "center",
   minHeight: "300px",
   backgroundColor: theme.palette.grey[50],
@@ -143,7 +149,7 @@ export const MainIcon = styled("div")(({ theme }) => ({
 export const UnderDevTitle = styled("h1")(({ theme }) => ({
   fontSize: "28px",
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   margin: "0 0 12px 0",
   letterSpacing: "-0.025em",
   lineHeight: 1.3,
@@ -186,7 +192,7 @@ export const ComingSoonBadge = styled("div")(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 500,
   borderRadius: "20px",
-  textTransform: "uppercase",
+  textTransform: "uppercase" as const,
   letterSpacing: "0.025em",
   
   [theme.breakpoints.down("sm")]: {
@@ -225,18 +231,13 @@ export const SettingItem = styled("div")(({ theme }) => ({
 }));
 
 export const SettingIcon = styled("div")<{ color: string }>(({ theme, color }) => {
-  const [key, shade] = color.split(".") as [keyof typeof theme.palette, string];
-
-  const baseColor =
-    theme.palette[key] && (theme.palette[key] as any)[shade]
-      ? (theme.palette[key] as any)[shade]
-      : color; 
+  const baseColor = getPaletteColor(theme, color);
 
   return {
     width: "32px",
     height: "32px",
     borderRadius: "6px",
-    backgroundColor: `${baseColor}10`, 
+    backgroundColor: `${baseColor}10`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -245,7 +246,6 @@ export const SettingIcon = styled("div")<{ color: string }>(({ theme, color }) =
     flexShrink: 0,
   };
 });
-
 
 export const SettingContent = styled("div")(({ theme }) => ({
   flex: 1,
@@ -270,6 +270,6 @@ export const SettingBadge = styled("div")(({ theme }) => ({
   color: theme.palette.grey[600],
   fontSize: "10px",
   fontWeight: 500,
-  textTransform: "uppercase",
+  textTransform: "uppercase" as const,
   letterSpacing: "0.5px",
 }));

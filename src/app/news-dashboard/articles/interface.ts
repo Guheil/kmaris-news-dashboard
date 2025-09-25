@@ -60,3 +60,8 @@ export interface ArticleCardProps {
   onRestore?: (articleId: string) => void;
   onDelete?: (articleId: string) => void;
 }
+
+export interface CategoryColors {
+  bg: string;
+  text: string;
+}

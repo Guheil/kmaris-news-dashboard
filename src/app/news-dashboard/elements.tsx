@@ -1,8 +1,10 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
+import { Theme as MUITheme } from "@mui/material/styles";
+import { CategoryColors } from "./interface";
 
-const getCategoryColor = (categoryName: string) => {
+const getCategoryColor = (categoryName: string): CategoryColors => {
   const colors = [
     { bg: "info.light", text: "info.dark" },
     { bg: "success.light", text: "success.dark" },
@@ -30,6 +32,18 @@ const getCategoryColor = (categoryName: string) => {
   
   const index = Math.abs(hash) % colors.length;
   return colors[index];
+};
+
+// Helper function to safely get nested palette colors
+const getPaletteColor = (theme: MUITheme, colorPath: string): string => {
+  const [colorKey, shade] = colorPath.split('.') as [keyof MUITheme['palette'], string];
+  const colorGroup = theme.palette[colorKey];
+  
+  if (colorGroup && typeof colorGroup === 'object' && shade in colorGroup) {
+    return (colorGroup as Record<string, string>)[shade];
+  }
+  
+  return colorPath; // Fallback to the original string
 };
 
 export const DashboardRoot = styled("div")(({ theme }) => ({
@@ -74,7 +88,7 @@ export const Card = styled("div")(({ theme }) => ({
   borderRadius: "16px",
   padding: "24px",
   boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
-  border: `1px solid ${theme.palette.border.light}`,
+  border: `1px solid ${theme.palette.divider}`,
   transition: "all 0.2s ease",
   
   "&:hover": {
@@ -151,7 +165,7 @@ export const StatCard = styled("div")(({ theme }) => ({
 export const StatNumber = styled("div")(({ theme }) => ({
   fontSize: "28px",
   fontWeight: 700,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   lineHeight: 1,
 }));
 
@@ -185,10 +199,10 @@ export const NewsTable = styled("div")(({ theme }) => ({
     borderRadius: "4px",
   },
   "&::-webkit-scrollbar-thumb": {
-    backgroundColor: theme.palette.border.main,
+    backgroundColor: theme.palette.grey[300],
     borderRadius: "4px",
     "&:hover": {
-      backgroundColor: theme.palette.border.dark,
+      backgroundColor: theme.palette.grey[400],
     },
   },
 }));
@@ -211,7 +225,7 @@ export const NewsTableHeader = styled("div")(({ theme }) => ({
   fontSize: "12px",
   fontWeight: 600,
   color: theme.palette.grey[600],
-  textTransform: "uppercase",
+  textTransform: "uppercase" as const,
   letterSpacing: "0.5px",
 }));
 
@@ -286,7 +300,7 @@ export const MediaPlaceholder = styled("div")<{ type: "video" | "document" }>(({
 export const NewsTitleText = styled("div")(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   lineHeight: 1.4,
   overflow: "hidden",
   display: "-webkit-box",
@@ -301,13 +315,13 @@ export const NewsAuthor = styled("div")(({ theme }) => ({
   color: theme.palette.grey[600],
   overflow: "hidden",
   textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
+  whiteSpace: "nowrap" as const,
 }));
 
 export const NewsDate = styled("div")(({ theme }) => ({
   fontSize: "14px",
   color: theme.palette.grey[600],
-  whiteSpace: "nowrap",
+  whiteSpace: "nowrap" as const,
 }));
 
 export const NewsViews = styled("div")(({ theme }) => ({
@@ -316,42 +330,30 @@ export const NewsViews = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: "4px",
-  whiteSpace: "nowrap",
+  whiteSpace: "nowrap" as const,
 }));
 
-export const CategoryBadge = styled("span")<{ category: string }>(
-  ({ theme, category }) => {
-    const colors = getCategoryColor(category || "Uncategorized");
-    const [bgKey, bgShade] = colors.bg.split(".") as [keyof typeof theme.palette, string];
-    const [textKey, textShade] = colors.text.split(".") as [keyof typeof theme.palette, string];
+export const CategoryBadge = styled("span")<{ category: string }>(({ theme, category }) => {
+  const colors = getCategoryColor(category || "Uncategorized");
+  const bgColor = getPaletteColor(theme, colors.bg);
+  const textColor = getPaletteColor(theme, colors.text);
 
-    const bgColor =
-      theme.palette[bgKey] && (theme.palette[bgKey] as any)[bgShade]
-        ? (theme.palette[bgKey] as any)[bgShade]
-        : colors.bg;
-
-    const textColor =
-      theme.palette[textKey] && (theme.palette[textKey] as any)[textShade]
-        ? (theme.palette[textKey] as any)[textShade]
-        : colors.text;
-
-    return {
-      padding: "2px 8px",
-      borderRadius: "4px",
-      fontSize: "11px",
-      fontWeight: 600,
-      textTransform: "uppercase",
-      letterSpacing: "0.5px",
-      backgroundColor: bgColor,
-      color: textColor,
-      whiteSpace: "nowrap",
-      display: "inline-block",
-      maxWidth: "120px",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    };
-  }
-);
+  return {
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "11px",
+    fontWeight: 600,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.5px",
+    backgroundColor: bgColor,
+    color: textColor,
+    whiteSpace: "nowrap" as const,
+    display: "inline-block",
+    maxWidth: "120px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
+});
 
 export const ActionButtons = styled("div")(({ theme }) => ({
   display: "flex",
@@ -374,7 +376,7 @@ export const ActionButton = styled("button")<{ variant?: "view" | "edit" | "dele
     backgroundColor: theme.palette.grey[100],
     color: theme.palette.grey[600],
     "&:hover": {
-      backgroundColor: theme.palette.border.main,
+      backgroundColor: theme.palette.grey[200],
       color: theme.palette.grey[700],
     },
   }),
@@ -410,7 +412,7 @@ export const QuickActionButton = styled("button")(({ theme }) => ({
   alignItems: "center",
   gap: "12px",
   backgroundColor: theme.palette.grey[50],
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   fontSize: "14px",
   fontWeight: 500,
   transition: "all 0.2s ease",
@@ -452,12 +454,12 @@ export const ActivityContent = styled("div")(({ theme }) => ({
 
 export const ActivityText = styled("div")(({ theme }) => ({
   fontSize: "14px",
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   fontWeight: 500,
   marginBottom: "2px",
   overflow: "hidden",
   textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
+  whiteSpace: "nowrap" as const,
 }));
 
 export const ActivityTime = styled("div")(({ theme }) => ({
@@ -472,7 +474,7 @@ export const SearchResultsHeader = styled("div")(({ theme }) => ({
   marginBottom: "16px",
   padding: "12px 0",
   borderBottom: `1px solid ${theme.palette.grey[100]}`,
-  flexWrap: "wrap",
+  flexWrap: "wrap" as const,
   gap: "8px",
 }));
 
@@ -484,24 +486,24 @@ export const SearchResultsCount = styled("div")(({ theme }) => ({
 
 export const SearchQuery = styled("span")(({ theme }) => ({
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
 }));
 
 export const ClearSearchButton = styled("button")(({ theme }) => ({
   padding: "6px 12px",
   borderRadius: "6px",
-  border: `1px solid ${theme.palette.border.main}`,
+  border: `1px solid ${theme.palette.divider}`,
   backgroundColor: "transparent",
   color: theme.palette.grey[600],
   fontSize: "12px",
   cursor: "pointer",
   fontWeight: 500,
   transition: "all 0.2s ease",
-  whiteSpace: "nowrap",
+  whiteSpace: "nowrap" as const,
 
   "&:hover": {
     backgroundColor: theme.palette.grey[50],
-    borderColor: theme.palette.border.dark,
+    borderColor: theme.palette.grey[400],
   },
 }));
 
@@ -526,7 +528,7 @@ export const NoResultsIcon = styled("div")(({ theme }) => ({
 export const NoResultsTitle = styled("h3")(({ theme }) => ({
   fontSize: "16px",
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   margin: "0 0 8px",
 }));
 

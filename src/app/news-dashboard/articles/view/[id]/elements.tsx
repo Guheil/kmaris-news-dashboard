@@ -1,8 +1,14 @@
 "use client";
 
 import { styled, keyframes } from "@mui/material/styles";
+import { Theme as MUITheme } from "@mui/material/styles";
 
-const getCategoryColor = (categoryName: string) => {
+interface CategoryColors {
+  bg: string;
+  text: string;
+}
+
+const getCategoryColor = (categoryName: string): CategoryColors => {
   const colors = [
     { bg: "info.light", text: "info.dark" },
     { bg: "success.light", text: "success.dark" },
@@ -30,6 +36,18 @@ const getCategoryColor = (categoryName: string) => {
   
   const index = Math.abs(hash) % colors.length;
   return colors[index];
+};
+
+// Helper function to safely get nested palette colors
+const getPaletteColor = (theme: MUITheme, colorPath: string): string => {
+  const [colorKey, shade] = colorPath.split('.') as [keyof MUITheme['palette'], string];
+  const colorGroup = theme.palette[colorKey];
+  
+  if (colorGroup && typeof colorGroup === 'object' && shade in colorGroup) {
+    return (colorGroup as Record<string, string>)[shade];
+  }
+  
+  return colorPath; // Fallback to the original string
 };
 
 export const ViewArticleRoot = styled("div")(({ theme }) => ({
@@ -77,7 +95,7 @@ export const ArticleContainer = styled("div")(({ theme }) => ({
   borderRadius: "16px",
   padding: "32px",
   boxShadow: `0 4px 16px ${theme.palette.common.black}14`,
-  border: `1px solid ${theme.palette.border.light}`,
+  border: `1px solid ${theme.palette.divider}`,
 
   [theme.breakpoints.down("md")]: {
     padding: "24px",
@@ -96,7 +114,7 @@ export const BackButton = styled("button")(({ theme }) => ({
   gap: "8px",
   padding: "10px 16px",
   borderRadius: "8px",
-  border: `1px solid ${theme.palette.border.main}`,
+  border: `1px solid ${theme.palette.divider}`,
   backgroundColor: "transparent",
   color: theme.palette.grey[600],
   fontSize: "14px",
@@ -107,7 +125,7 @@ export const BackButton = styled("button")(({ theme }) => ({
 
   "&:hover": {
     backgroundColor: theme.palette.grey[50],
-    borderColor: theme.palette.border.dark,
+    borderColor: theme.palette.grey[400],
     color: theme.palette.grey[700],
   },
 }));
@@ -123,7 +141,7 @@ export const ArticleHeader = styled("div")(({ theme }) => ({
 export const ArticleTitle = styled("h1")(({ theme }) => ({
   fontSize: "32px",
   fontWeight: 700,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   lineHeight: 1.3,
   margin: "0 0 20px 0",
 
@@ -174,42 +192,27 @@ export const AuthorName = styled("span")(({ theme }) => ({
   color: theme.palette.grey[700],
 }));
 
-export const CategoryBadge = styled("span")<{ category: string }>(
-  ({ theme, category }) => {
-    const colors = getCategoryColor(category || "Uncategorized");
+export const CategoryBadge = styled("span")<{ category: string }>(({ theme, category }) => {
+  const colors = getCategoryColor(category || "Uncategorized");
+  const bgColor = getPaletteColor(theme, colors.bg);
+  const textColor = getPaletteColor(theme, colors.text);
 
-    // split "primary.main" → ["primary", "main"]
-    const [bgKey, bgShade] = colors.bg.split(".") as [keyof typeof theme.palette, string];
-    const [textKey, textShade] = colors.text.split(".") as [keyof typeof theme.palette, string];
-
-    // safely resolve colors
-    const bgColor =
-      theme.palette[bgKey] && (theme.palette[bgKey] as any)[bgShade]
-        ? (theme.palette[bgKey] as any)[bgShade]
-        : colors.bg; // fallback to raw string if not found
-
-    const textColor =
-      theme.palette[textKey] && (theme.palette[textKey] as any)[textShade]
-        ? (theme.palette[textKey] as any)[textShade]
-        : colors.text;
-
-    return {
-      padding: "2px 8px",
-      borderRadius: "4px",
-      fontSize: "11px",
-      fontWeight: 600,
-      textTransform: "uppercase",
-      letterSpacing: "0.5px",
-      backgroundColor: bgColor,
-      color: textColor,
-      whiteSpace: "nowrap",
-      display: "inline-block",
-      maxWidth: "120px",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    };
-  }
-);
+  return {
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "11px",
+    fontWeight: 600,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.5px",
+    backgroundColor: bgColor,
+    color: textColor,
+    whiteSpace: "nowrap" as const,
+    display: "inline-block",
+    maxWidth: "120px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
+});
 
 export const ArticleActions = styled("div")(({ theme }) => ({
   display: "flex",
@@ -258,7 +261,7 @@ export const ActionButton = styled("button")<{
     backgroundColor: theme.palette.grey[100],
     color: theme.palette.grey[600],
     "&:hover": !disabled && {
-      backgroundColor: theme.palette.border.main,
+      backgroundColor: theme.palette.grey[200],
       color: theme.palette.grey[700],
       transform: "translateY(-1px)",
     },
@@ -380,7 +383,7 @@ export const ErrorIcon = styled("div")(({ theme }) => ({
 export const ErrorTitle = styled("h3")(({ theme }) => ({
   fontSize: "20px",
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   margin: "0 0 12px",
 }));
 
@@ -403,7 +406,7 @@ export const RetryButton = styled("button")(({ theme }) => ({
   transition: "all 0.2s ease",
 
   "&:hover": {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.dark,
     transform: "translateY(-1px)",
   },
 }));

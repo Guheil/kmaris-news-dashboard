@@ -47,3 +47,8 @@ export interface Category {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface CategoryColors {
+  bg: string;
+  text: string;
+}

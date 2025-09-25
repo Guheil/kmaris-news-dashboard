@@ -19,3 +19,8 @@ export interface ViewArticlePageProps {
   isMobile?: boolean;
   articleId: string;
 }
+
+export interface CategoryColors {
+  bg: string;
+  text: string;
+}

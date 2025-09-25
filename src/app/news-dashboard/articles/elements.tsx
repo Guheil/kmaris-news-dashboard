@@ -1,8 +1,10 @@
 "use client";
 
 import { styled } from "@mui/material/styles";
+import { Theme as MUITheme } from "@mui/material/styles";
+import { CategoryColors } from "./interface";
 
-const getCategoryColor = (categoryName: string) => {
+const getCategoryColor = (categoryName: string): CategoryColors => {
   const colors = [
     { bg: "info.light", text: "info.dark" },
     { bg: "success.light", text: "success.dark" },
@@ -27,9 +29,21 @@ const getCategoryColor = (categoryName: string) => {
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
-  
+
   const index = Math.abs(hash) % colors.length;
   return colors[index];
+};
+
+// Helper function to safely get nested palette colors
+const getPaletteColor = (theme: MUITheme, colorPath: string): string => {
+  const [colorKey, shade] = colorPath.split('.') as [keyof MUITheme['palette'], string];
+  const colorGroup = theme.palette[colorKey];
+  
+  if (colorGroup && typeof colorGroup === 'object' && shade in colorGroup) {
+    return (colorGroup as Record<string, string>)[shade];
+  }
+  
+  return colorPath; // Fallback to the original string
 };
 
 export const ArticlesRoot = styled("div")(({ theme }) => ({
@@ -46,7 +60,7 @@ export const MainContent = styled("main")<{ sidebarOpen: boolean; isMobile: bool
     marginLeft: isMobile ? 0 : sidebarOpen ? "280px" : "80px",
     transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     minWidth: 0,
-    
+
     [theme.breakpoints.down("md")]: {
       marginLeft: 0,
       padding: "74px 16px 16px",
@@ -94,13 +108,13 @@ export const FiltersContainer = styled("div")(({ theme }) => ({
 export const FilterSelect = styled("select")(({ theme }) => ({
   padding: "8px 12px",
   borderRadius: "8px",
-  border: `1px solid ${theme.palette.border.main}`,
+  border: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.common.white,
   fontSize: "14px",
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   cursor: "pointer",
   minWidth: "120px",
-  
+
   "&:focus": {
     outline: "none",
     borderColor: theme.palette.primary.main,
@@ -136,7 +150,7 @@ export const ViewToggleButton = styled("button")<{ active: boolean }>(({ theme, 
   gap: "6px",
 
   "&:hover": {
-    backgroundColor: active ? theme.palette.common.white : theme.palette.border.main,
+    backgroundColor: active ? theme.palette.common.white : theme.palette.grey[200],
   },
 }));
 
@@ -160,16 +174,16 @@ export const ArticleCard = styled("div")<{ viewMode: "grid" | "list"; isArchived
   borderRadius: "16px",
   overflow: "hidden",
   boxShadow: `0 4px 12px ${theme.palette.common.black}14`,
-  border: `1px solid ${theme.palette.border.light}`,
+  border: `1px solid ${theme.palette.divider}`,
   transition: "all 0.3s ease",
   display: viewMode === "list" ? "flex" : "block",
   position: "relative",
-  
+
   ...(isArchived && {
     opacity: 0.7,
     backgroundColor: theme.palette.grey[50],
-    border: `1px solid ${theme.palette.border.main}`,
-    
+    border: `1px solid ${theme.palette.divider}`,
+
     "&::before": {
       content: '"ARCHIVED"',
       position: "absolute",
@@ -185,7 +199,7 @@ export const ArticleCard = styled("div")<{ viewMode: "grid" | "list"; isArchived
       letterSpacing: "0.5px",
     },
   }),
-  
+
   "&:hover": {
     boxShadow: isArchived ? `0 4px 12px ${theme.palette.common.black}14` : `0 8px 24px ${theme.palette.common.black}1F`,
     transform: isArchived ? "none" : "translateY(-4px)",
@@ -252,7 +266,7 @@ export const ArticleHeader = styled("div")(({ theme }) => ({
 export const ArticleTitle = styled("h3")<{ isArchived?: boolean }>(({ theme, isArchived }) => ({
   fontSize: "18px",
   fontWeight: 600,
-  color: isArchived ? theme.palette.grey[600] : theme.palette.navy.main,
+  color: isArchived ? theme.palette.grey[600] : theme.palette.text.primary,
   margin: 0,
   lineHeight: 1.4,
   flex: 1,
@@ -279,7 +293,7 @@ export const ActionButton = styled("button")<{
   transition: "all 0.2s ease",
   fontSize: "14px",
   fontWeight: 500,
-  
+
   ...(variant === "edit" && {
     backgroundColor: `${theme.palette.primary.main}15`,
     color: theme.palette.primary.main,
@@ -300,7 +314,7 @@ export const ActionButton = styled("button")<{
     backgroundColor: theme.palette.grey[100],
     color: theme.palette.grey[600],
     "&:hover": {
-      backgroundColor: theme.palette.border.main,
+      backgroundColor: theme.palette.grey[200],
       color: theme.palette.grey[700],
       transform: "scale(1.05)",
     },
@@ -338,43 +352,27 @@ export const MetaItem = styled("div")(({ theme }) => ({
   gap: "6px",
 }));
 
-export const CategoryBadge = styled("span")<{ category: string }>(
-  ({ theme, category }) => {
-    const colors = getCategoryColor(category || "Uncategorized");
+export const CategoryBadge = styled("span")<{ category: string }>(({ theme, category }) => {
+  const colors = getCategoryColor(category || "Uncategorized");
+  const bgColor = getPaletteColor(theme, colors.bg);
+  const textColor = getPaletteColor(theme, colors.text);
 
-    // split "primary.main" → ["primary", "main"]
-    const [bgKey, bgShade] = colors.bg.split(".") as [keyof typeof theme.palette, string];
-    const [textKey, textShade] = colors.text.split(".") as [keyof typeof theme.palette, string];
-
-    // safely resolve colors
-    const bgColor =
-      theme.palette[bgKey] && (theme.palette[bgKey] as any)[bgShade]
-        ? (theme.palette[bgKey] as any)[bgShade]
-        : colors.bg; // fallback to raw string if not found
-
-    const textColor =
-      theme.palette[textKey] && (theme.palette[textKey] as any)[textShade]
-        ? (theme.palette[textKey] as any)[textShade]
-        : colors.text;
-
-    return {
-      padding: "2px 8px",
-      borderRadius: "4px",
-      fontSize: "11px",
-      fontWeight: 600,
-      textTransform: "uppercase",
-      letterSpacing: "0.5px",
-      backgroundColor: bgColor,
-      color: textColor,
-      whiteSpace: "nowrap",
-      display: "inline-block",
-      maxWidth: "120px",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    };
-  }
-);
-
+  return {
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "11px",
+    fontWeight: 600,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.5px",
+    backgroundColor: bgColor,
+    color: textColor,
+    whiteSpace: "nowrap" as const,
+    display: "inline-block",
+    maxWidth: "120px",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
+});
 
 export const ArticleDescription = styled("div")<{ viewMode: "grid" | "list"; isArchived?: boolean }>(({ theme, viewMode, isArchived }) => ({
   fontSize: "14px",
@@ -404,13 +402,13 @@ export const SearchResultsCount = styled("div")(({ theme }) => ({
 
 export const SearchQuery = styled("span")(({ theme }) => ({
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
 }));
 
 export const ClearSearchButton = styled("button")(({ theme }) => ({
   padding: "8px 16px",
   borderRadius: "8px",
-  border: `1px solid ${theme.palette.border.main}`,
+  border: `1px solid ${theme.palette.divider}`,
   backgroundColor: "transparent",
   color: theme.palette.grey[600],
   fontSize: "14px",
@@ -420,7 +418,7 @@ export const ClearSearchButton = styled("button")(({ theme }) => ({
 
   "&:hover": {
     backgroundColor: theme.palette.grey[50],
-    borderColor: theme.palette.border.dark,
+    borderColor: theme.palette.grey[400],
   },
 }));
 
@@ -445,7 +443,7 @@ export const NoResultsIcon = styled("div")(({ theme }) => ({
 export const NoResultsTitle = styled("h3")(({ theme }) => ({
   fontSize: "20px",
   fontWeight: 600,
-  color: theme.palette.navy.main,
+  color: theme.palette.text.primary,
   margin: "0 0 12px",
 }));
 
@@ -468,9 +466,9 @@ export const PaginationButton = styled("button")<{ active?: boolean; disabled?: 
   width: "40px",
   height: "40px",
   borderRadius: "8px",
-  border: `1px solid ${theme.palette.border.main}`,
+  border: `1px solid ${theme.palette.divider}`,
   backgroundColor: active ? theme.palette.primary.main : theme.palette.common.white,
-  color: active ? theme.palette.common.white : disabled ? theme.palette.grey[400] : theme.palette.navy.main,
+  color: active ? theme.palette.common.white : disabled ? theme.palette.grey[400] : theme.palette.text.primary,
   cursor: disabled ? "not-allowed" : "pointer",
   fontSize: "14px",
   fontWeight: 500,
@@ -481,7 +479,7 @@ export const PaginationButton = styled("button")<{ active?: boolean; disabled?: 
 
   "&:hover": {
     backgroundColor: disabled ? theme.palette.common.white : active ? theme.palette.primary.main : theme.palette.grey[50],
-    borderColor: disabled ? theme.palette.border.main : active ? theme.palette.primary.main : theme.palette.border.dark,
+    borderColor: disabled ? theme.palette.divider : active ? theme.palette.primary.main : theme.palette.grey[400],
   },
 }));
 
