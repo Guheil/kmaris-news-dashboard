@@ -1,96 +1,38 @@
+// EditArticlePage.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Home,
   FileText,
   Plus,
-  Save,
-  Eye,
-  Image as ImageIcon,
-  Video,
-  X,
-  ArrowLeft,
   ArchiveIcon,
-  Loader2,
-  BarChart3,
   EyeIcon,
+  BarChart3,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
+import { ArticleFormBasicInfo } from "@/components/ArticleFormBasicInfo/ArticleFormBasicInfo";
+import { MediaUploadSection } from "@/components/MediaUploadSection/MediaUploadSection";
+import { ArticleFormActions } from "@/components/ArticleFormActions/ArticleFormActions";
+import { LoadingState } from "@/components/LoadingState/LoadingState";
 import {
-  FormField,
-  Select,
-  RequiredIndicator,
-  Label,
-  MediaUploadBox,
-  Button,
   EditArticleRoot,
   SidebarOverlay,
   MainContent,
+  FormContainer,
   FormHeader,
   FormTitle,
   FormSubtitle,
-  SectionTitle,
-  FormGrid,
   ErrorMessage,
-  MediaUploadContainer,
-  TextArea,
-  Input,
 } from "./elements";
 import {
-   EditArticlePageProps, 
-   EditArticleFormData, 
-   Category 
-  } from "./interface";
-
-
-
-// Utility function for universal video embedding
-const getVideoEmbedDetails = (url: string) => {
-  const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
-
-  // Direct video file check
-  const directVideoRegex = /\.(mp4|avi|mov|wmv|flv|webm|ogv|mkv)$/i;
-  if (directVideoRegex.test(normalizedUrl)) {
-    return { type: "video" as const, src: normalizedUrl };
-  }
-
-  // YouTube
-  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const youtubeMatch = normalizedUrl.match(youtubeRegex);
-  if (youtubeMatch) {
-    return { type: "iframe" as const, src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
-  }
-
-  // Vimeo
-  const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/;
-  const vimeoMatch = normalizedUrl.match(vimeoRegex);
-  if (vimeoMatch) {
-    return { type: "iframe" as const, src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
-  }
-
-  // Dailymotion
-  const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
-  const dailymotionMatch = normalizedUrl.match(dailymotionRegex);
-  if (dailymotionMatch) {
-    return { type: "iframe" as const, src: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}` };
-  }
-
-  // Google Drive
-  const driveRegex = /\/file\/d\/([a-zA-Z0-9-_]+)(?:\/[^\/\s]*)?|open\?id=([a-zA-Z0-9-_]+)/;
-  const driveMatch = normalizedUrl.match(driveRegex);
-  if (driveMatch) {
-    const fileId = driveMatch[1] || driveMatch[2];
-    return { type: "iframe" as const, src: `https://drive.google.com/file/d/${fileId}/preview` };
-  }
-
-  // Fallback
-  return { type: "iframe" as const, src: normalizedUrl };
-};
+  EditArticlePageProps,
+  EditArticleFormData,
+  Category,
+} from "./interface";
 
 export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   sidebarOpen,
@@ -99,8 +41,6 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   articleId,
 }) => {
   const router = useRouter();
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -108,28 +48,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [categories, setCategories] = useState<Category[]>([]);
-  // const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  // const [categoryError, setCategoryError] = useState<string | null>(null);
   
-    useEffect(() => {
-      const fetchCategories = async () => {
-        try {
-          const response = await fetch("/api/categories");
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-          }
-          const data = await response.json();
-          setCategories(data);
-        } catch (error) {
-          console.error("Error fetching categories:", error);
-        } finally {
-        }
-      };
-  
-      fetchCategories();
-    }, []);
-  
-
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: "",
     author: "",
@@ -141,6 +60,25 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     videoUrl: "",
   });
 
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Fetch article data on component mount
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -183,8 +121,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImageUpload = (file: File | null) => {
     if (!file) {
       setUploadError("No file selected");
       return;
@@ -218,8 +155,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     reader.readAsDataURL(file);
   };
 
-  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleVideoUpload = (file: File | null) => {
     if (!file) {
       setUploadError("No file selected");
       return;
@@ -268,15 +204,13 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     }));
   };
 
-  const removeMedia = () => {
+  const handleRemoveMedia = () => {
     setFormData((prev) => ({
       ...prev,
       newsImage: null,
       newsVideo: null,
       videoUrl: "",
     }));
-    if (imageInputRef.current) imageInputRef.current.value = "";
-    if (videoInputRef.current) videoInputRef.current.value = "";
     setUploadError(null);
   };
 
@@ -413,27 +347,7 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
           isMobile={isMobile}
         />
         <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-          <div
-            style={{
-              maxWidth: "800px",
-              margin: "0 auto",
-              backgroundColor: "#ffffff",
-              borderRadius: "16px",
-              padding: "32px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              border: "1px solid rgba(0,0,0,0.05)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "400px",
-              flexDirection: "column",
-              gap: "16px",
-              color: "#64748b",
-            }}
-          >
-            <Loader2 size={32} className="animate-spin" />
-            <span>Loading article...</span>
-          </div>
+          <LoadingState message="Loading article..." />
         </MainContent>
       </EditArticleRoot>
     );
@@ -481,333 +395,55 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
         isMobile={isMobile}
       />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
-        <div
-          style={{
-            maxWidth: "800px",
-            margin: "0 auto",
-            backgroundColor: "#ffffff",
-            borderRadius: "16px",
-            padding: "32px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            border: "1px solid rgba(0,0,0,0.05)",
-          }}
-        >
+        <FormContainer>
           <FormHeader>
             <FormTitle>Edit Article</FormTitle>
             <FormSubtitle>Update the article details below and save your changes</FormSubtitle>
           </FormHeader>
-          <div style={{ marginBottom: "32px" }}>
-            <SectionTitle>Basic Information</SectionTitle>
-            <FormGrid>
-              <FormField>
-                <Label>
-                  Title <RequiredIndicator />
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="Enter article title..."
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                />
-                {errors.title && <ErrorMessage>{errors.title}</ErrorMessage>}
-              </FormField>
-              <FormField>
-                <Label>
-                  Author <RequiredIndicator />
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="Author name..."
-                  value={formData.author}
-                  onChange={(e) => handleInputChange("author", e.target.value)}
-                />
-                {errors.author && <ErrorMessage>{errors.author}</ErrorMessage>}
-              </FormField>
-              <FormField>
-                <Label>
-                  Category <RequiredIndicator />
-                </Label>
-                <Select
-                  value={formData.category}
-                  onChange={(e) => handleInputChange("category", e.target.value)}
-                >
-                  <option value="">Select category...</option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.categoryName}
-                    </option>
-                  ))}
-                </Select>
-                {errors.category && <ErrorMessage>{errors.category}</ErrorMessage>}
-              </FormField>
-              <FormField>
-                <Label>
-                  Status <RequiredIndicator />
-                </Label>
-                <Select
-                  value={formData.status}
-                  onChange={(e) => handleInputChange("status", e.target.value as EditArticleFormData["status"])}
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="archived">Archived</option>
-                </Select>
-              </FormField>
-              <FormField fullWidth>
-                <Label>
-                  Description <RequiredIndicator />
-                </Label>
-                <TextArea
-                  placeholder="Enter article description..."
-                  value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
-                />
-                {errors.description && <ErrorMessage>{errors.description}</ErrorMessage>}
-              </FormField>
-            </FormGrid>
-          </div>
-          <div style={{ marginBottom: "32px" }}>
-            <SectionTitle>Media</SectionTitle>
-            {uploadError && <ErrorMessage style={{ marginBottom: "16px" }}>{uploadError}</ErrorMessage>}
-            <MediaUploadContainer>
-              <div>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleImageUpload}
-                  style={{ display: "none" }}
-                />
-                <MediaUploadBox
-                  hasMedia={!!formData.newsImage}
-                  onClick={() => !formData.newsVideo && !formData.videoUrl && imageInputRef.current?.click()}
-                >
-                  {formData.newsImage ? (
-                    <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", height: "100%", width: "100%" }}>
-                      <Image
-                        src={formData.newsImage}
-                        alt="Preview"
-                        width={300}
-                        height={200}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeMedia();
-                        }}
-                        style={{
-                          position: "absolute",
-                          top: "8px",
-                          right: "8px",
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "50%",
-                          border: "none",
-                          backgroundColor: "rgba(0,0,0,0.7)",
-                          color: "white",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div
-                        style={{
-                          width: "48px",
-                          height: "48px",
-                          borderRadius: "50%",
-                          backgroundColor: "#f1f5f9",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          margin: "0 auto 12px",
-                          color: "#64748b",
-                        }}
-                      >
-                        <ImageIcon size={20} />
-                      </div>
-                      <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500, marginBottom: "4px" }}>
-                        Upload Image
-                      </div>
-                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>PNG, JPG up to 5MB</div>
-                    </>
-                  )}
-                </MediaUploadBox>
-              </div>
-              <div>
-                <input
-                  ref={videoInputRef}
-                  type="file"
-                  accept="video/mp4,video/avi"
-                  onChange={handleVideoUpload}
-                  style={{ display: "none" }}
-                />
-                <MediaUploadBox
-                  hasMedia={!!formData.newsVideo}
-                  onClick={() => !formData.newsImage && !formData.videoUrl && videoInputRef.current?.click()}
-                >
-                  {formData.newsVideo ? (
-                    <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", height: "100%", width: "100%" }}>
-                      <video
-                        src={formData.newsVideo}
-                        controls
-                        style={{ width: "100%", height: "100%", borderRadius: "8px" }}
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeMedia();
-                        }}
-                        style={{
-                          position: "absolute",
-                          top: "8px",
-                          right: "8px",
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "50%",
-                          border: "none",
-                          backgroundColor: "rgba(0,0,0,0.7)",
-                          color: "white",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div
-                        style={{
-                          width: "48px",
-                          height: "48px",
-                          borderRadius: "50%",
-                          backgroundColor: "#f1f5f9",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          margin: "0 auto 12px",
-                          color: "#64748b",
-                        }}
-                      >
-                        <Video size={20} />
-                      </div>
-                      <div style={{ fontSize: "14px", color: "#64748b", fontWeight: 500, marginBottom: "4px" }}>
-                        Upload Video
-                      </div>
-                      <div style={{ fontSize: "12px", color: "#94a3b8" }}>MP4, AVI up to 50MB</div>
-                    </>
-                  )}
-                </MediaUploadBox>
-              </div>
-            </MediaUploadContainer>
-            <FormField fullWidth style={{ marginTop: "20px" }}>
-              <Label>Video URL</Label>
-              <Input
-                type="text"
-                placeholder="Enter video URL (YouTube, Vimeo, Google Drive, or direct link)..."
-                value={formData.videoUrl}
-                onChange={(e) => handleVideoUrlChange(e.target.value)}
-              />
-              {errors.videoUrl && <ErrorMessage>{errors.videoUrl}</ErrorMessage>}
-              {formData.videoUrl && !errors.videoUrl && (
-                <div style={{ position: "relative", borderRadius: "8px", overflow: "hidden", height: "200px", width: "100%" }}>
-                  {getVideoEmbedDetails(formData.videoUrl).type === "video" ? (
-                    <video
-                      src={getVideoEmbedDetails(formData.videoUrl).src}
-                      controls
-                      style={{ width: "100%", height: "100%", borderRadius: "8px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <>
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={getVideoEmbedDetails(formData.videoUrl).src}
-                        title="Video Preview"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        style={{ borderRadius: "8px" }}
-                      />
-                      {/drive\.google\.com/.test(formData.videoUrl) && (
-                        <div
-                          style={{
-                            fontSize: "10px",
-                            color: "#64748b",
-                            textAlign: "center",
-                            marginTop: "4px",
-                          }}
-                        >
-                          Google Drive: Must be publicly shared
-                        </div>
-                      )}
-                    </>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeMedia();
-                    }}
-                    style={{
-                      position: "absolute",
-                      top: "8px",
-                      right: "8px",
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "50%",
-                      border: "none",
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      color: "white",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              )}
-            </FormField>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "12px",
-              marginTop: "32px",
-              paddingTop: "24px",
-              borderTop: "1px solid #f1f5f9",
+
+          <ArticleFormBasicInfo
+            formData={{
+              title: formData.title,
+              author: formData.author,
+              category: formData.category,
+              description: formData.description,
+              status: formData.status,
             }}
-          >
-            <Button variant="outline" onClick={handleBack} disabled={saving}>
-              <ArrowLeft size={16} />
-              Cancel
-            </Button>
-            {/* <Button variant="secondary" onClick={handlePreview} disabled={saving}>
-              <Eye size={16} />
-              Preview
-            </Button> */}
-            {/* <Button variant="secondary" onClick={() => handleSave("draft")} disabled={saving}>
-              {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-              Save Draft
-            </Button> */}
-            <Button variant="primary" onClick={() => handleSave("published")} disabled={saving}>
-              {saving ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
-              {saving ? "Saving..." : "Update Article"}
-            </Button>
-          </div>
-          {submitError && <ErrorMessage style={{ display: "block", marginTop: "16px" }}>{submitError}</ErrorMessage>}
-        </div>
+            errors={errors}
+            categories={categories}
+            onInputChange={handleInputChange}
+          />
+
+          <MediaUploadSection
+            formData={{
+              newsImage: formData.newsImage,
+              newsVideo: formData.newsVideo,
+              videoUrl: formData.videoUrl,
+            }}
+            errors={errors}
+            uploadError={uploadError}
+            onImageUpload={handleImageUpload}
+            onVideoUpload={handleVideoUpload}
+            onVideoUrlChange={handleVideoUrlChange}
+            onRemoveMedia={handleRemoveMedia}
+          />
+
+          <ArticleFormActions
+            saving={saving}
+            onCancel={handleBack}
+            onPreview={handlePreview}
+            onSaveDraft={() => handleSave("draft")}
+            onPublish={() => handleSave("published")}
+            showPreview={false}
+            showSaveDraft={false}
+          />
+
+          {submitError && (
+            <ErrorMessage style={{ display: "block", marginTop: "16px" }}>
+              {submitError}
+            </ErrorMessage>
+          )}
+        </FormContainer>
       </MainContent>
     </EditArticleRoot>
   );

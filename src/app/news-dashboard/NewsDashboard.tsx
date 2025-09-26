@@ -40,12 +40,12 @@ export const NewsDashboard: FC<DashboardProps> = ({
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const session = getSession();
-    if (!session) {
-      router.push("/");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const session = getSession();
+  //   if (!session) {
+  //     router.push("/");
+  //   }
+  // }, [router]);
 
   useEffect(() => {
     const fetchArticles = async () => {
