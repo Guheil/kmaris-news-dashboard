@@ -1,4 +1,3 @@
-
 "use client";
 
 import { FC } from "react";
@@ -57,8 +56,8 @@ export const ArticleControls: FC<ArticleControlsProps> = ({
           onChange={(e) => {
             const [field, direction] = e.target.value.split("-");
             onSortChange({
-              field: field as any, // Type assertion for simplicity; adjust if needed
-              direction: direction as any,
+              field: field as "date" | "title" | "views" | "category",
+              direction: direction as "asc" | "desc",
             });
           }}
         >
