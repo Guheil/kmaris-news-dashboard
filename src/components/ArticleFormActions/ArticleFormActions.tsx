@@ -38,7 +38,7 @@ export const ArticleFormActions: React.FC<ArticleFormActionsProps> = ({
         
         <Button customVariant="primary" onClick={onPublish} disabled={saving}>
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
-          {saving ? "Saving..." : "Update Article"}
+          {saving ? "Saving..." : "Publish Article"}
         </Button>
       </ButtonGroup>
     </ActionsContainer>

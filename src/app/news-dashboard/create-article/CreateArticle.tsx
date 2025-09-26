@@ -1,28 +1,23 @@
+// CreateArticle.tsx (refactored)
 "use client";
 
-import { FC, useState, useRef, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Home,
-  FileText,
-  BarChart3,
-  Plus,
-  Save,
-  Eye,
-  Image as ImageIcon,
-  Video,
-  X,
-  ArrowLeft,
-  EyeIcon,
-} from "lucide-react";
+import { Home, FileText, BarChart3, Plus, EyeIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
+import { LoadingState } from "@/components/LoadingState/LoadingState";
+import { ArticleFormBasicInfo } from "@/components/ArticleFormBasicInfo/ArticleFormBasicInfo";
+import { MediaUploadSection } from "@/components/MediaUploadSection/MediaUploadSection";
+import { ArticleFormActions } from "@/components/ArticleFormActions/ArticleFormActions";
 import {
   CreateArticlePageProps,
   ArticleFormData,
   FormErrors,
   Category,
+  BasicInfoFormData,
+  MediaFormData,
 } from "./interface";
 import {
   CreateArticleRoot,
@@ -32,28 +27,8 @@ import {
   FormHeader,
   FormTitle,
   FormSubtitle,
-  FormSection,
-  SectionTitle,
-  FormGrid,
-  FormField,
-  Label,
-  RequiredIndicator,
-  Input,
-  Select,
-  Textarea,
   ErrorMessage,
-  MediaUploadContainer,
-  MediaUploadBox,
-  MediaUploadIcon,
-  MediaUploadText,
-  MediaUploadSubtext,
-  MediaPreview,
-  MediaPreviewImage,
-  MediaRemoveButton,
-  ActionButtons,
-  Button,
 } from "./elements";
-
 
 export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   sidebarOpen,
@@ -61,8 +36,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   isMobile = false,
 }) => {
   const router = useRouter();
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<ArticleFormData>({
     title: "",
@@ -82,6 +55,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [categoryError, setCategoryError] = useState<string | null>(null);
 
+  // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -110,33 +84,66 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData((prev) => ({
-          ...prev,
-          newsImage: e.target?.result as string,
-          newsVideo: "",
-          videoUrl: "",
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const handleImageUpload = (file: File | null) => {
+    if (!file) return;
 
-  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
+    const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!validTypes.includes(file.type)) {
+      setSubmitError("Only PNG and JPG files are allowed");
+      return;
+    }
+    if (file.size > maxSize) {
+      setSubmitError("Image size must be less than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
       setFormData((prev) => ({
         ...prev,
-        newsVideo: url,
+        newsImage: e.target?.result as string,
+        newsVideo: "",
+        videoUrl: "",
+      }));
+      setSubmitError(null);
+    };
+    reader.onerror = () => {
+      setSubmitError("Failed to read image file");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleVideoUpload = (file: File | null) => {
+    if (!file) return;
+
+    const validTypes = ["video/mp4", "video/avi"];
+    const maxSize = 50 * 1024 * 1024;
+
+    if (!validTypes.includes(file.type)) {
+      setSubmitError("Only MP4 and AVI files are allowed");
+      return;
+    }
+    if (file.size > maxSize) {
+      setSubmitError("Video size must be less than 50MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFormData((prev) => ({
+        ...prev,
+        newsVideo: e.target?.result as string,
         newsImage: "",
         videoUrl: "",
       }));
-    }
+      setSubmitError(null);
+    };
+    reader.onerror = () => {
+      setSubmitError("Failed to read video file");
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleVideoUrlChange = (value: string) => {
@@ -164,8 +171,6 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       newsVideo: "",
       videoUrl: "",
     }));
-    if (imageInputRef.current) imageInputRef.current.value = "";
-    if (videoInputRef.current) videoInputRef.current.value = "";
   };
 
   const validateForm = (): boolean => {
@@ -237,7 +242,9 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
 
       await Swal.fire({
         title: "Draft Saved",
-        text: `Article ${status === "draft" ? "saved as draft" : "published"} successfully`,
+        text: `Article ${
+          status === "draft" ? "saved as draft" : "published"
+        } successfully`,
         icon: "success",
         confirmButtonText: "OK",
         timer: 3000,
@@ -247,6 +254,7 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       if (status === "published") {
         router.push("/news-dashboard/articles");
       } else {
+        // Reset form for draft
         setFormData({
           title: "",
           author: "",
@@ -287,7 +295,8 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
   };
 
   const getVideoEmbedUrl = (url: string): string => {
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const youtubeRegex =
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const youtubeMatch = url.match(youtubeRegex);
     if (youtubeMatch) {
       return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
@@ -299,7 +308,8 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
       return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
     }
 
-    const dailymotionRegex = /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
+    const dailymotionRegex =
+      /(?:dailymotion\.com\/video\/|dailymotion\.com\/embed\/video\/)([a-zA-Z0-9]+)/;
     const dailymotionMatch = url.match(dailymotionRegex);
     if (dailymotionMatch) {
       return `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}`;
@@ -307,6 +317,89 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
 
     return url;
   };
+
+  const handleSearch = (query: string) => {
+    console.log("Search in create page:", query);
+  };
+
+  if (isLoadingCategories) {
+    return (
+      <CreateArticleRoot>
+        <SidebarOverlay
+          show={isMobile && sidebarOpen}
+          onClick={handleOverlayClick}
+        />
+        <Sidebar
+          isOpen={sidebarOpen}
+          onToggle={onSidebarToggle}
+          navSections={[
+            {
+              title: "Overview",
+              items: [
+                {
+                  icon: <Home size={20} />,
+                  text: "Dashboard",
+                  href: "/news-dashboard",
+                },
+              ],
+            },
+            {
+              title: "News Management",
+              items: [
+                {
+                  icon: <FileText size={20} />,
+                  text: "All Articles",
+                  href: "/news-dashboard/articles",
+                },
+                {
+                  icon: <Plus size={20} />,
+                  text: "Create Article",
+                  href: "/news-dashboard/create-article",
+                  active: true,
+                },
+                {
+                  icon: <BarChart3 size={20} />,
+                  text: "Analytics",
+                  href: "/news-dashboard/analytics",
+                  active: false,
+                },
+              ],
+            },
+            {
+              title: "Preview",
+              items: [
+                {
+                  icon: <EyeIcon size={20} />,
+                  text: "News Preview",
+                  href: "/news-preview",
+                  active: false,
+                },
+              ],
+            },
+          ]}
+          userName="Kmaris Admin"
+          userRole="Editor"
+          userInitials="JD"
+          collapsible={!isMobile}
+          navItems={[]}
+        />
+        <Header
+          title="Create Article"
+          onMenuToggle={onSidebarToggle}
+          onSearch={handleSearch}
+          userName="Kmaris Admin"
+          userRole="Editor"
+          userInitials="KA"
+          notifications={3}
+          isSidebarOpen={sidebarOpen}
+          isMobile={isMobile}
+        />
+        <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
+          <LoadingState message="Loading categories..." />
+        </MainContent>
+      </CreateArticleRoot>
+    );
+  }
 
   return (
     <CreateArticleRoot>
@@ -364,13 +457,14 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
         ]}
         userName="Kmaris Admin"
         userRole="Editor"
-        userInitials="KA"
+        userInitials="JD"
         collapsible={!isMobile}
         navItems={[]}
       />
       <Header
         title="Create Article"
         onMenuToggle={onSidebarToggle}
+        onSearch={handleSearch}
         userName="Kmaris Admin"
         userRole="Editor"
         userInitials="KA"
@@ -386,243 +480,45 @@ export const CreateArticlePage: FC<CreateArticlePageProps> = ({
               Fill in the details below to create a new news article
             </FormSubtitle>
           </FormHeader>
-          <FormSection>
-            <SectionTitle>Basic Information</SectionTitle>
-            <FormGrid>
-              <FormField fullWidth>
-                <Label>
-                  Title <RequiredIndicator>*</RequiredIndicator>
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="Enter article title..."
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                  error={!!errors.title}
-                />
-                {errors.title && <ErrorMessage>{errors.title}</ErrorMessage>}
-              </FormField>
-              <FormField>
-                <Label>
-                  Author <RequiredIndicator>*</RequiredIndicator>
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="Author name..."
-                  value={formData.author}
-                  onChange={(e) => handleInputChange("author", e.target.value)}
-                  error={!!errors.author}
-                />
-                {errors.author && <ErrorMessage>{errors.author}</ErrorMessage>}
-              </FormField>
-              <FormField>
-                <Label>
-                  Category <RequiredIndicator>*</RequiredIndicator>
-                </Label>
-                <Select
-                  value={formData.category}
-                  onChange={(e) =>
-                    handleInputChange("category", e.target.value)
-                  }
-                  error={!!errors.category}
-                  disabled={isLoadingCategories || !!categoryError}
-                >
-                  <option value="">
-                    {isLoadingCategories
-                      ? "Loading categories..."
-                      : categoryError
-                      ? "Error loading categories"
-                      : "Select category..."}
-                  </option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.categoryName}
-                    </option>
-                  ))}
-                </Select>
-                {errors.category && (
-                  <ErrorMessage>{errors.category}</ErrorMessage>
-                )}
-                {categoryError && (
-                  <ErrorMessage>{categoryError}</ErrorMessage>
-                )}
-              </FormField>
-              <FormField fullWidth>
-                <Label>
-                  Description <RequiredIndicator>*</RequiredIndicator>
-                </Label>
-                <Textarea
-                  placeholder="Enter article description..."
-                  value={formData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
-                  error={!!errors.description}
-                />
-                {errors.description && (
-                  <ErrorMessage>{errors.description}</ErrorMessage>
-                )}
-              </FormField>
-            </FormGrid>
-          </FormSection>
-          <FormSection>
-            <SectionTitle>Media</SectionTitle>
-            <MediaUploadContainer>
-              <div>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  style={{ display: "none" }}
-                />
-                <MediaUploadBox
-                  hasMedia={!!formData.newsImage}
-                  onClick={() =>
-                    !formData.newsVideo &&
-                    !formData.videoUrl &&
-                    imageInputRef.current?.click()
-                  }
-                >
-                  {formData.newsImage ? (
-                    <MediaPreview>
-                      <MediaPreviewImage
-                        src={formData.newsImage}
-                        alt="Preview"
-                      />
-                      <MediaRemoveButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeMedia();
-                        }}
-                      >
-                        <X size={12} />
-                      </MediaRemoveButton>
-                    </MediaPreview>
-                  ) : (
-                    <>
-                      <MediaUploadIcon>
-                        <ImageIcon size={20} />
-                      </MediaUploadIcon>
-                      <MediaUploadText>Upload Image</MediaUploadText>
-                      <MediaUploadSubtext>
-                        PNG, JPG up to 5MB
-                      </MediaUploadSubtext>
-                    </>
-                  )}
-                </MediaUploadBox>
-              </div>
-              <div>
-                <input
-                  ref={videoInputRef}
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoUpload}
-                  style={{ display: "none" }}
-                />
-                <MediaUploadBox
-                  hasMedia={!!formData.newsVideo}
-                  onClick={() =>
-                    !formData.newsImage &&
-                    !formData.videoUrl &&
-                    videoInputRef.current?.click()
-                  }
-                >
-                  {formData.newsVideo ? (
-                    <MediaPreview>
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100px",
-                          backgroundColor: "#f1f5f9",
-                          borderRadius: "8px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#64748b",
-                        }}
-                      >
-                        <Video size={24} />
-                      </div>
-                      <MediaRemoveButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeMedia();
-                        }}
-                      >
-                        <X size={12} />
-                      </MediaRemoveButton>
-                    </MediaPreview>
-                  ) : (
-                    <>
-                      <MediaUploadIcon>
-                        <Video size={20} />
-                      </MediaUploadIcon>
-                      <MediaUploadText>Upload Video</MediaUploadText>
-                      <MediaUploadSubtext>
-                        MP4, AVI up to 50MB
-                      </MediaUploadSubtext>
-                    </>
-                  )}
-                </MediaUploadBox>
-              </div>
-            </MediaUploadContainer>
-            <FormField fullWidth style={{ marginTop: "20px" }}>
-              <Label>Video URL (YouTube, Vimeo, Dailymotion, etc.)</Label>
-              <Input
-                type="text"
-                placeholder="Enter video URL..."
-                value={formData.videoUrl}
-                onChange={(e) => handleVideoUrlChange(e.target.value)}
-                error={!!errors.videoUrl}
-              />
-              {errors.videoUrl && <ErrorMessage>{errors.videoUrl}</ErrorMessage>}
-              {formData.videoUrl && !errors.videoUrl && (
-                <MediaPreview style={{ marginTop: "12px" }}>
-                  <iframe
-                    width="100%"
-                    height="100px"
-                    src={getVideoEmbedUrl(formData.videoUrl)}
-                    title="Video Preview"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{ borderRadius: "8px" }}
-                  />
-                  <MediaRemoveButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeMedia();
-                    }}
-                  >
-                    <X size={12} />
-                  </MediaRemoveButton>
-                </MediaPreview>
-              )}
-            </FormField>
-          </FormSection>
-          <ActionButtons>
-            <Button variant="outline" onClick={goBack} disabled={isSubmitting}>
-              <ArrowLeft size={16} />
-              Cancel
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => handleSubmit("draft")}
-              disabled={isSubmitting}
-            >
-              <Save size={16} />
-              Save Draft
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => handleSubmit("published")}
-              disabled={isSubmitting}
-            >
-              <Eye size={16} />
-              Publish Article
-            </Button>
-          </ActionButtons>
+
+          <ArticleFormBasicInfo
+            formData={{
+              title: formData.title,
+              author: formData.author,
+              category: formData.category,
+              description: formData.description,
+              status: formData.status,
+            }}
+            errors={errors}
+            categories={categories}
+            onInputChange={handleInputChange}
+            isLoadingCategories={isLoadingCategories}
+            categoryError={categoryError}
+          />
+
+          <MediaUploadSection
+            formData={{
+              newsImage: formData.newsImage,
+              newsVideo: formData.newsVideo,
+              videoUrl: formData.videoUrl,
+            }}
+            errors={errors}
+            uploadError={submitError}
+            onImageUpload={handleImageUpload}
+            onVideoUpload={handleVideoUpload}
+            onVideoUrlChange={handleVideoUrlChange}
+            onRemoveMedia={removeMedia}
+          />
+
+          <ArticleFormActions
+            saving={isSubmitting}
+            onCancel={goBack}
+            onSaveDraft={() => handleSubmit("draft")}
+            onPublish={() => handleSubmit("published")}
+            showPreview={true}
+            showSaveDraft={true}
+          />
+
           {submitError && (
             <ErrorMessage style={{ display: "block", marginTop: "16px" }}>
               {submitError}

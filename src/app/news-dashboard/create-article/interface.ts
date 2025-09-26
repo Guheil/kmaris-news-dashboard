@@ -1,3 +1,4 @@
+// interface.ts (updated)
 export interface ArticleFormData {
   title: string;
   author: string;
@@ -26,4 +27,19 @@ export interface CreateArticlePageProps {
 export interface Category {
   _id: string;
   categoryName: string;
+}
+
+// Add these for the new components
+export interface BasicInfoFormData {
+  title: string;
+  author: string;
+  category: string;
+  description: string;
+  status: "draft" | "published";
+}
+
+export interface MediaFormData {
+  newsImage: string;
+  newsVideo: string;
+  videoUrl: string;
 }

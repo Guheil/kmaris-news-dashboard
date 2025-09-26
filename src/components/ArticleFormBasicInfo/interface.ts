@@ -36,4 +36,6 @@ export interface ArticleFormBasicInfoProps {
   };
   categories: { _id: string; categoryName: string }[];
   onInputChange: (field: keyof ArticleFormBasicInfoProps["formData"], value: string) => void;
+  isLoadingCategories?: boolean;
+  categoryError?: string | null;
 }
