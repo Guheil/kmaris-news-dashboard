@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
+import { navSections, userName } from "@/config/navItems";
 import {
   ArticlesPageProps,
   // Removed most; now imported from subs
@@ -402,52 +403,8 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [
-              {
-                icon: <Home size={20} />,
-                text: "Dashboard",
-                href: "/news-dashboard",
-              },
-            ],
-          },
-          {
-            title: "News Management",
-            items: [
-              {
-                icon: <FileText size={20} />,
-                text: "All Articles",
-                href: "/news-dashboard/articles",
-                active: true,
-              },
-              {
-                icon: <Plus size={20} />,
-                text: "Create Article",
-                href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <BarChart3 size={20} />,
-                text: "Analytics",
-                href: "/news-dashboard/analytics",
-                active: false,
-              },
-            ],
-          },
-          {
-            title: "Preview",
-            items: [
-              {
-                icon: <EyeIcon size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-                active: false,
-              },
-            ],
-          },
-        ]}
-        userName="Kmaris Admin"
+        navSections={navSections}
+        userName={userName}
         userRole="Editor"
         userInitials="JD"
         collapsible={!isMobile}
