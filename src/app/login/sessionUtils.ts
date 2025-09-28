@@ -1,13 +1,5 @@
-export interface User {
-  email: string;
-  role: string;
-}
 
-export interface Session {
-  user: User;
-  sessionId: string;
-  expiresAt: number;
-}
+import { User, Session } from "./interface";
 
 export function createSession(user: User, expiresInMs: number): void {
   const sessionId = `session-${Math.random().toString(36).substring(2)}`;

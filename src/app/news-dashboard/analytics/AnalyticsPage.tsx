@@ -195,70 +195,26 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         onClick={handleOverlayClick}
       />
       <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [
-              {
-                icon: <Home size={20} />,
-                text: "Dashboard",
-                href: "/news-dashboard",
-              },
-            ],
-          },
-          {
-            title: "News Management",
-            items: [
-              {
-                icon: <FileText size={20} />,
-                text: "All Articles",
-                href: "/news-dashboard/articles",
-              },
-              {
-                icon: <Plus size={20} />,
-                text: "Create Article",
-                href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <BarChart3 size={20} />,
-                text: "Analytics",
-                href: "/news-dashboard/analytics",
-                active: true,
-              },
-            ],
-          },
-          {
-            title: "Preview",
-            items: [
-              {
-                icon: <EyeIcon size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-                active: false,
-              },
-            ],
-          },
-        ]}
-        userName="Kmaris Admin"
-        userRole="Editor"
-        userInitials="KA"
-        collapsible={!isMobile}
-        navItems={[]}
-      />
-      <Header
-        title="Analytics"
-        onMenuToggle={onSidebarToggle}
-        onSearch={() => {}}
-        userName="Kmaris Admin"
-        userRole="Editor"
-        userInitials="KA"
-        notifications={3}
-        isSidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-        onLogout={handleLogout}
-      />
+               isOpen={sidebarOpen}
+               onToggle={onSidebarToggle}
+               navSections={navSections}
+               userName={userName}
+               userRole={userRoleConfig}
+               userInitials={userInitialConfig}
+               collapsible={!isMobile}
+               navItems={[]}
+             />
+             <Header
+               title="View Article"
+               onMenuToggle={onSidebarToggle}
+               onSearch={() => {}}
+               userName={userName}
+               userRole={userRoleConfig}
+               userInitials={userInitialConfig}
+               notifications={3}
+               isSidebarOpen={sidebarOpen}
+               isMobile={isMobile}
+             />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <Filters timeRange={timeRange} onTimeRangeChange={setTimeRange} />
         <MetricsGrid analyticsData={analyticsData} />

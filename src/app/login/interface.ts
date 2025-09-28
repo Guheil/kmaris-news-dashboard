@@ -7,3 +7,14 @@ export interface LoginProps {
   isLoading?: boolean;
   error?: string | null;
 }
+
+export interface User {
+  email: string;
+  role: string;
+}
+
+export interface Session {
+  user: User;
+  sessionId: string;
+  expiresAt: number;
+}

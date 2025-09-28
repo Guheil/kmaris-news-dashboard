@@ -62,20 +62,22 @@ export const ArticleComponent = styled("div")<{ viewMode: "grid" | "list"; isArc
     backgroundColor: theme.palette.grey[50],
     border: `1px solid ${theme.palette.divider}`,
 
-    "&::before": {
-      content: '"ARCHIVED"',
-      position: "absolute",
-      top: "12px",
-      right: "12px",
-      backgroundColor: theme.palette.warning.main,
-      color: theme.palette.warning.dark,
-      fontSize: "10px",
-      fontWeight: 700,
-      padding: "4px 8px",
-      borderRadius: "4px",
-      zIndex: 2,
-      letterSpacing: "0.5px",
-    },
+    ...(viewMode === "grid" && {
+      "&::before": {
+        content: '"ARCHIVED"',
+        position: "absolute",
+        top: "12px",
+        right: "12px",
+        backgroundColor: theme.palette.warning.main,
+        color: theme.palette.warning.dark,
+        fontSize: "10px",
+        fontWeight: 700,
+        padding: "4px 8px",
+        borderRadius: "4px",
+        zIndex: 2,
+        letterSpacing: "0.5px",
+      },
+    }),
   }),
 
   "&:hover": {
@@ -83,7 +85,6 @@ export const ArticleComponent = styled("div")<{ viewMode: "grid" | "list"; isArc
     transform: isArchived ? "none" : "translateY(-4px)",
   },
 }));
-
 export const ArticleContent = styled("div")<{ viewMode: "grid" | "list" }>(({ theme, viewMode }) => ({
   padding: "20px",
   display: "flex",

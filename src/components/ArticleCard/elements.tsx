@@ -28,9 +28,9 @@ export const TopSection = styled("div")(({ theme }) => ({
   gridTemplateColumns: '1fr',
   gap: theme.spacing(4),
   marginBottom: theme.spacing(6),
-  width: '100%', // Ensure full width of Container
+  width: '100%', 
   [theme.breakpoints.up('lg')]: {
-    gridTemplateColumns: '1.5fr 1fr', // Make FeaturedArticleRoot wider than ArticleList
+    gridTemplateColumns: '1.5fr 1fr', 
   },
 }));
 
