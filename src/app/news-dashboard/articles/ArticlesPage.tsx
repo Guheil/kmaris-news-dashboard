@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Header } from "@/components/header/Header";
-import { navSections, userName } from "@/config/navItems";
+import { navSections, userInitialConfig, userName, userRoleConfig } from "@/config/navItems";
 import {
   ArticlesPageProps,
   // Removed most; now imported from subs
@@ -400,28 +400,27 @@ export const ArticlesPage: FC<ArticlesPageProps> = ({
         onClick={handleOverlayClick}
       />
 
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={onSidebarToggle}
-        navSections={navSections}
-        userName={userName}
-        userRole="Editor"
-        userInitials="JD"
-        collapsible={!isMobile}
-        navItems={[]}
-      />
-
-      <Header
-        title="All Articles"
-        onMenuToggle={onSidebarToggle}
-        onSearch={handleSearch}
-        userName="Kmaris Admin"
-        userRole="Editor"
-        userInitials="JD"
-        notifications={3}
-        isSidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-      />
+     <Sidebar
+             isOpen={sidebarOpen}
+             onToggle={onSidebarToggle}
+             navSections={navSections}
+             userName={userName}
+             userRole={userRoleConfig}
+             userInitials={userInitialConfig}
+             collapsible={!isMobile}
+             navItems={[]}
+           />
+<Header
+  title="View Article"
+  onMenuToggle={onSidebarToggle}
+  onSearch={handleSearch} // Connect to handleSearch
+  userName={userName}
+  userRole={userRoleConfig}
+  userInitials={userInitialConfig}
+  notifications={3}
+  isSidebarOpen={sidebarOpen}
+  isMobile={isMobile}
+/>
 
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         {(loading || categoriesLoading) && (

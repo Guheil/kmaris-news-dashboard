@@ -54,6 +54,7 @@ import {
   EmptyStateText,
   EmptyStateSubtext,
 } from "./elements";
+import { navSections, userInitialConfig, userName, userRoleConfig } from "@/config/navItems";
 
 export const ManageCategoriesPage: FC<ManageCategoriesPageProps> = ({
   sidebarOpen,
@@ -247,69 +248,27 @@ export const ManageCategoriesPage: FC<ManageCategoriesPageProps> = ({
         show={isMobile && sidebarOpen}
         onClick={handleOverlayClick}
       />
-      <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [
-              {
-                icon: <Home size={20} />,
-                text: "Dashboard",
-                href: "/news-dashboard",
-              },
-            ],
-          },
-          {
-            title: "News Management",
-            items: [
-              {
-                icon: <FileText size={20} />,
-                text: "All Articles",
-                href: "/news-dashboard/articles",
-              },
-              {
-                icon: <Plus size={20} />,
-                text: "Create Article",
-                href: "/news-dashboard/create-article",
-                },
-              {
-                icon: <BarChart3 size={20} />,
-                text: "Analytics",
-                href: "/news-dashboard/analytics",
-              },
-              
-            ],
-            
-          },
-          {
-            title: "Preview",
-            items: [
-              {
-                icon: <EyeIcon size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-              },
-            ],
-          },
-        ]}
-        userName="John Doe"
-        userRole="Editor"
-        userInitials="JD"
-        collapsible={!isMobile}
-        navItems={[]}
-      />
-      <Header
-        title="Manage Categories"
-        onMenuToggle={onSidebarToggle}
-        userName="John Doe"
-        userRole="Editor"
-        userInitials="JD"
-        notifications={3}
-        isSidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-      />
+     <Sidebar
+             isOpen={sidebarOpen}
+             onToggle={onSidebarToggle}
+             navSections={navSections}
+             userName={userName}
+             userRole={userRoleConfig}
+             userInitials={userInitialConfig}
+             collapsible={!isMobile}
+             navItems={[]}
+           />
+           <Header
+             title="View Article"
+             onMenuToggle={onSidebarToggle}
+             onSearch={() => {}}
+             userName={userName}
+             userRole={userRoleConfig}
+             userInitials={userInitialConfig}
+             notifications={3}
+             isSidebarOpen={sidebarOpen}
+             isMobile={isMobile}
+           />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <PageContainer>
           

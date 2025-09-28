@@ -24,6 +24,7 @@ import { ViewArticleContent } from "@/components/ViewArticleContent/ViewArticleC
 import { ViewArticleControls } from "@/components/ViewArticleControls/ViewArticleControls";
 import { ViewArticleLoading } from "@/components/ViewArticleLoading/ViewArticleLoading";
 import { ViewArticleError } from "@/components/ViewArticleError/ViewArticleError";
+import { navSections, userInitialConfig, userName, userRoleConfig } from "@/config/navItems";
 
 const getVideoEmbedDetails = (url: string) => {
   const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
@@ -138,27 +139,10 @@ export const ViewArticlePage: FC<ViewArticlePagePropsInterface> = ({
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
-          },
-          {
-            title: "News Management",
-            items: [
-              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles", active: true },
-              { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
-              { icon: <BarChart3 size={20} />, text: "Analytics", href: "/news-dashboard/analytics", active: false },
-            ],
-          },
-          {
-            title: "Preview",
-            items: [{ icon: <EyeIcon size={20} />, text: "News Preview", href: "/news-preview", active: false }],
-          },
-        ]}
-        userName="John Doe"
-        userRole="Editor"
-        userInitials="JD"
+        navSections={navSections}
+        userName={userName}
+        userRole={userRoleConfig}
+        userInitials={userInitialConfig}
         collapsible={!isMobile}
         navItems={[]}
       />
@@ -166,9 +150,9 @@ export const ViewArticlePage: FC<ViewArticlePagePropsInterface> = ({
         title="View Article"
         onMenuToggle={onSidebarToggle}
         onSearch={() => {}}
-        userName="John Doe"
-        userRole="Editor"
-        userInitials="JD"
+        userName={userName}
+        userRole={userRoleConfig}
+        userInitials={userInitialConfig}
         notifications={3}
         isSidebarOpen={sidebarOpen}
         isMobile={isMobile}

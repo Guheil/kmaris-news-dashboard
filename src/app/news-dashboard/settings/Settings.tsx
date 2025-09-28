@@ -52,6 +52,7 @@ import {
 import { getSession, clearSession } from "@/app/login/sessionUtils";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { navSections, userName, userRoleConfig, userInitialConfig } from "@/config/navItems";
 
 const SettingsCard: FC<SettingCardProps> = ({
   title,
@@ -142,71 +143,26 @@ export const SettingsDashboard: FC<SettingsDashboardProps> = ({
         onClick={handleOverlayClick}
       />
       <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [
-              {
-                icon: <Home size={20} />,
-                text: "Dashboard",
-                href: "/news-dashboard",
-                active: false,
-              },
-            ],
-          },
-          {
-            title: "News Management",
-            items: [
-              {
-                icon: <FileText size={20} />,
-                text: "All Articles",
-                href: "/news-dashboard/articles",
-              },
-              {
-                icon: <Plus size={20} />,
-                text: "Create Article",
-                href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <BarChart3 size={20} />,
-                text: "Analytics",
-                href: "/news-dashboard/analytics",
-                active: false,
-              },
-            ],
-          },
-          {
-            title: "Preview",
-            items: [
-              {
-                icon: <Eye size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-                active: false,
-              },
-            ],
-          },
-        ]}
-        userName="Kmaris Admin"
-        userRole="Administrator"
-        userInitials="KA"
-        collapsible={!isMobile}
-        navItems={[]}
-      />
-      <Header
-        title="Settings"
-        onMenuToggle={onSidebarToggle}
-        onSearch={handleSearch}
-        searchValue={searchQuery}
-        userName="Kmaris Admin"
-        userRole="Administrator"
-        userInitials="KA"
-        notifications={3}
-        isSidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-      />
+              isOpen={sidebarOpen}
+              onToggle={onSidebarToggle}
+              navSections={navSections}
+              userName={userName}
+              userRole={userRoleConfig}
+              userInitials={userInitialConfig}
+              collapsible={!isMobile}
+              navItems={[]}
+            />
+            <Header
+              title="View Article"
+              onMenuToggle={onSidebarToggle}
+              onSearch={() => {}}
+              userName={userName}
+              userRole={userRoleConfig}
+              userInitials={userInitialConfig}
+              notifications={3}
+              isSidebarOpen={sidebarOpen}
+              isMobile={isMobile}
+            />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <DashboardGrid>
           {/* Simple Under Development Card */}

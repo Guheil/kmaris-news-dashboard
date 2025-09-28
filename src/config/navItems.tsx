@@ -44,3 +44,5 @@ export const navSections = [
 ];
 
 export const userName = "Kmaris Admin";
+export const userInitialConfig = "KA";
+export const userRoleConfig = "Administrator";

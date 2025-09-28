@@ -23,6 +23,7 @@ import { NewsTable } from "@/components/NewsTable/NewsTable";
 import { QuickActions } from "@/components/QuickActions/QuickActions";
 import { RecentActivity } from "@/components/RecentActivity/RecentActivity";
 import { DashboardCard } from "@/components/DashboardCard/DashboardCard";
+import { navSections, userName, userRoleConfig, userInitialConfig } from "@/config/navItems";
 
 export const NewsDashboard: FC<DashboardProps> = ({
   sidebarOpen,
@@ -193,71 +194,26 @@ export const NewsDashboard: FC<DashboardProps> = ({
         onClick={handleOverlayClick}
       />
       <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [
-              {
-                icon: <Home size={20} />,
-                text: "Dashboard",
-                href: "/news-dashboard",
-                active: true,
-              },
-            ],
-          },
-          {
-            title: "News Management",
-            items: [
-              {
-                icon: <FileText size={20} />,
-                text: "All Articles",
-                href: "/news-dashboard/articles",
-              },
-              {
-                icon: <FileText size={20} />,
-                text: "Create Article",
-                href: "/news-dashboard/create-article",
-              },
-              {
-                icon: <BarChart3 size={20} />,
-                text: "Analytics",
-                href: "/news-dashboard/analytics",
-                active: false,
-              },
-            ],
-          },
-          {
-            title: "Preview",
-            items: [
-              {
-                icon: <EyeIcon size={20} />,
-                text: "News Preview",
-                href: "/news-preview",
-                active: false,
-              },
-            ],
-          },
-        ]}
-        userName="Kmaris Admin"
-        userRole="Editor"
-        userInitials="JD"
-        collapsible={!isMobile}
-        navItems={[]}
-      />
-      <Header
-        title="News Dashboard"
-        onMenuToggle={onSidebarToggle}
-        onSearch={handleSearch}
-        searchValue={searchQuery}
-        userName="Kmaris Admin"
-        userRole="Editor"
-        userInitials="JD"
-        notifications={3}
-        isSidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-      />
+              isOpen={sidebarOpen}
+              onToggle={onSidebarToggle}
+              navSections={navSections}
+              userName={userName}
+              userRole={userRoleConfig}
+              userInitials={userInitialConfig}
+              collapsible={!isMobile}
+              navItems={[]}
+            />
+            <Header
+              title="View Article"
+              onMenuToggle={onSidebarToggle}
+              onSearch={() => {}}
+              userName={userName}
+              userRole={userRoleConfig}
+              userInitials={userInitialConfig}
+              notifications={3}
+              isSidebarOpen={sidebarOpen}
+              isMobile={isMobile}
+            />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         {isLoading && (
           <NoResults>

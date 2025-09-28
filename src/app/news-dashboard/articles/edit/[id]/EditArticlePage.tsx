@@ -33,6 +33,7 @@ import {
   EditArticleFormData,
   Category,
 } from "./interface";
+import { navSections, userName, userRoleConfig, userInitialConfig } from "@/config/navItems";
 
 export const EditArticlePage: React.FC<EditArticlePageProps> = ({
   sidebarOpen,
@@ -309,43 +310,26 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
       <EditArticleRoot>
         <SidebarOverlay show={isMobile && sidebarOpen} onClick={handleOverlayClick} />
         <Sidebar
-          isOpen={sidebarOpen}
-          onToggle={onSidebarToggle}
-          navSections={[
-            {
-              title: "Overview",
-              items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
-            },
-            {
-              title: "News Management",
-              items: [
-                { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
-                { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
-                { icon: <BarChart3 size={20} />, text: "Analytics", href: "/news-dashboard/analytics", active: false },
-              ],
-            },
-            {
-              title: "Preview",
-              items: [{ icon: <EyeIcon size={20} />, text: "News Preview", href: "/news-preview", active: false }],
-            },
-          ]}
-          userName="John Doe"
-          userRole="Editor"
-          userInitials="JD"
-          collapsible={!isMobile}
-          navItems={[]}
-        />
-        <Header
-          title="Edit Article"
-          onMenuToggle={onSidebarToggle}
-          onSearch={handleSearch}
-          userName="John Doe"
-          userRole="Editor"
-          userInitials="JD"
-          notifications={3}
-          isSidebarOpen={sidebarOpen}
-          isMobile={isMobile}
-        />
+                isOpen={sidebarOpen}
+                onToggle={onSidebarToggle}
+                navSections={navSections}
+                userName={userName}
+                userRole={userRoleConfig}
+                userInitials={userInitialConfig}
+                collapsible={!isMobile}
+                navItems={[]}
+              />
+              <Header
+                title="View Article"
+                onMenuToggle={onSidebarToggle} 
+                onSearch={() => {}}
+                userName={userName}
+                userRole={userRoleConfig}
+                userInitials={userInitialConfig}
+                notifications={3}
+                isSidebarOpen={sidebarOpen}
+                isMobile={isMobile}
+              />
         <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
           <LoadingState message="Loading article..." />
         </MainContent>
@@ -357,43 +341,26 @@ export const EditArticlePage: React.FC<EditArticlePageProps> = ({
     <EditArticleRoot>
       <SidebarOverlay show={isMobile && sidebarOpen} onClick={handleOverlayClick} />
       <Sidebar
-        isOpen={sidebarOpen}
-        onToggle={onSidebarToggle}
-        navSections={[
-          {
-            title: "Overview",
-            items: [{ icon: <Home size={20} />, text: "Dashboard", href: "/news-dashboard" }],
-          },
-          {
-            title: "News Management",
-            items: [
-              { icon: <FileText size={20} />, text: "All Articles", href: "/news-dashboard/articles" },
-              { icon: <Plus size={20} />, text: "Create Article", href: "/news-dashboard/create-article" },
-              { icon: <ArchiveIcon size={20} />, text: "Archive", href: "/news-dashboard/archive-news" },
-            ],
-          },
-          {
-            title: "Preview",
-            items: [{ icon: <EyeIcon size={20} />, text: "News Preview", href: "/news-preview", active: false }],
-          },
-        ]}
-        userName="John Doe"
-        userRole="Editor"
-        userInitials="JD"
-        collapsible={!isMobile}
-        navItems={[]}
-      />
-      <Header
-        title="Edit Article"
-        onMenuToggle={onSidebarToggle}
-        onSearch={handleSearch}
-        userName="John Doe"
-        userRole="Editor"
-        userInitials="JD"
-        notifications={3}
-        isSidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-      />
+              isOpen={sidebarOpen}
+              onToggle={onSidebarToggle}
+              navSections={navSections}
+              userName={userName}
+              userRole={userRoleConfig}
+              userInitials={userInitialConfig}
+              collapsible={!isMobile}
+              navItems={[]}
+            />
+            <Header
+              title="View Article"
+              onMenuToggle={onSidebarToggle}
+              onSearch={() => {}}
+              userName={userName}
+              userRole={userRoleConfig}
+              userInitials={userInitialConfig}
+              notifications={3}
+              isSidebarOpen={sidebarOpen}
+              isMobile={isMobile}
+            />
       <MainContent sidebarOpen={sidebarOpen} isMobile={isMobile}>
         <FormContainer>
           <FormHeader>

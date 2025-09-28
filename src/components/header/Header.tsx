@@ -1,3 +1,4 @@
+// components/header/Header.tsx
 "use client";
 
 import { FC, useState, useRef, useEffect } from "react";
@@ -97,6 +98,16 @@ export const Header: FC<HeaderProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Update search query and call onSearch on every input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (onSearch) {
+      onSearch(query); // Call onSearch for real-time updates
+    }
+  };
+
+  // Optional: Keep form submission for accessibility (e.g., Enter key)
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch && searchQuery.trim()) {
@@ -172,7 +183,7 @@ export const Header: FC<HeaderProps> = ({
               type="text"
               placeholder="Search news, articles, categories..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange} // Update to use handleSearchChange
             />
             <SearchIcon>
               <Search size={20} />
@@ -240,3 +251,5 @@ export const Header: FC<HeaderProps> = ({
     </HeaderRoot>
   );
 };
+
+export default Header;
