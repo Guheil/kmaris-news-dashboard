@@ -225,12 +225,12 @@ export const Logs: FC<LogsProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const logsPerPage = 5;
 
-  useEffect(() => {
-    const session = getSession();
-    if (!session) {
-      router.push("/");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const session = getSession();
+  //   if (!session) {
+  //     router.push("/");
+  //   }
+  // }, [router]);
 
   useEffect(() => {
     // Simulate API loading
